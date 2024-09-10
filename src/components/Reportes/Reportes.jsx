@@ -1,12 +1,12 @@
 import React from 'react';
-const Configuracion = () => {
+const Reportes = () => {
   return (
     <div className="ventas-container">
       <div className="headerTitle">
-        <h2>CONFIGURACIÓN</h2>
+        <h2>REPORTES</h2>
       </div>
     </div>
   );
 };
 
-export default Configuracion;
+export default Reportes;

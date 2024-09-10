@@ -1,67 +1,123 @@
+/* Estilos base del sidebar */
 .sidebar {
-  background-color: #FF6E31;
-  width: 250px;
-  max-width: 30%;
-  min-width: 60px;
-  height: 100vh;
-  transition: width 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-/* ESTE SIDEBAR se sobrepone
-.sidebar {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  height: 100%;
+  height: 100vh;
   background-color: #FF6E31;
   transition: width 0.3s ease;
+  overflow: hidden;
   z-index: 1000;
 }
-*/
+
+/* Estados del sidebar */
+.sidebar.expanded {
+  width: 250px;
+}
 
 .sidebar.collapsed {
   width: 60px;
 }
 
+/* Estilos del botón de toggle */
 .menu-toggle {
-  padding: 10px;
+  padding: 20px;
   cursor: pointer;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+.menu-icon {
+  transition: transform 0.3s ease;
+}
+
+.sidebar.expanded .menu-icon {
+  transform: rotate(90deg);
+}
+
+/* Estilos de la lista de menú */
 .sidebar ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
-.sidebar li {
-  margin: 0;
-}
-
+/* Estilos de los ítems del menú */
 .menu-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 10px;
+  padding: 15px 0;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
+.menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos de los íconos */
 .sidebar-icon {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
+  margin-top: 5px;
+  transition: filter 0.3s ease; /* Añadido para suavizar el cambio de color en los íconos */
 }
 
+/* Estilos del texto del menú */
 .menu-item span {
-  margin-left: 10px;
+  font-size: 12px;
+  margin-bottom: 5px;
+  text-align: center;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: #000;
 }
 
+/* Estados activos */
+.menu-item.active {
+  background-color: #000;
+}
+
+.menu-item.active span {
+  color: #fff !important; /* Fuerza el color blanco para el texto del ítem activo */
+}
+
+.menu-item.active .sidebar-icon {
+  filter: invert(1) !important; /* Invierte los colores del ícono en el ítem activo */
+}
+
+/* Comportamiento en sidebar colapsado */
 .sidebar.collapsed .menu-item span {
   display: none;
+}
+
+.sidebar.collapsed .menu-item.active .sidebar-icon {
+  filter: invert(1) !important; /* Asegura que los íconos cambien en la barra colapsada */
+}
+
+/* Asegurar color de texto correcto en estado activo */
+.sidebar .menu-item.active span {
+  color: #fff !important; /* Refuerzo del color blanco en ítems activos */
+}
+
+/* Asegurar visibilidad del texto en sidebar expandido */
+.sidebar.expanded .menu-item span {
+  display: block;
+}
+
+/* Asegurar que el texto e íconos cambien de color correctamente en sidebar expandido */
+.sidebar.expanded .menu-item.active span {
+  display: block;
+  color: #fff !important;
+}
+
+.sidebar.expanded .menu-item.active .sidebar-icon {
+  filter: invert(1) !important;
+}
+
+/* Ajuste del comportamiento al hacer hover en un ítem expandido */
+.sidebar.expanded .menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.1);
 }

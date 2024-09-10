@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import './Ventas.css';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
 import iconCodigoBarras from '../../assets/images/svg/escaneoBarras.svg';
-// import iconCodigoBarras from '';
-// import iconCodigoBarras from '';
 const Ventas = () => {
   const [formData, setFormData] = useState({
     producto: '',
@@ -31,7 +29,9 @@ const Ventas = () => {
 
   return (
     <div className="ventas-container">
-      <h2>VENTAS</h2>
+      <div className="headerTitle">
+        <h2>VENTAS</h2>
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="form-group">

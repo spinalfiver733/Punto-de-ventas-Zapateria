@@ -1,33 +1,42 @@
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Ventas from '../components/Ventas/Ventas';
+import Inventario from '../components/Inventario/Inventario'
+import Reportes from '../components/Reportes/Reportes';
+import Configuracion from '../components/Configuracion/Configuracion'
 import './MainLayout.css';
 
 const MainLayout = () => {
   const [activeComponent, setActiveComponent] = useState('ventas');
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   const renderComponent = () => {
     switch(activeComponent) {
       case 'ventas':
-        return <Ventas />;
+        return <Ventas/>;
       case 'inventario':
         // return <Inventario />;
-        return <h2>Inventario (Componente por implementar)</h2>;
+        return <Inventario/>;
       case 'reportes':
         // return <Reportes />;
-        return <h2>Reportes (Componente por implementar)</h2>;
+        return <Reportes/>;
       case 'configuracion':
         // return <Configuracion />;
-        return <h2>Configuración (Componente por implementar)</h2>;
+        return <Configuracion/>;
       default:
-        return <Ventas />; // Cambiamos esto para que siempre muestre algo válido
+        return <Ventas />;
     }
   };
 
   return (
     <div className="main-layout">
-      <Sidebar setActiveComponent={setActiveComponent} />
-      <main className="content">
+      <Sidebar 
+        setActiveComponent={setActiveComponent}
+        activeComponent={activeComponent}
+        isExpanded={isSidebarExpanded}
+        setIsExpanded={setIsSidebarExpanded}
+      />
+      <main className="content" style={{ marginLeft: isSidebarExpanded ? '250px' : '60px' }}>
         {renderComponent()}
       </main>
     </div>

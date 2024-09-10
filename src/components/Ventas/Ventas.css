@@ -70,3 +70,21 @@ select {
 .btn-agregar:hover {
   background-color: #e85a1f;
 }
+
+.headerTitle {
+  background: linear-gradient(
+    to right, 
+    white, 
+    #FF6E31 10%, 
+    #FF6E31 90%, 
+    white
+  );
+  padding: 1px;
+  text-align: center; /* Para centrar el texto */
+  margin-bottom: 30px;
+}
+
+.headerTitle h2 {
+  margin: 10px 0; /* Ajusta según necesites para el espaciado vertical */
+  color: white; /* Para asegurar que el texto sea legible */
+}
