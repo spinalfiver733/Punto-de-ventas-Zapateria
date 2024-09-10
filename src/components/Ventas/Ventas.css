@@ -1,84 +1,72 @@
 .ventas-container {
-    width:100%;
-    height: 100%;
-    max-width: 2000px;
-    background-color: #f0f0f0;
-    padding: 1rem;
-  }
-  
-  .form-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-  }
-  
-  .form-group {
-    flex: 1;
-    margin-right: 10px;
-  }
-  
-  .form-group:last-child {
-    margin-right: 0;
-  }
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
 
-  
-  .form-group {
-    flex: 1 1 calc(50% - 0.5rem);
-    min-width: 200px;
-  }
-  
-  select, input {
-    width: 100%;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
+.form-group {
+  width: 48%; /* Ajusta este valor según necesites */
+}
 
-  button {
-    width: 50%;
-  }
-  
-  @media (max-width: 768px) {
-    .form-group {
-      flex: 1 1 100%;
-    }
-  }
-/**********************************/
-  
-  
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  .btn-agregar {
-    display: flex;
-    align-items: center; /* Centra verticalmente el contenido del botón */
-    justify-content: center; /* Opcional: centra horizontalmente el contenido */
-    padding: 10px 20px; /* Ajusta el padding según sea necesario */
-    background-color: #FF6E31;
-    color: black; /* Color del texto */
-    border: none; /* Sin borde */
-    border-radius: 5px; /* Bordes redondeados */
-    cursor: pointer; /* Cambia el cursor a pointer */
-  }
-  
-  .icono-agregar {
-    margin-left: 8px; /* Espacio entre el texto y la imagen */
-    width: 25px;
-    height: 25px;
-    display: block; /* Asegura que la imagen se comporte como un bloque dentro del flexbox */
-  }
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+  text-align: left;
+}
 
-  .codigoBarras{
-    height:50px;
-    width: 50px;
-  }
+select, input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  font-size: 16px;
+}
 
-  .iconos-accion {
-    display: flex;
-    justify-content: flex-end;
-  }
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position-x: 98%;
+  background-position-y: 50%;
+}
 
-  
+.btn-agregar {
+  background-color: #FF6E31;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px; /* Ajusta según necesites */
+  margin: 20px auto 0;
+}
+
+.btn-agregar img {
+  width: 20px; /* Ajusta el tamaño del icono */
+  height: 20px;
+  margin-right: 10px;
+}
+
+.btn-agregar:hover {
+  background-color: #e85a1f;
+}

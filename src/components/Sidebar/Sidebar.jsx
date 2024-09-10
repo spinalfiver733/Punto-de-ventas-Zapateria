@@ -7,8 +7,9 @@ import iconoReportes from '../../assets/images/svg/reporteNegro.svg';
 import iconoMenu from '../../assets/images/svg/menu.svg';
 
 const Sidebar = ({ setActiveComponent }) => {
-  const [activeItem, setActiveItem] = useState('menu');
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [activeItem, setActiveItem] = useState('');
+  
 
   const menuItems = [
     { id: 'ventas', icon: iconVentas, text: 'VENTAS' },
@@ -19,29 +20,22 @@ const Sidebar = ({ setActiveComponent }) => {
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
-    setActiveItem('menu');
-    setActiveComponent('menu');
-  };
-
-  const handleItemClick = (id) => {
-    setActiveItem(id);
-    setActiveComponent(id);
   };
 
   return (
     <nav className={`sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}>
-      <div 
-        className={`menu-toggle ${activeItem === 'menu' ? 'active' : ''}`} 
-        onClick={toggleSidebar}
-      >
-        <img src={iconoMenu} alt="Toggle menu" className="sidebar-icon menu-icon" />
+      <div className="menu-toggle" onClick={toggleSidebar}>
+        <img src={iconoMenu} alt="Toggle menu" className="sidebar-icon" />
       </div>
       <ul>
         {menuItems.map((item) => (
           <li key={item.id}>
             <div 
               className={`menu-item ${activeItem === item.id ? 'active' : ''}`}
-              onClick={() => handleItemClick(item.id)}
+              onClick={() => {
+                setActiveItem(item.id);
+                setActiveComponent(item.id);
+              }}
             >
               <img src={item.icon} alt={item.text} className="sidebar-icon" />
               {isExpanded && <span>{item.text}</span>}

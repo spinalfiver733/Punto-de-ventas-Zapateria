@@ -36,14 +36,14 @@ const Ventas = () => {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="producto">Producto:</label>
-            <select name="producto" value={formData.producto} onChange={handleChange}>
+            <select id="producto" name="producto" value={formData.producto} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
               {/* Opciones de productos */}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="talla">Talla:</label>
-            <select name="talla" value={formData.talla} onChange={handleChange}>
+            <select id="talla" name="talla" value={formData.talla} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
               {/* Opciones de tallas */}
             </select>
@@ -52,14 +52,14 @@ const Ventas = () => {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="modelo">Modelo:</label>
-            <select name="modelo" value={formData.modelo} onChange={handleChange}>
+            <select id="modelo" name="modelo" value={formData.modelo} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
               {/* Opciones de modelos */}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="vendedor">Vendedor:</label>
-            <select name="vendedor" value={formData.vendedor} onChange={handleChange}>
+            <select id="vendedor" name="vendedor" value={formData.vendedor} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
               {/* Opciones de vendedores */}
             </select>
@@ -68,34 +68,30 @@ const Ventas = () => {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="color">Color:</label>
-            <select name="color" value={formData.color} onChange={handleChange}>
+            <select id="color" name="color" value={formData.color} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
               {/* Opciones de colores */}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="precio">Precio:</label>
-            <input type="number" name="precio" value={formData.precio} onChange={handleChange} />
+            <input type="number" id="precio" name="precio" value={formData.precio} onChange={handleChange} />
           </div>
         </div>
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="metodoPago">Método de pago:</label>
-            <select name="metodoPago" value={formData.metodoPago} onChange={handleChange}>
+            <select id="metodoPago" name="metodoPago" value={formData.metodoPago} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
               {/* Opciones de métodos de pago */}
             </select>
           </div>
         </div>
         <button type="submit" className="btn-agregar">
-        <img src={iconAgregar} alt="Icono agregar" className="icono-agregar"/>
-        AGREGAR
+          <img src={iconAgregar} alt="Agregar producto" />
+          AGREGAR
         </button>
-
       </form>
-      <div className="iconos-accion">
-        <img src={iconCodigoBarras} alt="Escanear Codigo de Barras" className="codigoBarras"/>
-      </div>
     </div>
   );
 };
