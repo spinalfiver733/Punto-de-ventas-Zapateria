@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './Ventas.css';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
-import iconCodigoBarras from '../../assets/images/svg/escaneoBarras.svg';
+//import iconCodigoBarras from '../../assets/images/svg/escaneoBarras.svg';
 const Ventas = () => {
   const [formData, setFormData] = useState({
     producto: '',

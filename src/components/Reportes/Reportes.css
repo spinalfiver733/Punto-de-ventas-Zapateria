@@ -1,0 +1,11 @@
+.icon-container {
+    display: flex;
+    justify-content: space-between;
+    width: 50%; /* O el ancho que necesites */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+}
+
+.icon-file {
+    width: 25px;
+    height: 25px;
+}
