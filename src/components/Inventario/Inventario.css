@@ -1,8 +1,73 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
 .inventario-container {
+  font-family: 'Roboto', sans-serif;
+  color: #333;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.headerTitle {
+  background-color: #FF6E31;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.headerTitle h2 {
+  color: white;
+  text-align: center;
+  margin: 0;
+  font-weight: 500;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+thead {
+  background-color: #f8f9fa;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;/*Color de las lineas**/
+}
+
+th {
+  font-weight: 500;
+  color: #333;
+  text-transform: uppercase;
+  font-size: 0.9em;
+}
+
+tr:nth-child(even) {
+  background-color: #ffb99b;/*color de las otras lineas*/
+}
+
+tr:hover {
+  background-color: #f1f3f5;
+}
+
+td {
+  font-weight: 300;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 0.9em;
+  }
+
+  th, td {
+    padding: 8px 10px;
+  }
 }
