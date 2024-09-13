@@ -3,15 +3,16 @@ import axios from 'axios';
 import './Inventario.css';
 
 const Inventario = () => {
-  const [ventas, setVentas] = useState([]);
+  const [inventario, setInventario] = useState([]);
 
   useEffect(() => {
     const fetchVentas = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/inventario');
-        setVentas(response.data);
+        setInventario(response.data);
+        console.log(response);
       } catch (error) {
-        console.error('Error fetching ventas:', error);
+        console.log('Error fetching inventario.');
       }
     };
 
@@ -37,7 +38,7 @@ const Inventario = () => {
           </tr>
         </thead>
         <tbody>
-          {ventas.map((venta) => (
+          {inventario.map((venta) => (
             <tr key={venta.PK_PRODUCTO}>
               <td>{venta.PK_PRODUCTO}</td>
               <td>{venta.TALLA}</td>
