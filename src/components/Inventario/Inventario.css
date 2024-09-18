@@ -71,3 +71,29 @@ td {
     padding: 8px 10px;
   }
 }
+
+.inventario-nav {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.nav-item {
+  flex: 1;
+  padding: 10px 15px;
+  background-color: #FF6E31;
+  color: #000;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+ 
+
+.nav-item.active {
+  background-color: black;
+  color: white;
+}
+
+.nav-item:hover {
+  opacity: 0.9;
+}

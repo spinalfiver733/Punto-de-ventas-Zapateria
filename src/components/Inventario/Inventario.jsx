@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Inventario.css';
+import InventarioLista from './InventarioLista';
+import AgregarInventario from './AgregarInventario';
 
 const Inventario = () => {
   const [inventario, setInventario] = useState([]);
+  const [vistaActual, setVistaActual] = useState('lista'); // 'lista' o 'agregar'
+
+  const fetchInventario = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/inventario');
+      setInventario(response.data);
+    } catch (error) {
+      console.log('Error fetching inventario:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchVentas = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/inventario');
-        setInventario(response.data);
-        console.log(response);
-      } catch (error) {
-        console.log('Error fetching inventario.');
-      }
-    };
-
-    fetchVentas();
+    fetchInventario();
   }, []);
 
   return (
@@ -24,34 +26,25 @@ const Inventario = () => {
       <div className="headerTitle">
         <h2>INVENTARIO</h2>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Talla</th>
-            <th>Modelo</th>
-            <th>Vendedor</th>
-            <th>Color</th>
-            <th>Precio</th>
-            <th>Método de Pago</th>
-            <th>Fecha de Venta</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventario.map((venta) => (
-            <tr key={venta.PK_PRODUCTO}>
-              <td>{venta.PK_PRODUCTO}</td>
-              <td>{venta.TALLA}</td>
-              <td>{venta.MODELO}</td>
-              <td>{venta.VENDEDOR}</td>
-              <td>{venta.COLOR}</td>
-              <td>{venta.PRECIO}</td>
-              <td>{venta.METODO_PAGO}</td>
-              <td>{new Date(venta.FECHA_VENTA).toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="inventario-nav">
+        <div 
+          onClick={() => setVistaActual('lista')}
+          className={`nav-item ${vistaActual === 'lista' ? 'active' : ''}`}
+        >
+          Ver Inventario
+        </div>
+        <div 
+          onClick={() => setVistaActual('agregar')}
+          className={`nav-item ${vistaActual === 'agregar' ? 'active' : ''}`}
+        >
+          Agregar al Inventario
+        </div>
+      </div>
+      {vistaActual === 'lista' ? (
+        <InventarioLista inventario={inventario} />
+      ) : (
+        <AgregarInventario onProductoAgregado={fetchInventario} />
+      )}
     </div>
   );
 };
