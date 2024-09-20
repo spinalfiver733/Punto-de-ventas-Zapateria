@@ -88,3 +88,20 @@ select {
   margin: 10px 0; /* Ajusta según necesites para el espaciado vertical */
   color: white; /* Para asegurar que el texto sea legible */
 }
+
+
+textarea {
+    width: 100%;        /* Ancho total del contenedor padre */
+    height: 200px;      /* Altura de 200px */
+    padding: 10px;      /* Espaciado interno */
+    margin: 10px 0;     /* Espaciado externo */
+    background-color: #f0f0f0;  /* Color de fondo */
+    color: #333;                 /* Color del texto */
+    font-size: 16px;             /* Tamaño de la fuente */
+    font-family: Arial, sans-serif; /* Tipografía */
+    line-height: 1.5;            /* Altura de línea */
+}
+
+.textarea {
+  width: 98%;  /* Ancho completo */
+}
