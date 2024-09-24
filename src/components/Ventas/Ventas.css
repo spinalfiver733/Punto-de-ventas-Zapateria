@@ -24,8 +24,18 @@ label {
   text-align: left;
 }
 
-select, input {
+select {
   width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  font-size: 16px;
+}
+
+input{
+  width: 95%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -100,6 +110,7 @@ textarea {
     font-size: 16px;             /* Tamaño de la fuente */
     font-family: Arial, sans-serif; /* Tipografía */
     line-height: 1.5;            /* Altura de línea */
+    resize: vertical;
 }
 
 .textarea {

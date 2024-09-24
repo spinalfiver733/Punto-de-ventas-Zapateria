@@ -38,14 +38,12 @@ const Ventas = () => {
             <label htmlFor="modelo">Modelo:</label>
             <select id="modelo" name="modelo" value={formData.modelo} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
-              {/* Opciones de modelos */}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="color">Color:</label>
             <select id="color" name="color" value={formData.color} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
-              {/* Opciones de colores */}
             </select>
           </div>
         </div>
@@ -54,12 +52,11 @@ const Ventas = () => {
             <label htmlFor="talla">Número:</label>
             <select id="talla" name="talla" value={formData.talla} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
-              {/* Opciones de tallas */}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="precio">Precio:</label>
-            <input type="number" id="precio" name="precio" value={formData.precio} onChange={handleChange} />
+            <input type="text" id="precio" name="precio" value={formData.precio} onChange={handleChange} />
           </div>
         </div>
         <div className="form-row">
@@ -67,21 +64,19 @@ const Ventas = () => {
             <label htmlFor="vendedor">Vendedor:</label>
             <select id="vendedor" name="vendedor" value={formData.vendedor} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
-              {/* Opciones de vendedores */}
             </select>
           </div>
           <div className="form-group">
             <label htmlFor="metodoPago">Método de pago:</label>
             <select id="metodoPago" name="metodoPago" value={formData.metodoPago} onChange={handleChange}>
               <option value="">SELECCIONA UNA OPCIÓN</option>
-              {/* Opciones de métodos de pago */}
             </select>
           </div>                  
         </div>
         <div className="form-row">
           <div className="form-group textarea">
             <label htmlFor="metodoPago">Observaciones:</label>
-            <textarea rows="4" cols="50" placeholder="Escribe aquí tu texto..."></textarea>
+            <textarea rows="4" cols="50" placeholder="Escribe aquí la observación"></textarea>
           </div>
         </div>
         <button type="submit" className="btn-agregar">

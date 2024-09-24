@@ -7,8 +7,9 @@ const Reportes = () => {
         <div className="headerTitle">
           <h2>REPORTES</h2>
         </div>
-        <div className="icon-container"> {/* Nuevo contenedor */}
+        <div className="icon-container">
           <img src={iconoExcel} className="icon-file" alt="Descargar Excel"/>
+          <h1>Descargar Excel</h1>
           <img src={iconoPDF} className="icon-file" alt="Descargar PDF" />
         </div>
       </div>
