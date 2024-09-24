@@ -4,9 +4,8 @@ import iconAgregar from '../../assets/images/svg/agregar.svg';
 
 const AgregarInventario = ({ onProductoAgregado }) => {
   const [formData, setFormData] = useState({
-    producto: '',
-    talla: '',
     modelo: '',
+    numero: '',  
     color: '',
     precio: ''
   });
@@ -25,7 +24,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     setError('');
 
     // Validación básica
-    if (!formData.producto || !formData.talla || !formData.modelo || !formData.color || !formData.precio) {
+    if (!formData.numero || !formData.modelo || !formData.color || !formData.precio) {
       setError('Por favor, complete todos los campos.');
       return;
     }
@@ -34,7 +33,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       const response = await axios.post('http://localhost:5000/api/inventario', formData);
       if (response.data && response.data.id) {
         onProductoAgregado(response.data);
-        setFormData({ producto: '', talla: '', modelo: '', color: '', precio: '' });
+        setFormData({modelo: '', numero: '', color: '', precio: '' });
       } else {
         setError('Error al agregar el producto. Por favor, inténtelo de nuevo.');
       }
@@ -47,30 +46,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   return (
     <div className="agregar-inventario-container">
       <form onSubmit={handleSubmit}>
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="producto">Producto:</label>
-            <input 
-              type="text" 
-              id="producto" 
-              name="producto" 
-              value={formData.producto} 
-              onChange={handleChange} 
-              placeholder="Nombre del producto"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="talla">Talla:</label>
-            <select id="talla" name="talla" value={formData.talla} onChange={handleChange} required>
-              <option value="">SELECCIONA UNA OPCIÓN</option>
-              <option value="35">35</option>
-              <option value="36">36</option>
-              <option value="37">37</option>
-              {/* Agrega más opciones según sea necesario */}
-            </select>
-          </div>
-        </div>
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="modelo">Modelo:</label>
@@ -97,6 +72,16 @@ const AgregarInventario = ({ onProductoAgregado }) => {
         </div>
         <div className="form-row">
           <div className="form-group">
+            <label htmlFor="numero">Número:</label>
+            <select id="numero" name="numero" value={formData.numero} onChange={handleChange} required>
+              <option value="">SELECCIONA UNA OPCIÓN</option>
+              <option value="35">35</option>
+              <option value="36">36</option>
+              <option value="37">37</option>
+              {/* Agrega más opciones según sea necesario */}
+            </select>
+          </div>
+          <div className="form-group">
             <label htmlFor="precio">Precio:</label>
             <input 
               type="number" 
@@ -110,6 +95,8 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               step="0.01"
             />
           </div>
+        </div>
+        <div className="form-row">
         </div>
         {error && <div className="error-message">{error}</div>}
         <button type="submit" className="btn-agregar">
