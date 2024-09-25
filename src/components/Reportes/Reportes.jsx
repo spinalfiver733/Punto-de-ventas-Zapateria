@@ -9,7 +9,6 @@ const Reportes = () => {
         </div>
         <div className="icon-container">
           <img src={iconoExcel} className="icon-file" alt="Descargar Excel"/>
-          <h1>Descargar Excel</h1>
           <img src={iconoPDF} className="icon-file" alt="Descargar PDF" />
         </div>
       </div>
