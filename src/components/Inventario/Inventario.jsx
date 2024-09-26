@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './Inventario.css';
 import InventarioLista from './InventarioLista';
@@ -8,18 +8,25 @@ const Inventario = () => {
   const [inventario, setInventario] = useState([]);
   const [vistaActual, setVistaActual] = useState('lista'); // 'lista' o 'agregar'
 
-  const fetchInventario = async () => {
+  const fetchInventario = useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/inventario');
       setInventario(response.data);
     } catch (error) {
       console.log('Error fetching inventario:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchInventario();
-  }, []);
+  }, [fetchInventario]);
+
+  const cambiarVista = (vista) => {
+    setVistaActual(vista);
+    if (vista === 'lista') {
+      fetchInventario();
+    }
+  };
 
   return (
     <div className="inventario-container">
@@ -28,13 +35,13 @@ const Inventario = () => {
       </div>
       <div className="inventario-nav">
         <div 
-          onClick={() => setVistaActual('lista')}
+          onClick={() => cambiarVista('lista')}
           className={`nav-item ${vistaActual === 'lista' ? 'active' : ''}`}
         >
           Ver Inventario
         </div>
         <div 
-          onClick={() => setVistaActual('agregar')}
+          onClick={() => cambiarVista('agregar')}
           className={`nav-item ${vistaActual === 'agregar' ? 'active' : ''}`}
         >
           Agregar al Inventario

@@ -1,31 +1,33 @@
 import React from 'react';
 
 const InventarioLista = ({ inventario }) => {
+  const formatearFecha = (fecha) => {
+    if (!fecha) return 'Fecha no válida';
+    const opciones = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    return new Date(fecha).toLocaleDateString('es-ES', opciones);
+  };
   return (
     <table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Talla</th>
+          <th>No.</th>
           <th>Modelo</th>
-          <th>Vendedor</th>
+          <th>Talla</th>
           <th>Color</th>
           <th>Precio</th>
-          <th>Método de Pago</th>
           <th>Fecha de Venta</th>
         </tr>
       </thead>
       <tbody>
         {inventario.map((item) => (
+          
           <tr key={item.PK_PRODUCTO}>
             <td>{item.PK_PRODUCTO}</td>
-            <td>{item.TALLA}</td>
             <td>{item.MODELO}</td>
-            <td>{item.VENDEDOR}</td>
+            <td>{item.TALLA}</td>
             <td>{item.COLOR}</td>
             <td>{item.PRECIO}</td>
-            <td>{item.METODO_PAGO}</td>
-            <td>{new Date(item.FECHA_VENTA).toLocaleString()}</td>
+            <td>{formatearFecha(item.FECHA_INGRESO)}</td>
           </tr>
         ))}
       </tbody>
