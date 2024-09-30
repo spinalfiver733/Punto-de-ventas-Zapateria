@@ -116,3 +116,17 @@ textarea {
 .textarea {
   width: 98%;  /* Ancho completo */
 }
+
+.form-group .css-b62m3t-container {
+  width: 100%;
+}
+
+.form-group .css-13cymwt-control {
+  min-height: 38px;
+  border-radius: 4px;
+}
+
+.form-group .css-t3ipsp-control {
+  min-height: 38px;
+  border-radius: 4px;
+}
