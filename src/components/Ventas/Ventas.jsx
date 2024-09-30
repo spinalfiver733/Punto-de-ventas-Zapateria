@@ -53,6 +53,7 @@ const Ventas = () => {
 
   const [formData, setFormData] = useState({
     modelo: null,
+    productoId: null, // Añade esta línea
     color: null,
     numero: null,
     precio: '',
@@ -77,6 +78,15 @@ const Ventas = () => {
   }, []);
 
   const handleModeloChange = (selectedOption) => {
+    const selectedProduct = inventario.find(item => item.MODELO === selectedOption.value);
+      setFormData(prev => ({ 
+        ...prev, 
+        modelo: selectedOption, 
+        productoId: selectedProduct ? selectedProduct.PK_PRODUCTO : null,
+        color: null, 
+        numero: null, 
+        precio: '' 
+    }));
     setFormData(prev => ({ ...prev, modelo: selectedOption, color: null, numero: null, precio: '' }));
     const modeloItems = inventario.filter(item => item.MODELO === selectedOption.value);
     const uniqueColores = [...new Set(modeloItems.map(item => item.COLOR))];
@@ -119,14 +129,13 @@ const Ventas = () => {
     e.preventDefault();
     try {
       const ventaData = {
-        modelo: formData.modelo?.value,
-        color: formData.color?.value,
-        numero: formData.numero?.value,
-        precio: formData.precio,
-        vendedor: formData.vendedor?.value,
-        metodoPago: formData.metodoPago?.value,
-        observaciones: formData.observaciones
+        FK_PRODUCTO: formData.productoId, // Usa el ID del producto
+        VENDEDOR: formData.vendedor?.value,
+        METODO_PAGO: formData.metodoPago?.value,
+        OBSERVACIONES: formData.observaciones,
+        PRECIO: formData.precio
       };
+      console.log(ventaData);
       const response = await axios.post('http://localhost:5000/api/ventas', ventaData);
       console.log('Venta registrada:', response.data);
       // Aquí puedes agregar lógica adicional, como limpiar el formulario o mostrar un mensaje de éxito
