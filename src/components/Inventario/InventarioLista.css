@@ -1,0 +1,53 @@
+.inventario-lista-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .busqueda-general {
+    margin-bottom: 20px;
+  }
+  
+  .busqueda-general input {
+    width: 94%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .inventario-tabla {
+    width: 98%;
+    border-collapse: collapse;
+  }
+  
+  .inventario-tabla th,
+  .inventario-tabla td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .inventario-tabla th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+  }
+  
+  .inventario-tabla th input {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .inventario-tabla tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .inventario-tabla tr:hover {
+    background-color: #e6e6e6;
+  }

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
 
 const AgregarInventario = ({ onProductoAgregado }) => {
   const [formData, setFormData] = useState({
+    marca: '',
     modelo: '',
     numero: '',  
     color: '',
@@ -25,8 +26,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     setError('');
     setSuccessMessage('');
 
-    // Validación básica
-    if (!formData.numero || !formData.modelo || !formData.color || !formData.precio) {
+    if (!formData.marca || !formData.modelo || !formData.numero || !formData.color || !formData.precio) {
       setError('Por favor, complete todos los campos.');
       return;
     }
@@ -40,22 +40,13 @@ const AgregarInventario = ({ onProductoAgregado }) => {
         console.log('Datos de respuesta:', response.data);
         setSuccessMessage('Producto agregado con éxito.');
         onProductoAgregado(response.data);
-        setFormData({modelo: '', numero: '', color: '', precio: '' });
+        setFormData({marca: '', modelo: '', numero: '', color: '', precio: '' });
       } else {
         console.log('Respuesta vacía o inesperada');
         setError('La respuesta del servidor no contiene datos. Por favor, verifica el backend.');
       }
     } catch (error) {
       console.error('Error al agregar producto:', error);
-      if (error.response) {
-        console.log('Datos de error:', error.response.data);
-        console.log('Estado del error:', error.response.status);
-        console.log('Cabeceras de error:', error.response.headers);
-      } else if (error.request) {
-        console.log('La solicitud fue hecha pero no se recibió respuesta', error.request);
-      } else {
-        console.log('Error al configurar la solicitud', error.message);
-      }
       setError(`Error al agregar el producto: ${error.message}`);
     }
   };
@@ -65,6 +56,18 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="form-group">
+            <label htmlFor="marca">Marca:</label>
+            <input 
+              type="text" 
+              id="marca" 
+              name="marca" 
+              value={formData.marca} 
+              onChange={handleChange} 
+              placeholder="Ingrese la marca"
+              required
+            />
+          </div>
+          <div className="form-group">
             <label htmlFor="modelo">Modelo:</label>
             <input 
               type="text" 
@@ -72,22 +75,24 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               name="modelo" 
               value={formData.modelo} 
               onChange={handleChange} 
-              placeholder="Modelo del producto"
+              placeholder="Ingrese el modelo"
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="color">Color:</label>
-            <select id="color" name="color" value={formData.color} onChange={handleChange} required>
-              <option value="">SELECCIONA UNA OPCIÓN</option>
-              <option value="Negro">Negro</option>
-              <option value="Blanco">Blanco</option>
-              <option value="Rojo">Rojo</option>
-              {/* Agrega más opciones según sea necesario */}
-            </select>
-          </div>
         </div>
         <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="color">Color:</label>
+            <input 
+              type="text" 
+              id="color" 
+              name="color" 
+              value={formData.color} 
+              onChange={handleChange} 
+              placeholder="Ingrese el color"
+              required
+            />
+          </div>         
           <div className="form-group">
             <label htmlFor="numero">Número:</label>
             <select id="numero" name="numero" value={formData.numero} onChange={handleChange} required>
@@ -101,6 +106,8 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               {/* Agrega más opciones según sea necesario */}
             </select>
           </div>
+        </div>
+        <div className="form-row">
           <div className="form-group">
             <label htmlFor="precio">Precio:</label>
             <input 
@@ -112,9 +119,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               placeholder="Precio del producto"
               required
             />
-          </div>
-        </div>
-        <div className="form-row">
+          </div>          
         </div>
         {error && <div className="error-message">{error}</div>}
         {successMessage && <div className="success-message">{successMessage}</div>}

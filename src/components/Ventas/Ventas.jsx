@@ -35,8 +35,10 @@ const customStyles = {
   }),
 };
 
+
 const Ventas = () => {
   const [inventario, setInventario] = useState([]);
+  const [marcaOptions, setMarcaOptions] = useState([]);
   const [modeloOptions, setModeloOptions] = useState([]);
   const [colorOptions, setColorOptions] = useState([]);
   const [numeroOptions, setNumeroOptions] = useState([]);
@@ -45,15 +47,12 @@ const Ventas = () => {
     { value: 'Vendedor 2', label: 'Vendedor 2' },
     { value: 'Vendedor 3', label: 'Vendedor 3' }
   ]);
-  const [metodoPagoOptions] = useState([
-    { value: 'Efectivo', label: 'Efectivo' },
-    { value: 'Tarjeta', label: 'Tarjeta' },
-    { value: 'Ambos', label: 'Ambos' }
-  ]);
+  const [metodoPagoOptions, setMetodoPagoOptions] = useState([]);
 
   const [formData, setFormData] = useState({
+    marca: null,
     modelo: null,
-    productoId: null, // Añade esta línea
+    productoId: null,
     color: null,
     numero: null,
     precio: '',
@@ -67,28 +66,43 @@ const Ventas = () => {
       try {
         const response = await axios.get('http://localhost:5000/api/inventario');
         setInventario(response.data);
-        const uniqueModelos = [...new Set(response.data.map(item => item.MODELO))];
-        setModeloOptions(uniqueModelos.map(modelo => ({ value: modelo, label: modelo })));
+        const uniqueMarcas = [...new Set(response.data.map(item => item.MARCA))];
+        setMarcaOptions(uniqueMarcas.map(marca => ({ value: marca, label: marca })));
       } catch (error) {
         console.error('Error al obtener el inventario:', error);
       }
     };
 
+    const fetchMetodosPago = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/metodosPago');
+        setMetodoPagoOptions(response.data.map(metodo => ({
+          value: metodo.PK_METODO,
+          label: metodo.DESCRIPCION_METODO
+        })));
+      } catch (error) {
+        console.error('Error al obtener los métodos de pago:', error);
+      }
+    };
+
     fetchInventario();
+    fetchMetodosPago();
   }, []);
 
+  const handleMarcaChange = (selectedOption) => {
+    setFormData(prev => ({ ...prev, marca: selectedOption, modelo: null, color: null, numero: null, precio: '' }));
+    const marcaItems = inventario.filter(item => item.MARCA === selectedOption.value);
+    const uniqueModelos = [...new Set(marcaItems.map(item => item.MODELO))];
+    setModeloOptions(uniqueModelos.map(modelo => ({ value: modelo, label: modelo })));
+    setColorOptions([]);
+    setNumeroOptions([]);
+  };
+
   const handleModeloChange = (selectedOption) => {
-    const selectedProduct = inventario.find(item => item.MODELO === selectedOption.value);
-      setFormData(prev => ({ 
-        ...prev, 
-        modelo: selectedOption, 
-        productoId: selectedProduct ? selectedProduct.PK_PRODUCTO : null,
-        color: null, 
-        numero: null, 
-        precio: '' 
-    }));
     setFormData(prev => ({ ...prev, modelo: selectedOption, color: null, numero: null, precio: '' }));
-    const modeloItems = inventario.filter(item => item.MODELO === selectedOption.value);
+    const modeloItems = inventario.filter(item => 
+      item.MARCA === formData.marca.value && item.MODELO === selectedOption.value
+    );
     const uniqueColores = [...new Set(modeloItems.map(item => item.COLOR))];
     setColorOptions(uniqueColores.map(color => ({ value: color, label: color })));
     setNumeroOptions([]);
@@ -96,15 +110,18 @@ const Ventas = () => {
 
   const handleColorChange = (selectedOption) => {
     setFormData(prev => ({ ...prev, color: selectedOption, numero: null, precio: '' }));
-    const modeloColorItems = inventario.filter(item => 
-      item.MODELO === formData.modelo.value && item.COLOR === selectedOption.value
+    const colorItems = inventario.filter(item => 
+      item.MARCA === formData.marca.value && 
+      item.MODELO === formData.modelo.value && 
+      item.COLOR === selectedOption.value
     );
-    const uniqueNumeros = [...new Set(modeloColorItems.map(item => item.TALLA))];
+    const uniqueNumeros = [...new Set(colorItems.map(item => item.TALLA))];
     setNumeroOptions(uniqueNumeros.map(numero => ({ value: numero, label: numero })));
   };
 
   const handleNumeroChange = (selectedOption) => {
     const selectedItem = inventario.find(item => 
+      item.MARCA === formData.marca.value &&
       item.MODELO === formData.modelo.value && 
       item.COLOR === formData.color.value && 
       item.TALLA === selectedOption.value
@@ -112,7 +129,8 @@ const Ventas = () => {
     setFormData(prev => ({ 
       ...prev, 
       numero: selectedOption, 
-      precio: selectedItem ? selectedItem.PRECIO.toString() : ''
+      precio: selectedItem ? selectedItem.PRECIO.toString() : '',
+      productoId: selectedItem ? selectedItem.PK_PRODUCTO : null
     }));
   };
 
@@ -129,7 +147,7 @@ const Ventas = () => {
     e.preventDefault();
     try {
       const ventaData = {
-        FK_PRODUCTO: formData.productoId, // Usa el ID del producto
+        FK_PRODUCTO: formData.productoId,
         VENDEDOR: formData.vendedor?.value,
         METODO_PAGO: formData.metodoPago?.value,
         OBSERVACIONES: formData.observaciones,
@@ -153,6 +171,19 @@ const Ventas = () => {
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="form-group">
+            <label htmlFor="marca">Marca:</label>
+            <Select
+              id="marca"
+              value={formData.marca}
+              onChange={handleMarcaChange}
+              options={marcaOptions}
+              isClearable
+              isSearchable
+              placeholder="Buscar marca..."
+              styles={customStyles}
+            />
+          </div>
+          <div className="form-group">
             <label htmlFor="modelo">Modelo:</label>
             <Select
               id="modelo"
@@ -162,9 +193,12 @@ const Ventas = () => {
               isClearable
               isSearchable
               placeholder="Buscar modelo..."
+              isDisabled={!formData.marca}
               styles={customStyles}
             />
           </div>
+        </div>
+        <div className="form-row">
           <div className="form-group">
             <label htmlFor="color">Color:</label>
             <Select
@@ -178,9 +212,7 @@ const Ventas = () => {
               isDisabled={!formData.modelo}
               styles={customStyles}
             />
-          </div>
-        </div>
-        <div className="form-row">
+          </div>          
           <div className="form-group">
             <label htmlFor="numero">Número:</label>
             <Select
@@ -195,7 +227,9 @@ const Ventas = () => {
               styles={customStyles}
             />
           </div>
-          <div className="form-group">
+        </div>
+        <div className="form-row">
+        <div className="form-group">
             <label htmlFor="precio">Precio:</label>
             <input 
               type="text" 
@@ -206,8 +240,6 @@ const Ventas = () => {
               disabled={!formData.numero}
             />
           </div>
-        </div>
-        <div className="form-row">
           <div className="form-group">
             <label htmlFor="vendedor">Vendedor:</label>
             <Select
@@ -221,7 +253,9 @@ const Ventas = () => {
               styles={customStyles}
             />
           </div>
-          <div className="form-group">
+        </div>
+        <div className="form-row">
+        <div className="form-group">
             <label htmlFor="metodoPago">Método de pago:</label>
             <Select
               id="metodoPago"
@@ -233,7 +267,7 @@ const Ventas = () => {
               placeholder="Seleccionar método de pago..."
               styles={customStyles}
             />
-          </div>
+          </div>       
         </div>
         <div className="form-row">
           <div className="form-group textarea">
