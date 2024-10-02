@@ -35,13 +35,13 @@ const customStyles = {
   }),
 };
 
-
 const Ventas = () => {
   const [inventario, setInventario] = useState([]);
   const [marcaOptions, setMarcaOptions] = useState([]);
   const [modeloOptions, setModeloOptions] = useState([]);
   const [colorOptions, setColorOptions] = useState([]);
   const [numeroOptions, setNumeroOptions] = useState([]);
+  const [productosAgregados, setProductosAgregados] = useState([]);
   const [vendedorOptions] = useState([
     { value: 'Vendedor 1', label: 'Vendedor 1' },
     { value: 'Vendedor 2', label: 'Vendedor 2' },
@@ -143,23 +143,75 @@ const Ventas = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleAgregarProducto = () => {
+    if (!formData.marca || !formData.modelo || !formData.color || !formData.numero || !formData.precio) {
+      alert('Por favor, complete todos los campos del producto');
+      return;
+    }
+
+    const nuevoProducto = {
+      marca: formData.marca.value,
+      modelo: formData.modelo.value,
+      color: formData.color.value,
+      numero: formData.numero.value,
+      precio: formData.precio,
+      vendedor: formData.vendedor?.value || '',
+      metodoPago: formData.metodoPago?.value || '',
+      observaciones: formData.observaciones,
+      productoId: formData.productoId
+    };
+
+    setProductosAgregados([...productosAgregados, nuevoProducto]);
+
+    // Limpiar los campos del formulario después de agregar
+    setFormData({
+      marca: null,
+      modelo: null,
+      color: null,
+      numero: null,
+      precio: '',
+      productoId: null,
+      observaciones: ''
+    });
+  };
+
+  const handleFinalizarVenta = async () => {
+    if (productosAgregados.length === 0) {
+      alert('Debe agregar al menos un producto a la venta');
+      return;
+    }
+
     try {
       const ventaData = {
-        FK_PRODUCTO: formData.productoId,
         VENDEDOR: formData.vendedor?.value,
         METODO_PAGO: formData.metodoPago?.value,
         OBSERVACIONES: formData.observaciones,
-        PRECIO: formData.precio
+        productos: productosAgregados.map(producto => ({
+          FK_PRODUCTO: producto.productoId,
+          PRECIO: producto.precio,
+          OBSERVACIONES: producto.observaciones
+        }))
       };
-      console.log(ventaData);
-      const response = await axios.post('http://localhost:5000/api/ventas', ventaData);
-      console.log('Venta registrada:', response.data);
-      // Aquí puedes agregar lógica adicional, como limpiar el formulario o mostrar un mensaje de éxito
+
+      const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
+      console.log('Venta finalizada:', response.data);
+      alert('Venta registrada con éxito');
+      setProductosAgregados([]);
+      // Limpiar el formulario completamente
+      setFormData({
+        marca: null,
+        modelo: null,
+        color: null,
+        numero: null,
+        precio: '',
+        productoId: null,
+        vendedor: null,
+        metodoPago: null,
+        observaciones: ''
+      });
     } catch (error) {
-      console.error('Error al registrar la venta:', error);
-      // Aquí puedes manejar el error, como mostrar un mensaje al usuario
+      console.error('Error al finalizar la venta:', error);
+      alert('Error al registrar la venta');
     }
   };
 
@@ -168,7 +220,7 @@ const Ventas = () => {
       <div className="headerTitle">
         <h2>VENTAS</h2>
       </div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => e.preventDefault()}>
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="marca">Marca:</label>
@@ -229,7 +281,7 @@ const Ventas = () => {
           </div>
         </div>
         <div className="form-row">
-        <div className="form-group">
+          <div className="form-group">
             <label htmlFor="precio">Precio:</label>
             <input 
               type="text" 
@@ -255,7 +307,7 @@ const Ventas = () => {
           </div>
         </div>
         <div className="form-row">
-        <div className="form-group">
+          <div className="form-group">
             <label htmlFor="metodoPago">Método de pago:</label>
             <Select
               id="metodoPago"
@@ -283,11 +335,49 @@ const Ventas = () => {
             ></textarea>
           </div>
         </div>
-        <button type="submit" className="btn-agregar">
+        <button type="button" className="btn-agregar" onClick={handleAgregarProducto}>
           <img src={iconAgregar} alt="Agregar producto" />
-          REGISTRAR VENTA
+          AGREGAR
         </button>
       </form>
+  
+      {productosAgregados.length > 0 && (
+        <div className="productos-agregados">
+          <table>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Color</th>
+                <th>Número</th>
+                <th>Precio</th>
+                <th>Vendedor</th>
+                <th>Método de pago</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productosAgregados.map((producto, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{producto.marca}</td>
+                  <td>{producto.modelo}</td>
+                  <td>{producto.color}</td>
+                  <td>{producto.numero}</td>
+                  <td>{producto.precio}</td>
+                  <td>{producto.vendedor}</td>
+                  <td>{producto.metodoPago}</td>
+                  <td>{producto.observaciones}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button className="btn-finalizar-venta" onClick={handleFinalizarVenta}>
+            FINALIZAR VENTA
+          </button>
+        </div>
+      )}
     </div>
   );
 };
