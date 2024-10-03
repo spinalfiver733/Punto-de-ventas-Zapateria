@@ -156,7 +156,7 @@ const Ventas = () => {
       numero: formData.numero.value,
       precio: formData.precio,
       vendedor: formData.vendedor?.value || '',
-      metodoPago: formData.metodoPago?.value || '',
+      metodoPago: formData.metodoPago ? formData.metodoPago.label : '', // Cambiado de .value a .label
       observaciones: formData.observaciones,
       productoId: formData.productoId
     };
@@ -171,7 +171,9 @@ const Ventas = () => {
       numero: null,
       precio: '',
       productoId: null,
-      observaciones: ''
+      observaciones: '',
+      metodoPago:null,
+      vendedor
     });
   };
 
@@ -180,19 +182,20 @@ const Ventas = () => {
       alert('Debe agregar al menos un producto a la venta');
       return;
     }
-
+  
     try {
+      const primerProducto = productosAgregados[0];
       const ventaData = {
-        VENDEDOR: formData.vendedor?.value,
-        METODO_PAGO: formData.metodoPago?.value,
-        OBSERVACIONES: formData.observaciones,
+        VENDEDOR: primerProducto.vendedor,
+        METODO_PAGO: metodoPagoOptions.find(option => option.label === primerProducto.metodoPago)?.value,
+        OBSERVACIONES: primerProducto.observaciones,
         productos: productosAgregados.map(producto => ({
           FK_PRODUCTO: producto.productoId,
           PRECIO: producto.precio,
           OBSERVACIONES: producto.observaciones
         }))
       };
-
+      console.log(ventaData);
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
       console.log('Venta finalizada:', response.data);
       alert('Venta registrada con éxito');
@@ -351,28 +354,42 @@ const Ventas = () => {
                 <th>Modelo</th>
                 <th>Color</th>
                 <th>Número</th>
-                <th>Precio</th>
                 <th>Vendedor</th>
                 <th>Método de pago</th>
                 <th>Observaciones</th>
+                <th>Precio</th>
+                <th>Total</th>
               </tr>
             </thead>
             <tbody>
-              {productosAgregados.map((producto, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{producto.marca}</td>
-                  <td>{producto.modelo}</td>
-                  <td>{producto.color}</td>
-                  <td>{producto.numero}</td>
-                  <td>{producto.precio}</td>
-                  <td>{producto.vendedor}</td>
-                  <td>{producto.metodoPago}</td>
-                  <td>{producto.observaciones}</td>
-                </tr>
-              ))}
+              {productosAgregados.map((producto, index) => {
+                const precioNumerico = parseFloat(producto.precio);
+                const totalAcumulado = productosAgregados
+                  .slice(0, index + 1)
+                  .reduce((sum, p) => sum + parseFloat(p.precio), 0);
+                return (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{producto.marca}</td>
+                    <td>{producto.modelo}</td>
+                    <td>{producto.color}</td>
+                    <td>{producto.numero}</td>
+                    <td>{producto.vendedor}</td>
+                    <td>{producto.metodoPago}</td>
+                    <td>{producto.observaciones}</td>
+                    <td>${precioNumerico.toFixed(2)}</td>
+                    <td>${totalAcumulado.toFixed(2)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          <div className="total-row">
+            <span className="total-label">Total General:</span>
+            <span className="total-amount">
+              ${productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0).toFixed(2)}
+            </span>
+          </div>
           <button className="btn-finalizar-venta" onClick={handleFinalizarVenta}>
             FINALIZAR VENTA
           </button>

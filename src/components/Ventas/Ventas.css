@@ -197,4 +197,26 @@ td {
   margin: 20px auto 20px; /* 20px arriba, auto en los lados, 20px abajo */
 }
 
+.total-row {
+  background-color: #FF6E31;
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.total-label {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.total-amount {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
 
