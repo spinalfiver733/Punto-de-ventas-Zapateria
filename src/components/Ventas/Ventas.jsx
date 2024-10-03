@@ -211,8 +211,23 @@ const Ventas = () => {
       alert('Debe agregar al menos un producto a la venta');
       return;
     }
-
+  
     try {
+      // Verificar la disponibilidad de cada producto antes de finalizar la venta
+      for (const producto of productosAgregados) {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/inventario/${producto.productoId}`);
+          if (response.data.FK_ESTATUS_PRODUCTO !== 3) { // 3 es el estado "En venta"
+            throw new Error(`El producto ${producto.productoId} no está en estado de venta.`);
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            throw new Error(`El producto ${producto.productoId} no se encuentra en el inventario.`);
+          }
+          throw new Error(`Error al verificar el producto ${producto.productoId}: ${error.message}`);
+        }
+      }
+  
       const primerProducto = productosAgregados[0];
       const ventaData = {
         VENDEDOR: primerProducto.vendedor,
@@ -224,24 +239,26 @@ const Ventas = () => {
           OBSERVACIONES: producto.observaciones
         }))
       };
-
+  
+      console.log('Datos que se están enviando:', JSON.stringify(ventaData, null, 2));
+  
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
-      console.log('Venta finalizada:', response.data);
+      console.log('Respuesta del servidor:', response.data);
       alert('Venta registrada con éxito');
-
+  
       // Actualizar el estado de los productos a "Vendido" (id_estado 2)
       for (const producto of productosAgregados) {
         await axios.put(`http://localhost:5000/api/inventario/${producto.productoId}`, {
           FK_ESTATUS_PRODUCTO: 2 // 2 es el estado "Vendido"
         });
       }
-
+  
       setProductosAgregados([]);
       // Actualizar el inventario
       const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
       setInventario(inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1));
       actualizarOpciones();
-
+  
       // Limpiar el formulario completamente
       setFormData({
         marca: null,
@@ -256,7 +273,58 @@ const Ventas = () => {
       });
     } catch (error) {
       console.error('Error al finalizar la venta:', error);
-      alert('Error al registrar la venta');
+      if (error.response) {
+        console.error('Datos de la respuesta de error:', error.response.data);
+        console.error('Estado de la respuesta de error:', error.response.status);
+        console.error('Cabeceras de la respuesta de error:', error.response.headers);
+      } else if (error.request) {
+        console.error('No se recibió respuesta del servidor');
+      } else {
+        console.error('Error al configurar la solicitud:', error.message);
+      }
+      alert('Error al registrar la venta: ' + error.message);
+    }
+  };
+
+  const handleCancelarCompra = async () => {
+    if (productosAgregados.length === 0) {
+      alert('No hay productos agregados para cancelar');
+      return;
+    }
+
+    try {
+      // Devolver los productos al estado "En inventario" (estado 1)
+      for (const producto of productosAgregados) {
+        await axios.put(`http://localhost:5000/api/inventario/${producto.productoId}`, {
+          FK_ESTATUS_PRODUCTO: 1 // 1 es el estado "En inventario"
+        });
+      }
+
+      // Limpiar la lista de productos agregados
+      setProductosAgregados([]);
+
+      // Actualizar el inventario
+      const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
+      setInventario(inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1));
+      actualizarOpciones();
+
+      // Limpiar el formulario
+      setFormData({
+        marca: null,
+        modelo: null,
+        color: null,
+        numero: null,
+        precio: '',
+        productoId: null,
+        vendedor: null,
+        metodoPago: null,
+        observaciones: ''
+      });
+
+      alert('Compra cancelada. Los productos han sido devueltos al inventario.');
+    } catch (error) {
+      console.error('Error al cancelar la compra:', error);
+      alert('Error al cancelar la compra: ' + error.message);
     }
   };
 
@@ -432,9 +500,14 @@ const Ventas = () => {
               ${productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0).toFixed(2)}
             </span>
           </div>
-          <button className="btn-finalizar-venta" onClick={handleFinalizarVenta}>
-            FINALIZAR VENTA
-          </button>
+          <div className="buttons-container">
+            <button className="btn-finalizar-venta" onClick={handleFinalizarVenta}>
+              FINALIZAR VENTA
+            </button>
+            <button className="btn-cancelar-compra" onClick={handleCancelarCompra}>
+                CANCELAR COMPRA
+            </button>
+          </div>
         </div>
       )}
     </div>

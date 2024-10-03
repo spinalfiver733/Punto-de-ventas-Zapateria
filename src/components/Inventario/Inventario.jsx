@@ -6,7 +6,7 @@ import AgregarInventario from './AgregarInventario';
 
 const Inventario = () => {
   const [inventario, setInventario] = useState([]);
-  const [vistaActual, setVistaActual] = useState('lista'); // 'lista' o 'agregar'
+  const [vistaActual, setVistaActual] = useState('agregar'); // 'lista' o 'agregar'
 
   const fetchInventario = useCallback(async () => {
     try {
@@ -35,16 +35,16 @@ const Inventario = () => {
       </div>
       <div className="inventario-nav">
         <div 
-          onClick={() => cambiarVista('lista')}
-          className={`nav-item ${vistaActual === 'lista' ? 'active' : ''}`}
-        >
-          Ver Inventario
-        </div>
-        <div 
           onClick={() => cambiarVista('agregar')}
           className={`nav-item ${vistaActual === 'agregar' ? 'active' : ''}`}
         >
           Agregar al Inventario
+        </div>
+        <div 
+          onClick={() => cambiarVista('lista')}
+          className={`nav-item ${vistaActual === 'lista' ? 'active' : ''}`}
+        >
+          Ver Inventario
         </div>
       </div>
       {vistaActual === 'lista' ? (

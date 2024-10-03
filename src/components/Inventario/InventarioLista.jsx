@@ -102,8 +102,8 @@ const InventarioLista = ({ inventario }) => {
             <th>No.</th>
             <th>Marca</th>
             <th>Modelo</th>
-            <th>Talla</th>
             <th>Color</th>
+            <th>Número</th>
             <th>Precio</th>
             <th>Fecha de Ingreso</th>
           </tr>
@@ -113,9 +113,9 @@ const InventarioLista = ({ inventario }) => {
             <tr key={item.PK_PRODUCTO}>
               <td>{index + 1}</td>
               <td>{item.MARCA}</td>
-              <td>{item.MODELO}</td>
-              <td>{item.TALLA}</td>
+              <td>{item.MODELO}</td>        
               <td>{item.COLOR}</td>
+              <td>{item.TALLA}</td>
               <td>{item.PRECIO}</td>
               <td>{formatearFecha(item.FECHA_INGRESO)}</td>
             </tr>
