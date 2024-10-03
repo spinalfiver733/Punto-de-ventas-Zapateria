@@ -65,8 +65,9 @@ const Ventas = () => {
     const fetchInventario = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/inventario');
-        setInventario(response.data);
-        const uniqueMarcas = [...new Set(response.data.map(item => item.MARCA))];
+        const inventarioDisponible = response.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1); // 1 es "En inventario"
+        setInventario(inventarioDisponible);
+        const uniqueMarcas = [...new Set(inventarioDisponible.map(item => item.MARCA))];
         setMarcaOptions(uniqueMarcas.map(marca => ({ value: marca, label: marca })));
       } catch (error) {
         console.error('Error al obtener el inventario:', error);
@@ -143,38 +144,66 @@ const Ventas = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAgregarProducto = () => {
+  const handleAgregarProducto = async () => {
     if (!formData.marca || !formData.modelo || !formData.color || !formData.numero || !formData.precio) {
       alert('Por favor, complete todos los campos del producto');
       return;
     }
+    console.log(formData.productoId);
+    try {
+      // Actualizar el estado del producto a "En venta"
+      await axios.put(`http://localhost:5000/api/inventario/${formData.productoId}`, {
+        FK_ESTATUS_PRODUCTO: 3 // 3 es el nuevo estado "En venta"
+      });
 
-    const nuevoProducto = {
-      marca: formData.marca.value,
-      modelo: formData.modelo.value,
-      color: formData.color.value,
-      numero: formData.numero.value,
-      precio: formData.precio,
-      vendedor: formData.vendedor?.value || '',
-      metodoPago: formData.metodoPago ? formData.metodoPago.label : '', // Cambiado de .value a .label
-      observaciones: formData.observaciones,
-      productoId: formData.productoId
-    };
+      const nuevoProducto = {
+        marca: formData.marca.value,
+        modelo: formData.modelo.value,
+        color: formData.color.value,
+        numero: formData.numero.value,
+        precio: formData.precio,
+        vendedor: formData.vendedor?.value || '',
+        metodoPago: formData.metodoPago ? formData.metodoPago.label : '',
+        observaciones: formData.observaciones,
+        productoId: formData.productoId
+      };
 
-    setProductosAgregados([...productosAgregados, nuevoProducto]);
+      setProductosAgregados([...productosAgregados, nuevoProducto]);
 
-    // Limpiar los campos del formulario después de agregar
-    setFormData({
-      marca: null,
-      modelo: null,
-      color: null,
-      numero: null,
-      precio: '',
-      productoId: null,
-      observaciones: '',
-      metodoPago:null,
-      vendedor
-    });
+      // Actualizar el inventario en el estado
+      setInventario(prevInventario => 
+        prevInventario.filter(item => item.PK_PRODUCTO !== formData.productoId)
+      );
+
+      // Limpiar los campos del formulario después de agregar
+      setFormData({
+        marca: null,
+        modelo: null,
+        color: null,
+        numero: null,
+        precio: '',
+        productoId: null,
+        observaciones: '',
+        metodoPago: null,
+        vendedor: null
+      });
+
+      // Actualizar las opciones disponibles
+      actualizarOpciones();
+
+    } catch (error) {
+      console.error('Error al actualizar el estado del producto:', error);
+      alert('Error al agregar el producto a la venta');
+    }
+  };
+
+  const actualizarOpciones = () => {
+    const inventarioActualizado = inventario.filter(item => !productosAgregados.some(p => p.productoId === item.PK_PRODUCTO));
+    const uniqueMarcas = [...new Set(inventarioActualizado.map(item => item.MARCA))];
+    setMarcaOptions(uniqueMarcas.map(marca => ({ value: marca, label: marca })));
+    setModeloOptions([]);
+    setColorOptions([]);
+    setNumeroOptions([]);
   };
 
   const handleFinalizarVenta = async () => {
@@ -182,7 +211,7 @@ const Ventas = () => {
       alert('Debe agregar al menos un producto a la venta');
       return;
     }
-  
+
     try {
       const primerProducto = productosAgregados[0];
       const ventaData = {
@@ -195,11 +224,24 @@ const Ventas = () => {
           OBSERVACIONES: producto.observaciones
         }))
       };
-      console.log(ventaData);
+
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
       console.log('Venta finalizada:', response.data);
       alert('Venta registrada con éxito');
+
+      // Actualizar el estado de los productos a "Vendido" (id_estado 2)
+      for (const producto of productosAgregados) {
+        await axios.put(`http://localhost:5000/api/inventario/${producto.productoId}`, {
+          FK_ESTATUS_PRODUCTO: 2 // 2 es el estado "Vendido"
+        });
+      }
+
       setProductosAgregados([]);
+      // Actualizar el inventario
+      const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
+      setInventario(inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1));
+      actualizarOpciones();
+
       // Limpiar el formulario completamente
       setFormData({
         marca: null,
