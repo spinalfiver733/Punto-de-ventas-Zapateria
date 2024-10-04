@@ -240,7 +240,8 @@ const Ventas = () => {
         productos: productosAgregados.map(producto => ({
           FK_PRODUCTO: producto.productoId,
           PRECIO: producto.precio,
-          OBSERVACIONES: producto.observaciones
+          OBSERVACIONES: producto.observaciones,
+          MARCA: producto.marca 
         }))
       };
   
