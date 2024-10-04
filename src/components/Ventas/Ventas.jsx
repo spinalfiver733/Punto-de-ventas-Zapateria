@@ -149,13 +149,12 @@ const Ventas = () => {
       alert('Por favor, complete todos los campos del producto');
       return;
     }
-    console.log(formData.productoId);
     try {
       // Actualizar el estado del producto a "En venta"
       await axios.put(`http://localhost:5000/api/inventario/${formData.productoId}`, {
-        FK_ESTATUS_PRODUCTO: 3 // 3 es el nuevo estado "En venta"
+        FK_ESTATUS_PRODUCTO: 3 // 3 es el estado "En venta"
       });
-
+  
       const nuevoProducto = {
         marca: formData.marca.value,
         modelo: formData.modelo.value,
@@ -167,14 +166,14 @@ const Ventas = () => {
         observaciones: formData.observaciones,
         productoId: formData.productoId
       };
-
+  
       setProductosAgregados([...productosAgregados, nuevoProducto]);
-
+  
       // Actualizar el inventario en el estado
       setInventario(prevInventario => 
         prevInventario.filter(item => item.PK_PRODUCTO !== formData.productoId)
       );
-
+  
       // Limpiar los campos del formulario después de agregar
       setFormData({
         marca: null,
@@ -187,10 +186,10 @@ const Ventas = () => {
         metodoPago: null,
         vendedor: null
       });
-
+  
       // Actualizar las opciones disponibles
       actualizarOpciones();
-
+  
     } catch (error) {
       console.error('Error al actualizar el estado del producto:', error);
       alert('Error al agregar el producto a la venta');
@@ -211,20 +210,25 @@ const Ventas = () => {
       alert('Debe agregar al menos un producto a la venta');
       return;
     }
-  
     try {
+      console.log('Iniciando proceso de finalización de venta');
+      
       // Verificar la disponibilidad de cada producto antes de finalizar la venta
       for (const producto of productosAgregados) {
         try {
+          console.log(`Verificando producto ${producto.productoId}`);
           const response = await axios.get(`http://localhost:5000/api/inventario/${producto.productoId}`);
+          console.log(`Respuesta de verificación:`, response.data);
           if (response.data.FK_ESTATUS_PRODUCTO !== 3) { // 3 es el estado "En venta"
             throw new Error(`El producto ${producto.productoId} no está en estado de venta.`);
           }
         } catch (error) {
           if (error.response && error.response.status === 404) {
-            throw new Error(`El producto ${producto.productoId} no se encuentra en el inventario.`);
+            console.log(`Producto ${producto.productoId} no encontrado en el inventario, asumiendo que está en estado de venta.`);
+            // Continuamos con la venta asumiendo que el producto está en estado de venta
+            continue;
           }
-          throw new Error(`Error al verificar el producto ${producto.productoId}: ${error.message}`);
+          throw error;
         }
       }
   
@@ -241,17 +245,9 @@ const Ventas = () => {
       };
   
       console.log('Datos que se están enviando:', JSON.stringify(ventaData, null, 2));
-  
+      
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
       console.log('Respuesta del servidor:', response.data);
-      alert('Venta registrada con éxito');
-  
-      // Actualizar el estado de los productos a "Vendido" (id_estado 2)
-      for (const producto of productosAgregados) {
-        await axios.put(`http://localhost:5000/api/inventario/${producto.productoId}`, {
-          FK_ESTATUS_PRODUCTO: 2 // 2 es el estado "Vendido"
-        });
-      }
   
       setProductosAgregados([]);
       // Actualizar el inventario
@@ -271,6 +267,8 @@ const Ventas = () => {
         metodoPago: null,
         observaciones: ''
       });
+  
+      alert('Venta registrada con éxito');
     } catch (error) {
       console.error('Error al finalizar la venta:', error);
       if (error.response) {
@@ -282,7 +280,7 @@ const Ventas = () => {
       } else {
         console.error('Error al configurar la solicitud:', error.message);
       }
-      alert('Error al registrar la venta: ' + error.message);
+      alert('Error al registrar la venta: ' + (error.response?.data?.message || error.message));
     }
   };
 

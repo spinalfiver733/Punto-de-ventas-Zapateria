@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useSnackbar } from 'notistack';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
 
 const AgregarInventario = ({ onProductoAgregado }) => {
+  const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({
     marca: '',
     modelo: '',
@@ -10,8 +12,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     color: '',
     precio: ''
   });
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,11 +23,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccessMessage('');
 
     if (!formData.marca || !formData.modelo || !formData.numero || !formData.color || !formData.precio) {
-      setError('Por favor, complete todos los campos.');
+      enqueueSnackbar('Por favor, complete todos los campos.', { variant: 'warning' });
       return;
     }
 
@@ -38,16 +36,16 @@ const AgregarInventario = ({ onProductoAgregado }) => {
 
       if (response.data) {
         console.log('Datos de respuesta:', response.data);
-        setSuccessMessage('Producto agregado con éxito.');
+        enqueueSnackbar('Producto agregado con éxito.', { variant: 'success' });
         onProductoAgregado(response.data);
         setFormData({marca: '', modelo: '', numero: '', color: '', precio: '' });
       } else {
         console.log('Respuesta vacía o inesperada');
-        setError('La respuesta del servidor no contiene datos. Por favor, verifica el backend.');
+        enqueueSnackbar('La respuesta del servidor no contiene datos. Por favor, verifica el backend.', { variant: 'error' });
       }
     } catch (error) {
       console.error('Error al agregar producto:', error);
-      setError(`Error al agregar el producto: ${error.message}`);
+      enqueueSnackbar(`Error al agregar el producto: ${error.message}`, { variant: 'error' });
     }
   };
 
@@ -121,8 +119,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             />
           </div>          
         </div>
-        {error && <div className="error-message">{error}</div>}
-        {successMessage && <div className="success-message">{successMessage}</div>}
         <button type="submit" className="btn-agregar">
           <img src={iconAgregar} alt="Agregar producto" />
           AGREGAR AL INVENTARIO
