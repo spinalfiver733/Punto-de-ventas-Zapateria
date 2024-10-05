@@ -48,7 +48,6 @@ const Ventas = () => {
     { value: 'Vendedor 3', label: 'Vendedor 3' }
   ]);
   const [metodoPagoOptions, setMetodoPagoOptions] = useState([]);
-
   const [formData, setFormData] = useState({
     marca: null,
     modelo: null,
@@ -85,7 +84,6 @@ const Ventas = () => {
         console.error('Error al obtener los métodos de pago:', error);
       }
     };
-
     fetchInventario();
     fetchMetodosPago();
   }, []);
@@ -154,7 +152,6 @@ const Ventas = () => {
       await axios.put(`http://localhost:5000/api/inventario/${formData.productoId}`, {
         FK_ESTATUS_PRODUCTO: 3 // 3 es el estado "En venta"
       });
-  
       const nuevoProducto = {
         marca: formData.marca.value,
         modelo: formData.modelo.value,
@@ -166,14 +163,11 @@ const Ventas = () => {
         observaciones: formData.observaciones,
         productoId: formData.productoId
       };
-  
       setProductosAgregados([...productosAgregados, nuevoProducto]);
-  
       // Actualizar el inventario en el estado
       setInventario(prevInventario => 
         prevInventario.filter(item => item.PK_PRODUCTO !== formData.productoId)
       );
-  
       // Limpiar los campos del formulario después de agregar
       setFormData({
         marca: null,
@@ -186,10 +180,8 @@ const Ventas = () => {
         metodoPago: null,
         vendedor: null
       });
-  
       // Actualizar las opciones disponibles
       actualizarOpciones();
-  
     } catch (error) {
       console.error('Error al actualizar el estado del producto:', error);
       alert('Error al agregar el producto a la venta');
@@ -212,7 +204,6 @@ const Ventas = () => {
     }
     try {
       console.log('Iniciando proceso de finalización de venta');
-      
       // Verificar la disponibilidad de cada producto antes de finalizar la venta
       for (const producto of productosAgregados) {
         try {
@@ -231,7 +222,6 @@ const Ventas = () => {
           throw error;
         }
       }
-  
       const primerProducto = productosAgregados[0];
       const ventaData = {
         VENDEDOR: primerProducto.vendedor,
@@ -241,21 +231,20 @@ const Ventas = () => {
           FK_PRODUCTO: producto.productoId,
           PRECIO: producto.precio,
           OBSERVACIONES: producto.observaciones,
-          MARCA: producto.marca 
+          MARCA: producto.marca,
+          TALLA: producto.numero, 
+          MODELO: producto.modelo,
+          COLOR: producto.color
         }))
       };
-  
       console.log('Datos que se están enviando:', JSON.stringify(ventaData, null, 2));
-      
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
       console.log('Respuesta del servidor:', response.data);
-  
       setProductosAgregados([]);
       // Actualizar el inventario
       const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
       setInventario(inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1));
       actualizarOpciones();
-  
       // Limpiar el formulario completamente
       setFormData({
         marca: null,
@@ -268,7 +257,6 @@ const Ventas = () => {
         metodoPago: null,
         observaciones: ''
       });
-  
       alert('Venta registrada con éxito');
     } catch (error) {
       console.error('Error al finalizar la venta:', error);
@@ -290,7 +278,6 @@ const Ventas = () => {
       alert('No hay productos agregados para cancelar');
       return;
     }
-
     try {
       // Devolver los productos al estado "En inventario" (estado 1)
       for (const producto of productosAgregados) {
@@ -298,15 +285,12 @@ const Ventas = () => {
           FK_ESTATUS_PRODUCTO: 1 // 1 es el estado "En inventario"
         });
       }
-
       // Limpiar la lista de productos agregados
       setProductosAgregados([]);
-
       // Actualizar el inventario
       const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
       setInventario(inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1));
       actualizarOpciones();
-
       // Limpiar el formulario
       setFormData({
         marca: null,
@@ -319,7 +303,6 @@ const Ventas = () => {
         metodoPago: null,
         observaciones: ''
       });
-
       alert('Compra cancelada. Los productos han sido devueltos al inventario.');
     } catch (error) {
       console.error('Error al cancelar la compra:', error);
