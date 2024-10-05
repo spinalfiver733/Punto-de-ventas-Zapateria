@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import './InventarioLista.css';
 
+// eslint-disable-next-line react/prop-types
 const InventarioLista = ({ inventario }) => {
   const [filters, setFilters] = useState({
     busquedaGeneral: '',
@@ -25,6 +26,7 @@ const InventarioLista = ({ inventario }) => {
   };
 
   const filteredInventario = useMemo(() => {
+    // eslint-disable-next-line react/prop-types
     return inventario.filter(item => {
       return (
         (item.MARCA.toLowerCase().includes(filters.marca.toLowerCase()) || filters.marca === '') &&
@@ -80,18 +82,18 @@ const InventarioLista = ({ inventario }) => {
             <th>
               <input
                 type="text"
-                name="talla"
-                placeholder="Filtrar talla"
-                value={filters.talla}
+                name="color"
+                placeholder="Filtrar color"
+                value={filters.color}
                 onChange={handleFilterChange}
               />
             </th>
             <th>
               <input
                 type="text"
-                name="color"
-                placeholder="Filtrar color"
-                value={filters.color}
+                name="talla"
+                placeholder="Filtrar talla"
+                value={filters.talla}
                 onChange={handleFilterChange}
               />
             </th>

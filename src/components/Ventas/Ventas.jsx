@@ -3,39 +3,11 @@ import axios from 'axios';
 import Select from 'react-select';
 import './Ventas.css';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
-
-const customStyles = {
-  control: (provided, state) => ({
-    ...provided,
-    borderColor: state.isFocused ? '#FF6E31' : '#ccc',
-    boxShadow: state.isFocused ? '0 0 0 1px #FF6E31' : null,
-    '&:hover': {
-      borderColor: '#FF6E31',
-    },
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isFocused ? '#FFE6D9' : 'white',
-    color: 'black',
-    '&:hover': {
-      backgroundColor: '#FFE6D9',
-    },
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    color: 'black',
-  }),
-  input: (provided) => ({
-    ...provided,
-    color: 'black',
-  }),
-  placeholder: (provided) => ({
-    ...provided,
-    color: '#757575',
-  }),
-};
+import { useSnackbar } from 'notistack';
+import { customSelectStyles } from '../../styles/estilosGenerales';
 
 const Ventas = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const [inventario, setInventario] = useState([]);
   const [marcaOptions, setMarcaOptions] = useState([]);
   const [modeloOptions, setModeloOptions] = useState([]);
@@ -144,7 +116,7 @@ const Ventas = () => {
 
   const handleAgregarProducto = async () => {
     if (!formData.marca || !formData.modelo || !formData.color || !formData.numero || !formData.precio) {
-      alert('Por favor, complete todos los campos del producto');
+      enqueueSnackbar('Por favor, complete todos los campos del producto', { variant: 'warning' });
       return;
     }
     try {
@@ -184,7 +156,7 @@ const Ventas = () => {
       actualizarOpciones();
     } catch (error) {
       console.error('Error al actualizar el estado del producto:', error);
-      alert('Error al agregar el producto a la venta');
+      enqueueSnackbar('Error al agregar el producto a la venta', { variant: 'error' });
     }
   };
 
@@ -199,7 +171,7 @@ const Ventas = () => {
 
   const handleFinalizarVenta = async () => {
     if (productosAgregados.length === 0) {
-      alert('Debe agregar al menos un producto a la venta');
+      enqueueSnackbar('Debe agregar al menos un producto a la venta', { variant: 'warning' });
       return;
     }
     try {
@@ -257,7 +229,7 @@ const Ventas = () => {
         metodoPago: null,
         observaciones: ''
       });
-      alert('Venta registrada con éxito');
+      enqueueSnackbar('Venta registrada con éxito', { variant: 'success' });
     } catch (error) {
       console.error('Error al finalizar la venta:', error);
       if (error.response) {
@@ -269,13 +241,13 @@ const Ventas = () => {
       } else {
         console.error('Error al configurar la solicitud:', error.message);
       }
-      alert('Error al registrar la venta: ' + (error.response?.data?.message || error.message));
+      enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { variant: 'error' });
     }
   };
 
   const handleCancelarCompra = async () => {
     if (productosAgregados.length === 0) {
-      alert('No hay productos agregados para cancelar');
+      enqueueSnackbar('No hay productos agregados para cancelar', { variant: 'error' });
       return;
     }
     try {
@@ -303,10 +275,10 @@ const Ventas = () => {
         metodoPago: null,
         observaciones: ''
       });
-      alert('Compra cancelada. Los productos han sido devueltos al inventario.');
+      enqueueSnackbar('Compra cancelada. Los productos han sido devueltos al inventario.', { variant: 'info' });
     } catch (error) {
       console.error('Error al cancelar la compra:', error);
-      alert('Error al cancelar la compra: ' + error.message);
+      enqueueSnackbar('Error al cancelar la compra: ' + error.message, { variant: 'error' });
     }
   };
 
@@ -327,7 +299,7 @@ const Ventas = () => {
               isClearable
               isSearchable
               placeholder="Buscar marca..."
-              styles={customStyles}
+              styles={customSelectStyles}
             />
           </div>
           <div className="form-group">
@@ -341,7 +313,7 @@ const Ventas = () => {
               isSearchable
               placeholder="Buscar modelo..."
               isDisabled={!formData.marca}
-              styles={customStyles}
+              styles={customSelectStyles}
             />
           </div>
         </div>
@@ -357,7 +329,7 @@ const Ventas = () => {
               isSearchable
               placeholder="Buscar color..."
               isDisabled={!formData.modelo}
-              styles={customStyles}
+              styles={customSelectStyles}
             />
           </div>          
           <div className="form-group">
@@ -371,7 +343,7 @@ const Ventas = () => {
               isSearchable
               placeholder="Buscar número..."
               isDisabled={!formData.color}
-              styles={customStyles}
+              styles={customSelectStyles}
             />
           </div>
         </div>
@@ -397,7 +369,7 @@ const Ventas = () => {
               isClearable
               isSearchable
               placeholder="Seleccionar vendedor..."
-              styles={customStyles}
+              styles={customSelectStyles}
             />
           </div>
         </div>
@@ -412,7 +384,7 @@ const Ventas = () => {
               isClearable
               isSearchable
               placeholder="Seleccionar método de pago..."
-              styles={customStyles}
+              styles={customSelectStyles}
             />
           </div>       
         </div>

@@ -1,23 +1,43 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
+import Select from 'react-select';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
+import { customSelectStyles } from '../../styles/estilosGenerales';
 
+// eslint-disable-next-line react/prop-types
 const AgregarInventario = ({ onProductoAgregado }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({
     marca: '',
     modelo: '',
-    numero: '',  
+    numero: null,  // Cambiado a null para react-select
     color: '',
     precio: ''
   });
+
+  const numeroOptions = [
+    { value: '21', label: '21' },
+    { value: '22', label: '22' },
+    { value: '23', label: '23' },
+    { value: '35', label: '35' },
+    { value: '36', label: '36' },
+    { value: '37', label: '37' },
+    // Agrega más opciones según sea necesario
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
       ...prevState,
       [name]: value
+    }));
+  };
+
+  const handleSelectChange = (selectedOption) => {
+    setFormData(prevState => ({
+      ...prevState,
+      numero: selectedOption
     }));
   };
 
@@ -30,15 +50,19 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }
 
     try {
-      console.log('Enviando datos:', formData);
-      const response = await axios.post('http://localhost:5000/api/inventario', formData);
+      const dataToSend = {
+        ...formData,
+        numero: formData.numero.value // Extraer el valor del objeto de react-select
+      };
+      console.log('Enviando datos:', dataToSend);
+      const response = await axios.post('http://localhost:5000/api/inventario', dataToSend);
       console.log('Respuesta completa:', response);
 
       if (response.data) {
         console.log('Datos de respuesta:', response.data);
         enqueueSnackbar('Producto agregado con éxito.', { variant: 'success' });
         onProductoAgregado(response.data);
-        setFormData({marca: '', modelo: '', numero: '', color: '', precio: '' });
+        setFormData({marca: '', modelo: '', numero: null, color: '', precio: '' });
       } else {
         console.log('Respuesta vacía o inesperada');
         enqueueSnackbar('La respuesta del servidor no contiene datos. Por favor, verifica el backend.', { variant: 'error' });
@@ -93,16 +117,15 @@ const AgregarInventario = ({ onProductoAgregado }) => {
           </div>         
           <div className="form-group">
             <label htmlFor="numero">Número:</label>
-            <select id="numero" name="numero" value={formData.numero} onChange={handleChange} required>
-              <option value="">SELECCIONA UNA OPCIÓN</option>
-              <option value="21">21</option>
-              <option value="22">22</option>
-              <option value="23">23</option>
-              <option value="35">35</option>
-              <option value="36">36</option>
-              <option value="37">37</option>
-              {/* Agrega más opciones según sea necesario */}
-            </select>
+            <Select
+              id="numero"
+              name="numero"
+              value={formData.numero}
+              onChange={handleSelectChange}
+              options={numeroOptions}
+              styles={customSelectStyles}
+              placeholder="Selecciona una opción"
+            />
           </div>
         </div>
         <div className="form-row">
