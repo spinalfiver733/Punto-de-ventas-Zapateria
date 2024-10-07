@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
 import './Configuracion.css';
@@ -10,7 +10,6 @@ import { customSelectStyles } from '../../styles/estilosGenerales';
 const Configuracion = () => {
 
   const { enqueueSnackbar } = useSnackbar();
-
   const [usuario, setUsuario] = useState({
     FK_ROL_USUARIO: null,
     NOMBRE_USUARIO: '',
@@ -19,10 +18,23 @@ const Configuracion = () => {
     NUMERO_USUARIO: ''
   });
 
-  const rolOptions = [
-    { value: 1, label: 'Administrador' },
-    { value: 2, label: 'Vendedor' }
-  ];
+  const [rolOptions, setRolOptions] = useState([]);
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/roles');
+        const roles = response.data.map(rol => ({
+          value: rol.ID_ROL,
+          label: rol.DESCRIPCION_ROL
+        }));
+        setRolOptions(roles);
+      } catch (error) {
+        enqueueSnackbar('Error al cargar los roles', { variant: 'error' });
+      }
+    };
+
+    fetchRoles();
+  }, [enqueueSnackbar]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,9 +54,11 @@ const Configuracion = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!usuario.FK_ROL_USUARIO) {
+        enqueueSnackbar('Por favor, seleccione un rol para el usuario', {variant: 'warning'});
+      }
       const response = await axios.post('http://localhost:5000/api/usuarios', usuario);
-      console.log('Usuario agregado:', response.data);
-      enqueueSnackbar('Usuario agregado exitosamente', { variant: 'success' });
+      enqueueSnackbar('Usuario agregado exitosamente', {variant: 'success'});
       setUsuario({
         FK_ROL_USUARIO: null,
         NOMBRE_USUARIO: '',
@@ -53,12 +67,12 @@ const Configuracion = () => {
         NUMERO_USUARIO: ''
       });
     } catch (error) {
-      console.error('Error al agregar usuario:', error);
+      enqueueSnackbar('Error al agregar usuario',{variant: 'error'})
     }
   };
 
   return (
-    <div className="inventario-container">
+    <div className="configuracion-container">
       <div className="headerTitle">
         <h2>CONFIGURACIÓN</h2>
       </div>
@@ -113,7 +127,10 @@ const Configuracion = () => {
           onChange={handleChange}
           required
         />
-        <button type="submit" className="btn-agregar-usuario">Agregar Usuario</button>
+        <button type="submit" className="btn-agregar-usuario">
+        <img src={iconAgregar} alt="Cancelar venta" />
+          AGREGAR USUARIO
+        </button>
       </form>
     </div>
   );

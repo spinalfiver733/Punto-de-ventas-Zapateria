@@ -9,7 +9,7 @@
     box-sizing: border-box;
   }
 
-  select {
+  select  {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -17,6 +17,9 @@
     background-color: white;
     color: #333;
     font-size: 16px;
+  }
+  input{
+    width: 97%;
   }
 
     .btn-agregar-usuario{
@@ -43,5 +46,13 @@
   }
   
   .btn-agregar-usuario:hover {
-    background-color: #e85a1f;
+    background-color: #000000;
+  }
+
+  .btn-agregar-usuario:hover img{
+    filter: brightness(0) invert(1); /* Convierte a blanco */
+  }
+  
+  .configuracion-nav{
+    padding: 15px;
   }
