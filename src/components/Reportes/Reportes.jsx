@@ -1,6 +1,6 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Select from 'react-select';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import './Reportes.css';
 import iconoExcel from '../../assets/images/svg/iconoExcel.svg';
 import iconoPDF from '../../assets/images/svg/iconoPDF.svg';
@@ -13,6 +13,7 @@ const API_BASE_URL = 'http://localhost:5000/api';
 const Reportes = () => {
   const [periodo, setPeriodo] = useState(null);
   const [ventasData, setVentasData] = useState([]);
+  const [metodosPago, setMetodosPago] = useState({});
   const { enqueueSnackbar } = useSnackbar();
 
   const opciones = [
@@ -23,10 +24,28 @@ const Reportes = () => {
   ];
 
   useEffect(() => {
+    fetchMetodosPago();
+  }, []);
+
+  useEffect(() => {
     if (periodo) {
       fetchVentasData();
     }
   }, [periodo]);
+
+  const fetchMetodosPago = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/metodosPago`);
+      const metodos = response.data.reduce((acc, metodo) => {
+        acc[metodo.PK_METODO] = metodo.DESCRIPCION_METODO;
+        return acc;
+      }, {});
+      setMetodosPago(metodos);
+    } catch (error) {
+      console.error('Error fetching metodos de pago:', error);
+      enqueueSnackbar('Error al obtener métodos de pago', { variant: 'error' });
+    }
+  };
 
   const fetchVentasData = async () => {
     try {
@@ -45,66 +64,134 @@ const Reportes = () => {
     setPeriodo(selectedOption);
   };
 
-  const generarReporteExcel = () => {
+  const generarReporteExcel = async () => {
     if (!periodo) {
       enqueueSnackbar('Por favor, seleccione un periodo antes de generar el reporte.', { variant: 'warning' });
       return;
     }
-
+  
+    console.log('Periodo seleccionado:', periodo);
+    console.log('Datos de ventas:', ventasData);
+  
     if (ventasData.length === 0) {
+      console.log('No hay datos de ventas para generar el reporte');
       enqueueSnackbar('No hay datos para generar el reporte', { variant: 'warning' });
       return;
     }
-
+  
     try {
-      // Crear un nuevo libro de trabajo
-      const wb = XLSX.utils.book_new();
-      
-      // Preparar los datos con los headers en mayúsculas (excepto 'No.')
-      const data = ventasData.map((venta, index) => ({
-        'No.': index + 1,
-        'MARCA': venta.MARCA || '',
-        'TALLA': venta.TALLA || '',
-        'VENDEDOR': venta.VENDEDOR || '',
-        'COLOR': venta.COLOR || '',
-        'PRECIO': venta.PRECIO || '',
-        'METODO DE PAGO': venta.METODO_PAGO || '',
-        'OBSERVACIONES': venta.OBSERVACIONES || ''
-      }));
-
-      // Crear la hoja de cálculo
-      const ws = XLSX.utils.json_to_sheet(data, { header: ['No.', 'MARCA', 'TALLA', 'VENDEDOR', 'COLOR', 'PRECIO', 'METODO DE PAGO', 'OBSERVACIONES'] });
-
-      // Establecer el ancho de las columnas
-      const wscols = [
-        {wch: 5},  // No.
-        {wch: 15}, // MARCA
-        {wch: 10}, // TALLA
-        {wch: 20}, // VENDEDOR
-        {wch: 15}, // COLOR
-        {wch: 10}, // PRECIO
-        {wch: 15}, // METODO DE PAGO
-        {wch: 30}  // OBSERVACIONES
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Reporte de Ventas');
+  
+      // Definir columnas primero
+      const columns = [
+        { header: 'No.', key: 'no', width: 5 },
+        { header: 'MARCA', key: 'marca', width: 15 },
+        { header: 'TALLA', key: 'talla', width: 10 },
+        { header: 'VENDEDOR', key: 'vendedor', width: 15 },
+        { header: 'COLOR', key: 'color', width: 15 },
+        { header: 'PRECIO', key: 'precio', width: 15 },
+        { header: 'METODO DE PAGO', key: 'metodoPago', width: 20 },
+        { header: 'OBSERVACIONES', key: 'observaciones', width: 30 }
       ];
-      ws['!cols'] = wscols;
-
-      // Aplicar estilo a los encabezados
-      const headerRange = XLSX.utils.decode_range(ws['!ref']);
-      for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-        const address = XLSX.utils.encode_col(C) + "1";
-        if (!ws[address]) continue;
-        ws[address].s = {
-          fill: { fgColor: { rgb: "FF6E31" } },
-          font: { color: { rgb: "FFFFFF" }, bold: true },
-          alignment: { horizontal: "center", vertical: "center" }
+  
+      worksheet.columns = columns;
+  
+      // Agregar encabezados después de definir las columnas
+      worksheet.spliceRows(1, 0, [], [], []); // Agregar 3 filas vacías al principio
+      worksheet.mergeCells('A1:H1');
+      worksheet.getCell('A1').value = 'ZAPATERIA JR';
+      worksheet.getCell('A1').font = { size: 16, bold: true };
+      worksheet.getCell('A1').alignment = { horizontal: 'center' };
+  
+      worksheet.mergeCells('A2:H2');
+      worksheet.getCell('A2').value = `Fecha del reporte: ${new Date().toLocaleDateString()}`;
+      worksheet.getCell('A2').alignment = { horizontal: 'center' };
+  
+      worksheet.mergeCells('A3:H3');
+      worksheet.getCell('A3').value = `Reporte ${periodo.label}`;
+      worksheet.getCell('A3').alignment = { horizontal: 'center' };
+  
+      // Estilo para los encabezados de columnas
+      const headerRow = worksheet.getRow(4);
+      headerRow.values = columns.map(col => col.header);
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFFF6E31' }
         };
-      }
-
-      // Agregar la hoja al libro
-      XLSX.utils.book_append_sheet(wb, ws, "Reporte de Ventas");
-
-      // Generar el archivo Excel
-      XLSX.writeFile(wb, `Reporte_Ventas_${periodo.value}.xlsx`);
+        cell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+  
+      // Agregar datos
+      let totalVentas = 0;
+      console.log('Iniciando agregado de datos al worksheet');
+      ventasData.forEach((venta, index) => {
+        console.log(`Procesando venta ${index + 1}:`, venta);
+        const row = worksheet.addRow({
+          no: index + 1,
+          marca: venta.MARCA,
+          talla: venta.TALLA,
+          vendedor: venta.VENDEDOR,
+          color: venta.COLOR,
+          precio: parseFloat(venta.PRECIO),
+          metodoPago: metodosPago[venta.METODO_PAGO] || venta.METODO_PAGO,
+          observaciones: venta.OBSERVACIONES
+        });
+        row.getCell('precio').numFmt = '$#,##0.00';
+        console.log('Fila agregada:', row.values);
+        totalVentas += parseFloat(venta.PRECIO);
+  
+        // Aplicar bordes a las celdas
+        row.eachCell({ includeEmpty: true }, (cell) => {
+          cell.border = {
+            top: {style:'thin'},
+            left: {style:'thin'},
+            bottom: {style:'thin'},
+            right: {style:'thin'}
+          };
+        });
+      });
+      console.log('Total de ventas calculado:', totalVentas);
+  
+      // Agregar total de ventas
+      const lastRow = worksheet.lastRow.number + 2;
+      worksheet.mergeCells(`A${lastRow}:G${lastRow}`);
+      worksheet.getCell(`A${lastRow}`).value = 'Total de Ventas:';
+      worksheet.getCell(`A${lastRow}`).font = { bold: true };
+      worksheet.getCell(`A${lastRow}`).alignment = { horizontal: 'right' };
+      worksheet.getCell(`H${lastRow}`).value = totalVentas;
+      worksheet.getCell(`H${lastRow}`).numFmt = '$#,##0.00';
+  
+      // Aplicar estilo a la fila de total
+      worksheet.getRow(lastRow).eachCell({ includeEmpty: true }, (cell) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF0F0F0' }
+        };
+        cell.border = {
+          top: {style:'thin'},
+          left: {style:'thin'},
+          bottom: {style:'thin'},
+          right: {style:'thin'}
+        };
+      });
+  
+      console.log('Generación del worksheet completada');
+  
+      // Generar el archivo
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Reporte_Ventas_${periodo.value}.xlsx`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+  
+      console.log('Archivo Excel generado y descarga iniciada');
       enqueueSnackbar('Reporte generado con éxito', { variant: 'success' });
     } catch (error) {
       console.error('Error generating Excel report:', error);
