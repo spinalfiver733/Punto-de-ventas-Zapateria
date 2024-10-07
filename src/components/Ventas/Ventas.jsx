@@ -3,6 +3,8 @@ import axios from 'axios';
 import Select from 'react-select';
 import './Ventas.css';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
+import iconCancelar from '../../assets/images/svg/aceptar.svg';
+import iconAceptar from '../../assets/images/svg/cancelar.svg';
 import { useSnackbar } from 'notistack';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 
@@ -456,10 +458,12 @@ const Ventas = () => {
           </div>
           <div className="buttons-container">
             <button className="btn-finalizar-venta" onClick={handleFinalizarVenta}>
+            <img src={iconAceptar} alt="Finalizar venta" />
               FINALIZAR VENTA
             </button>
             <button className="btn-cancelar-compra" onClick={handleCancelarCompra}>
-                CANCELAR COMPRA
+            <img src={iconCancelar} alt="Cancelar venta" />
+                CANCELAR VENTA
             </button>
           </div>
         </div>

@@ -1,0 +1,47 @@
+.configuracion-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+  }
+
+  select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #333;
+    font-size: 16px;
+  }
+
+    .btn-agregar-usuario{
+     background-color: #FF6E31;
+     color: white;
+     padding: 10px 20px;
+     border: none;
+     border-radius: 4px;
+     cursor: pointer;
+     font-size: 16px;
+     font-weight: bold;
+     text-transform: uppercase;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     width: 200px; 
+     margin: 20px auto 20px; /* 20px arriba, auto en los lados, 20px abajo */
+    }
+
+  .btn-agregar-usuario img {
+    width: 20px; /* Ajusta el tamaño del icono */
+    height: 20px;
+    margin-right: 10px;
+  }
+  
+  .btn-agregar-usuario:hover {
+    background-color: #e85a1f;
+  }
