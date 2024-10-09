@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
+import { useVenta } from '../../context/VentaContext';
 import './Ventas.css';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
 import iconCancelar from '../../assets/images/svg/aceptar.svg';
@@ -8,8 +9,9 @@ import iconAceptar from '../../assets/images/svg/cancelar.svg';
 import { useSnackbar } from 'notistack';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 
-const Ventas = () => {
+const Ventas = ({ onCancelVenta }) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { iniciarVenta, finalizarVenta } = useVenta();
   const [inventario, setInventario] = useState([]);
   const [marcaOptions, setMarcaOptions] = useState([]);
   const [modeloOptions, setModeloOptions] = useState([]);
@@ -38,7 +40,7 @@ const Ventas = () => {
     const fetchInventario = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/inventario');
-        const inventarioDisponible = response.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1); // 1 es "En inventario"
+        const inventarioDisponible = response.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
         setInventario(inventarioDisponible);
         const uniqueMarcas = [...new Set(inventarioDisponible.map(item => item.MARCA))];
         setMarcaOptions(uniqueMarcas.map(marca => ({ value: marca, label: marca })));
@@ -122,9 +124,8 @@ const Ventas = () => {
       return;
     }
     try {
-      // Actualizar el estado del producto a "En venta"
       await axios.put(`http://localhost:5000/api/inventario/${formData.productoId}`, {
-        FK_ESTATUS_PRODUCTO: 3 // 3 es el estado "En venta"
+        FK_ESTATUS_PRODUCTO: 3
       });
       const nuevoProducto = {
         marca: formData.marca.value,
@@ -138,11 +139,9 @@ const Ventas = () => {
         productoId: formData.productoId
       };
       setProductosAgregados([...productosAgregados, nuevoProducto]);
-      // Actualizar el inventario en el estado
       setInventario(prevInventario => 
         prevInventario.filter(item => item.PK_PRODUCTO !== formData.productoId)
       );
-      // Limpiar los campos del formulario después de agregar
       setFormData({
         marca: null,
         modelo: null,
@@ -154,12 +153,12 @@ const Ventas = () => {
         metodoPago: null,
         vendedor: null
       });
-      // Actualizar las opciones disponibles
       actualizarOpciones();
     } catch (error) {
       console.error('Error al actualizar el estado del producto:', error);
       enqueueSnackbar('Error al agregar el producto a la venta', { variant: 'error' });
     }
+    iniciarVenta();
   };
 
   const actualizarOpciones = () => {
@@ -178,19 +177,17 @@ const Ventas = () => {
     }
     try {
       console.log('Iniciando proceso de finalización de venta');
-      // Verificar la disponibilidad de cada producto antes de finalizar la venta
       for (const producto of productosAgregados) {
         try {
           console.log(`Verificando producto ${producto.productoId}`);
           const response = await axios.get(`http://localhost:5000/api/inventario/${producto.productoId}`);
           console.log(`Respuesta de verificación:`, response.data);
-          if (response.data.FK_ESTATUS_PRODUCTO !== 3) { // 3 es el estado "En venta"
+          if (response.data.FK_ESTATUS_PRODUCTO !== 3) {
             throw new Error(`El producto ${producto.productoId} no está en estado de venta.`);
           }
         } catch (error) {
           if (error.response && error.response.status === 404) {
             console.log(`Producto ${producto.productoId} no encontrado en el inventario, asumiendo que está en estado de venta.`);
-            // Continuamos con la venta asumiendo que el producto está en estado de venta
             continue;
           }
           throw error;
@@ -215,11 +212,9 @@ const Ventas = () => {
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
       console.log('Respuesta del servidor:', response.data);
       setProductosAgregados([]);
-      // Actualizar el inventario
       const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
       setInventario(inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1));
       actualizarOpciones();
-      // Limpiar el formulario completamente
       setFormData({
         marca: null,
         modelo: null,
@@ -245,27 +240,24 @@ const Ventas = () => {
       }
       enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { variant: 'error' });
     }
+    finalizarVenta();
   };
 
-  const handleCancelarCompra = async () => {
+  const handleCancelarCompra = useCallback(async () => {
     if (productosAgregados.length === 0) {
       enqueueSnackbar('No hay productos agregados para cancelar', { variant: 'error' });
       return;
     }
     try {
-      // Devolver los productos al estado "En inventario" (estado 1)
       for (const producto of productosAgregados) {
         await axios.put(`http://localhost:5000/api/inventario/${producto.productoId}`, {
-          FK_ESTATUS_PRODUCTO: 1 // 1 es el estado "En inventario"
+          FK_ESTATUS_PRODUCTO: 1
         });
       }
-      // Limpiar la lista de productos agregados
       setProductosAgregados([]);
-      // Actualizar el inventario
       const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
       setInventario(inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1));
       actualizarOpciones();
-      // Limpiar el formulario
       setFormData({
         marca: null,
         modelo: null,
@@ -278,11 +270,18 @@ const Ventas = () => {
         observaciones: ''
       });
       enqueueSnackbar('Compra cancelada. Los productos han sido devueltos al inventario.', { variant: 'info' });
+      finalizarVenta();
     } catch (error) {
       console.error('Error al cancelar la compra:', error);
       enqueueSnackbar('Error al cancelar la compra: ' + error.message, { variant: 'error' });
     }
-  };
+  }, [productosAgregados, enqueueSnackbar, finalizarVenta]);
+
+  useEffect(() => {
+    onCancelVenta(handleCancelarCompra);
+  }, [onCancelVenta, handleCancelarCompra]);
+
+  // El return con el JSX se omite aquí, ya que lo tienes en tu código original
 
   return (
     <div className="ventas-container">

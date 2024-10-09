@@ -1,6 +1,7 @@
 import React from 'react';
 import { SnackbarProvider } from 'notistack';
 import MainLayout from './Layouts/MainLayout';
+import { VentaProvider } from './context/VentaContext';
 import './App.css';
 
 function App() {
@@ -14,7 +15,7 @@ function App() {
         }}
         autoHideDuration={3000}
         style={{
-          marginTop: '65px', // Ajusta esto según la altura de tu barra de navegación
+          marginTop: '65px',
         }}
         classes={{
           variantSuccess: 'success-snackbar',
@@ -23,7 +24,9 @@ function App() {
           variantInfo: 'info-snackbar',
         }}
       >
-        <MainLayout/>
+        <VentaProvider>
+          <MainLayout/>
+        </VentaProvider>
       </SnackbarProvider>
     </div>
   );
