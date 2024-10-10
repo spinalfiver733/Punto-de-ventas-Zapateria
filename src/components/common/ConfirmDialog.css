@@ -16,14 +16,17 @@
   padding: 20px;
   border-radius: 5px;
   width: 300px;
+  color: black; /* Añadido para asegurar que todo el texto dentro del diálogo sea negro */
 }
 
 .confirm-dialog h2 {
   margin-bottom: 10px;
+  color: black; /* Asegura que el título sea negro */
 }
 
 .confirm-dialog p {
   margin-bottom: 20px;
+  color: black; /* Asegura que el contenido sea negro */
 }
 
 .confirm-dialog-buttons {
@@ -42,12 +45,12 @@
 
 .cancel-button {
   background-color: #ff4d4d;
-  color: white;
+  color: white; /* Mantenemos el texto del botón en blanco para contraste */
 }
 
 .confirm-button {
   background-color: #4caf50;
-  color: white;
+  color: white; /* Mantenemos el texto del botón en blanco para contraste */
 }
 
 .cancel-button:hover {
