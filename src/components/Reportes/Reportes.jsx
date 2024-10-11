@@ -7,6 +7,7 @@ import iconoPDF from '../../assets/images/svg/iconoPDF.svg';
 import { useSnackbar } from 'notistack';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 import axios from 'axios';
+import { format, parseISO } from 'date-fns';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -16,11 +17,12 @@ const Reportes = () => {
   const [metodosPago, setMetodosPago] = useState({});
   const { enqueueSnackbar } = useSnackbar();
 
+
   const opciones = [
-    { value: 'hoy', label: 'Hoy' },
-    { value: 'semana', label: 'Semana' },
+    { value: 'hoy'    , label: 'Del día' },
+    { value: 'semana' , label: 'Semanal' },
     { value: 'mensual', label: 'Mensual' },
-    { value: 'anual', label: 'Anual' }
+    { value: 'anual'  , label: 'Anual'   }
   ];
 
   useEffect(() => {
@@ -42,7 +44,7 @@ const Reportes = () => {
       }, {});
       setMetodosPago(metodos);
     } catch (error) {
-      console.error('Error fetching metodos de pago:', error);
+      //console.error('Error fetching metodos de pago:', error);
       enqueueSnackbar('Error al obtener métodos de pago', { variant: 'error' });
     }
   };
@@ -53,8 +55,9 @@ const Reportes = () => {
         params: { periodo: periodo.value }
       });
       setVentasData(Array.isArray(response.data) ? response.data : []);
+      console.log(response.data);
     } catch (error) {
-      console.error('Error fetching ventas data:', error);
+      //console.error('Error fetching ventas data:', error);
       enqueueSnackbar('Error al obtener datos de ventas', { variant: 'error' });
       setVentasData([]);
     }
@@ -70,11 +73,11 @@ const Reportes = () => {
       return;
     }
   
-    console.log('Periodo seleccionado:', periodo);
-    console.log('Datos de ventas:', ventasData);
+    // console.log('Periodo seleccionado:', periodo);
+    // console.log('Datos de ventas:', ventasData);
   
     if (ventasData.length === 0) {
-      console.log('No hay datos de ventas para generar el reporte');
+      //console.log('No hay datos de ventas para generar el reporte');
       enqueueSnackbar('No hay datos para generar el reporte', { variant: 'warning' });
       return;
     }
@@ -87,28 +90,29 @@ const Reportes = () => {
       const columns = [
         { header: 'No.', key: 'no', width: 5 },
         { header: 'MARCA', key: 'marca', width: 15 },
-        { header: 'TALLA', key: 'talla', width: 10 },
+        { header: 'NÚMERO', key: 'talla', width: 10 , style: { alignment: { horizontal: 'center' } }},
         { header: 'VENDEDOR', key: 'vendedor', width: 15 },
-        { header: 'COLOR', key: 'color', width: 15 },
+        { header: 'COLOR', key: 'color', width: 15 , style: { alignment: { horizontal: 'center' } }},
         { header: 'PRECIO', key: 'precio', width: 15 },
-        { header: 'METODO DE PAGO', key: 'metodoPago', width: 20 },
-        { header: 'OBSERVACIONES', key: 'observaciones', width: 30 }
+        { header: 'METODO DE PAGO', key: 'metodoPago', width: 20 , style: { alignment: { horizontal: 'center' } }},
+        { header: 'OBSERVACIONES', key: 'observaciones', width: 35 },
+        { header: 'FECHA DE VENTA', key: 'fecha_venta', width: 16, style: { alignment: { horizontal: 'center' } } }
       ];
   
       worksheet.columns = columns;
   
       // Agregar encabezados después de definir las columnas
       worksheet.spliceRows(1, 0, [], [], []); // Agregar 3 filas vacías al principio
-      worksheet.mergeCells('A1:H1');
+      worksheet.mergeCells('A1:I1');
       worksheet.getCell('A1').value = 'ZAPATERIA JR';
       worksheet.getCell('A1').font = { size: 16, bold: true };
       worksheet.getCell('A1').alignment = { horizontal: 'center' };
   
-      worksheet.mergeCells('A2:H2');
+      worksheet.mergeCells('A2:I2');
       worksheet.getCell('A2').value = `Fecha del reporte: ${new Date().toLocaleDateString()}`;
       worksheet.getCell('A2').alignment = { horizontal: 'center' };
   
-      worksheet.mergeCells('A3:H3');
+      worksheet.mergeCells('A3:I3');
       worksheet.getCell('A3').value = `Reporte ${periodo.label}`;
       worksheet.getCell('A3').alignment = { horizontal: 'center' };
   
@@ -127,10 +131,10 @@ const Reportes = () => {
   
       // Agregar datos
       let totalVentas = 0;
-      console.log('Iniciando agregado de datos al worksheet');
+      //console.log('Iniciando agregado de datos al worksheet');
       ventasData.forEach((venta, index) => {
-        console.log(`Procesando venta ${index + 1}:`, venta);
-        const row = worksheet.addRow({
+       // console.log(`Procesando venta ${index + 1}:`, venta);
+       const row = worksheet.addRow({
           no: index + 1,
           marca: venta.MARCA,
           talla: venta.TALLA,
@@ -138,10 +142,11 @@ const Reportes = () => {
           color: venta.COLOR,
           precio: parseFloat(venta.PRECIO),
           metodoPago: metodosPago[venta.METODO_PAGO] || venta.METODO_PAGO,
+          fecha_venta: format(parseISO(venta.FECHA_VENTA), 'dd/MM/yy HH:mm'),
           observaciones: venta.OBSERVACIONES
         });
         row.getCell('precio').numFmt = '$#,##0.00';
-        console.log('Fila agregada:', row.values);
+        //console.log('Fila agregada:', row.values);
         totalVentas += parseFloat(venta.PRECIO);
   
         // Aplicar bordes a las celdas
@@ -154,16 +159,17 @@ const Reportes = () => {
           };
         });
       });
-      console.log('Total de ventas calculado:', totalVentas);
+      //console.log('Total de ventas calculado:', totalVentas);
   
       // Agregar total de ventas
       const lastRow = worksheet.lastRow.number + 2;
-      worksheet.mergeCells(`A${lastRow}:G${lastRow}`);
+
+      worksheet.mergeCells(`A${lastRow}:H${lastRow}`);
       worksheet.getCell(`A${lastRow}`).value = 'Total de Ventas:';
       worksheet.getCell(`A${lastRow}`).font = { bold: true };
       worksheet.getCell(`A${lastRow}`).alignment = { horizontal: 'right' };
-      worksheet.getCell(`H${lastRow}`).value = totalVentas;
-      worksheet.getCell(`H${lastRow}`).numFmt = '$#,##0.00';
+      worksheet.getCell(`I${lastRow}`).value = totalVentas;
+      worksheet.getCell(`I${lastRow}`).numFmt = '$#,##0.00';
   
       // Aplicar estilo a la fila de total
       worksheet.getRow(lastRow).eachCell({ includeEmpty: true }, (cell) => {
@@ -180,7 +186,7 @@ const Reportes = () => {
         };
       });
   
-      console.log('Generación del worksheet completada');
+      //console.log('Generación del worksheet completada');
   
       // Generar el archivo
       const buffer = await workbook.xlsx.writeBuffer();
@@ -191,7 +197,7 @@ const Reportes = () => {
       link.click();
       URL.revokeObjectURL(link.href);
   
-      console.log('Archivo Excel generado y descarga iniciada');
+      //console.log('Archivo Excel generado y descarga iniciada');
       enqueueSnackbar('Reporte generado con éxito', { variant: 'success' });
     } catch (error) {
       console.error('Error generating Excel report:', error);
