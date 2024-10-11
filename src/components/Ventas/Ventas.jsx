@@ -17,11 +17,8 @@ const Ventas = ({ onCancelVenta }) => {
   const [colorOptions, setColorOptions] = useState([]);
   const [numeroOptions, setNumeroOptions] = useState([]);
   const [productosAgregados, setProductosAgregados] = useState([]);
-  const [vendedorOptions] = useState([
-    { value: 'Vendedor 1', label: 'Vendedor 1' },
-    { value: 'Vendedor 2', label: 'Vendedor 2' },
-    { value: 'Vendedor 3', label: 'Vendedor 3' }
-  ]);
+  const [vendedorOptions, setVendedorOptions] = useState([]);
+
   const [metodoPagoOptions, setMetodoPagoOptions] = useState([]);
   const [formData, setFormData] = useState({
     marca: null,
@@ -59,9 +56,25 @@ const Ventas = ({ onCancelVenta }) => {
         console.error('Error al obtener los métodos de pago:', error);
       }
     };
+
+    const fetchVendedor = async () =>{
+      try {
+        const response = await axios.get('http://localhost:5000/api/usuarios');
+        const vendedores = response.data.map(vendedor => ({
+          value: vendedor.ID_USUARIO,
+          label: `${vendedor.NOMBRE_USUARIO}`
+        }));
+        setVendedorOptions(vendedores);
+      } catch (error) {
+        console.log('Error al obtener los vendedores');
+      }
+    }
+
     fetchInventario();
     fetchMetodosPago();
+    fetchVendedor();
   }, []);
+
 
   const actualizarOpcionesMarca = useCallback((inventario) => {
     const uniqueMarcas = [...new Set(inventario.map(item => item.MARCA))];
@@ -193,7 +206,7 @@ const Ventas = ({ onCancelVenta }) => {
       }
       const primerProducto = productosAgregados[0];
       const ventaData = {
-        VENDEDOR: primerProducto.vendedor,
+        VENDEDOR: formData.vendedor ? formData.vendedor.value : null,
         METODO_PAGO: metodoPagoOptions.find(option => option.label === primerProducto.metodoPago)?.value,
         OBSERVACIONES: primerProducto.observaciones,
         productos: productosAgregados.map(producto => ({
@@ -440,7 +453,7 @@ const Ventas = ({ onCancelVenta }) => {
                     <td>{producto.modelo}</td>
                     <td>{producto.color}</td>
                     <td>{producto.numero}</td>
-                    <td>{producto.vendedor}</td>
+                    <td>{producto.vendedor ? vendedorOptions.find(v => v.value === producto.vendedor)?.label : ''}</td>
                     <td>{producto.metodoPago}</td>
                     <td>{producto.observaciones}</td>
                     <td>${precioNumerico.toFixed(2)}</td>
