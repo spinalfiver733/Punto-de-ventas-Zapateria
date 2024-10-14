@@ -96,7 +96,7 @@ const Reportes = () => {
         { header: 'PRECIO', key: 'precio', width: 15 },
         { header: 'METODO DE PAGO', key: 'metodoPago', width: 20 , style: { alignment: { horizontal: 'center' } }},
         { header: 'OBSERVACIONES', key: 'observaciones', width: 35 },
-        { header: 'FECHA DE VENTA', key: 'fecha_venta', width: 16, style: { alignment: { horizontal: 'center' } } }
+        { header: 'FECHA DE VENTA', key: 'fecha_venta', width: 18, style: { alignment: { horizontal: 'center' } } }
       ];
   
       worksheet.columns = columns;
@@ -142,7 +142,7 @@ const Reportes = () => {
           color: venta.COLOR,
           precio: parseFloat(venta.PRECIO),
           metodoPago: metodosPago[venta.METODO_PAGO] || venta.METODO_PAGO,
-          fecha_venta: format(parseISO(venta.FECHA_VENTA), 'dd/MM/yy HH:mm'),
+          fecha_venta: format(parseISO(venta.FECHA_VENTA), 'dd/MM/yy hh:mm a'),
           observaciones: venta.OBSERVACIONES
         });
         row.getCell('precio').numFmt = '$#,##0.00';
