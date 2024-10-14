@@ -18,7 +18,6 @@ const Ventas = ({ onCancelVenta }) => {
   const [numeroOptions, setNumeroOptions] = useState([]);
   const [productosAgregados, setProductosAgregados] = useState([]);
   const [vendedorOptions, setVendedorOptions] = useState([]);
-
   const [metodoPagoOptions, setMetodoPagoOptions] = useState([]);
   const [formData, setFormData] = useState({
     marca: null,
@@ -57,7 +56,7 @@ const Ventas = ({ onCancelVenta }) => {
       }
     };
 
-    const fetchVendedor = async () =>{
+    const fetchVendedor = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/usuarios');
         const vendedores = response.data.map(vendedor => ({
@@ -65,8 +64,9 @@ const Ventas = ({ onCancelVenta }) => {
           label: `${vendedor.NOMBRE_USUARIO}`
         }));
         setVendedorOptions(vendedores);
+        console.log('Opciones de vendedor cargadas:', vendedores);
       } catch (error) {
-        console.log('Error al obtener los vendedores');
+        console.log('Error al obtener los vendedores', error);
       }
     }
 
@@ -74,7 +74,6 @@ const Ventas = ({ onCancelVenta }) => {
     fetchMetodosPago();
     fetchVendedor();
   }, []);
-
 
   const actualizarOpcionesMarca = useCallback((inventario) => {
     const uniqueMarcas = [...new Set(inventario.map(item => item.MARCA))];
@@ -127,7 +126,12 @@ const Ventas = ({ onCancelVenta }) => {
   };
 
   const handleSelectChange = (name) => (selectedOption) => {
-    setFormData(prev => ({ ...prev, [name]: selectedOption }));
+    console.log(`Cambiando ${name}:`, selectedOption);
+    setFormData(prev => {
+      const newState = { ...prev, [name]: selectedOption };
+      console.log('Nuevo estado de formData:', newState);
+      return newState;
+    });
   };
 
   const handleChange = (e) => {
@@ -150,12 +154,18 @@ const Ventas = ({ onCancelVenta }) => {
         color: formData.color.value,
         numero: formData.numero.value,
         precio: formData.precio,
-        vendedor: formData.vendedor?.value || '',
+        vendedor: formData.vendedor?.value,
         metodoPago: formData.metodoPago ? formData.metodoPago.label : '',
         observaciones: formData.observaciones,
         productoId: formData.productoId
       };
-      setProductosAgregados(prev => [...prev, nuevoProducto]);
+      console.log('Nuevo producto a agregar:', nuevoProducto);
+      console.log('Estado actual de formData:', formData);
+      setProductosAgregados(prev => {
+        const nuevosProductos = [...prev, nuevoProducto];
+        console.log('Productos agregados actualizados:', nuevosProductos);
+        return nuevosProductos;
+      });
       
       const nuevoInventarioDisponible = inventarioDisponible.filter(item => item.PK_PRODUCTO !== formData.productoId);
       setInventarioDisponible(nuevoInventarioDisponible);
@@ -188,25 +198,14 @@ const Ventas = ({ onCancelVenta }) => {
     }
     try {
       console.log('Iniciando proceso de finalización de venta');
-      for (const producto of productosAgregados) {
-        try {
-          console.log(`Verificando producto ${producto.productoId}`);
-          const response = await axios.get(`http://localhost:5000/api/inventario/${producto.productoId}`);
-          console.log(`Respuesta de verificación:`, response.data);
-          if (response.data.FK_ESTATUS_PRODUCTO !== 3) {
-            throw new Error(`El producto ${producto.productoId} no está en estado de venta.`);
-          }
-        } catch (error) {
-          if (error.response && error.response.status === 404) {
-            console.log(`Producto ${producto.productoId} no encontrado en el inventario, asumiendo que está en estado de venta.`);
-            continue;
-          }
-          throw error;
-        }
-      }
+      console.log('Estado actual de formData:', formData);
+      console.log('Productos agregados:', productosAgregados);
+  
       const primerProducto = productosAgregados[0];
+      console.log('Primer producto:', primerProducto);
+  
       const ventaData = {
-        VENDEDOR: formData.vendedor ? formData.vendedor.value : null,
+        VENDEDOR: primerProducto.vendedor || formData.vendedor?.value || null,
         METODO_PAGO: metodoPagoOptions.find(option => option.label === primerProducto.metodoPago)?.value,
         OBSERVACIONES: primerProducto.observaciones,
         productos: productosAgregados.map(producto => ({
