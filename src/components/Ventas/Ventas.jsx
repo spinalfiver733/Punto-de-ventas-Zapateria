@@ -1,13 +1,21 @@
+//Importaciones react
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import Select from 'react-select';
-import { useVenta } from '../../context/VentaContext';
+
+//Estilos
 import './Ventas.css';
+import { useVenta } from '../../context/VentaContext';
+import { customSelectStyles } from '../../styles/estilosGenerales';
+
+//Importación de imagenes
 import iconAgregar from '../../assets/images/svg/agregar.svg';
 import iconCancelar from '../../assets/images/svg/aceptar.svg';
 import iconAceptar from '../../assets/images/svg/cancelar.svg';
+import iconDevolucion from '../../assets/images/svg/iconoDevolucionNaranja.svg';
+
+//Importación de librerias
 import { useSnackbar } from 'notistack';
-import { customSelectStyles } from '../../styles/estilosGenerales';
+import axios from 'axios';
+import Select from 'react-select';
 
 const Ventas = ({ onCancelVenta }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -421,7 +429,17 @@ const Ventas = ({ onCancelVenta }) => {
           AGREGAR
         </button>
       </form>
-  
+      <div className="contenedorDevolucion">
+        <img 
+          src={iconDevolucion} 
+          alt="Realizar devolución" 
+          className="devolucionImg"  // Añades una clase personalizada
+          // onClick={handleDevolucionClick}  // Descomentar cuando se defina la función
+          style={{ cursor: 'pointer' }}  // Esto añade un cursor de mano para indicar que es clickeable
+        />
+      </div>
+
+
       {productosAgregados.length > 0 && (
         <div className="productos-agregados">
           <table>

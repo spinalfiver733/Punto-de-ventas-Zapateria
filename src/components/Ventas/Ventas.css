@@ -227,3 +227,15 @@ td {
     margin: 10px 0;
   }
 }
+
+.contenedorDevolucion {
+  display: flex;
+  justify-content: flex-end; /* Alinea el contenido al final (derecha) */
+  align-items: center;       /* Alinea verticalmente al centro, si es necesario */
+}
+
+.devolucionImg {
+  width: 70px;
+  height: 70px;
+  cursor: pointer; /* Hace que el cursor cambie a una mano */
+}
