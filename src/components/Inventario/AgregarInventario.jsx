@@ -1,21 +1,22 @@
 import { useState } from 'react';
+import './AgregarInventario.css';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 
-// eslint-disable-next-line react/prop-types
 const AgregarInventario = ({ onProductoAgregado }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({
     marca: '',
     modelo: '',
-    numero: null,  // Cambiado a null para react-select
+    numero: null,
     color: '',
     precio: '',
-    codigo_barra: ''  // Nuevo campo para el código de barras
+    codigo_barra: ''
   });
+  const [productosAgregar, setProductosAgregar] = useState([]);
 
   const numeroOptions = [
     { value: '21', label: '21' },
@@ -24,7 +25,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     { value: '35', label: '35' },
     { value: '36', label: '36' },
     { value: '37', label: '37' },
-    // Agrega más opciones según sea necesario
   ];
 
   const handleChange = (e) => {
@@ -42,38 +42,50 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleAgregarALista = () => {
     if (!formData.marca || !formData.modelo || !formData.numero || !formData.color || !formData.precio || !formData.codigo_barra) {
       enqueueSnackbar('Por favor, complete todos los campos.', { variant: 'warning' });
       return;
     }
 
+    const nuevoProducto = {
+      ...formData,
+      numero: formData.numero.value,
+    };
+
+    setProductosAgregar(prevState => [...prevState, nuevoProducto]);
+    setFormData({
+      marca: '',
+      modelo: '',
+      numero: null,
+      color: '',
+      precio: '',
+      codigo_barra: ''
+    });
+
+    enqueueSnackbar('Producto agregado a la lista.', { variant: 'success' });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (productosAgregar.length === 0) {
+      enqueueSnackbar('No hay productos para agregar al inventario.', { variant: 'warning' });
+      return;
+    }
+
     try {
-      const dataToSend = {
-        ...formData,
-        numero: formData.numero.value,  // Extraer el valor del objeto de react-select
-      };
-
-      console.log('Enviando datos:', dataToSend);
-      const response = await axios.post('http://localhost:5000/api/inventario', dataToSend);
-      console.log('Respuesta completa:', response);
-
-      if (response.data) {
-        console.log('Datos de respuesta:', response.data);
-        enqueueSnackbar('Producto agregado con éxito.', { variant: 'success' });
-        onProductoAgregado(response.data);
-        setFormData({
-          marca: '', modelo: '', numero: null, color: '', precio: '', codigo_barra: '' // Limpia el formulario
-        });
-      } else {
-        console.log('Respuesta vacía o inesperada');
-        enqueueSnackbar('La respuesta del servidor no contiene datos. Por favor, verifica el backend.', { variant: 'error' });
+      for (const producto of productosAgregar) {
+        const response = await axios.post('http://localhost:5000/api/inventario', producto);
+        console.log('Respuesta completa:', response);
       }
+
+      enqueueSnackbar('Productos agregados al inventario con éxito.', { variant: 'success' });
+      setProductosAgregar([]);
+      onProductoAgregado();
     } catch (error) {
-      console.error('Error al agregar producto:', error);
-      enqueueSnackbar(`Error al agregar el producto: ${error.message}`, { variant: 'error' });
+      console.error('Error al agregar productos:', error);
+      enqueueSnackbar(`Error al agregar los productos: ${error.message}`, { variant: 'error' });
     }
   };
 
@@ -146,7 +158,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             />
           </div>  
           <div className="form-group">
-            <label htmlFor="codigo_barra">Código de Barras:</label>  {/* Campo para el código */}
+            <label htmlFor="codigo_barra">Código de Barras:</label>
             <input 
               type="text" 
               id="codigo_barra" 
@@ -158,11 +170,44 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             />
           </div>        
         </div>
-        <button type="submit" className="btn-agregar">
-          <img src={iconAgregar} alt="Agregar producto" />
-          AGREGAR AL INVENTARIO
+        <button type="button" className="btn-agregar" onClick={handleAgregarALista}>
+          <img src={iconAgregar} alt="Agregar a la lista" />
+          AGREGAR A LA LISTA
         </button>
       </form>
+
+      {productosAgregar.length > 0 && (
+        <div className="productos-agregados">
+          <table>
+            <thead>
+              <tr>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Color</th>
+                <th>Número</th>
+                <th>Precio</th>
+                <th>Código de Barras</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productosAgregar.map((producto, index) => (
+                <tr key={index}>
+                  <td>{producto.marca}</td>
+                  <td>{producto.modelo}</td>
+                  <td>{producto.color}</td>
+                  <td>{producto.numero}</td>
+                  <td>${parseFloat(producto.precio).toFixed(2)}</td>
+                  <td>{producto.codigo_barra}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button type="button" className="btn-agregar-inventario" onClick={handleSubmit}>
+            <img src={iconAgregar} alt="Agregar al inventario" />
+            AGREGAR AL INVENTARIO
+          </button>
+        </div>
+      )}
     </div>
   );
 };
