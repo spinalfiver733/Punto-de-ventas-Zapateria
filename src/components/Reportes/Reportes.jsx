@@ -90,9 +90,9 @@ const Reportes = () => {
       const columns = [
         { header: 'No.', key: 'no', width: 5 },
         { header: 'MARCA', key: 'marca', width: 15 },
+        { header: 'COLOR', key: 'color', width: 15 , style: { alignment: { horizontal: 'center' } }},
         { header: 'NÚMERO', key: 'talla', width: 10 , style: { alignment: { horizontal: 'center' } }},
         { header: 'VENDEDOR', key: 'vendedor', width: 15 , style: { alignment: { horizontal: 'center' } }},
-        { header: 'COLOR', key: 'color', width: 15 , style: { alignment: { horizontal: 'center' } }},
         { header: 'PRECIO', key: 'precio', width: 15 },
         { header: 'METODO DE PAGO', key: 'metodoPago', width: 20 , style: { alignment: { horizontal: 'center' } }},
         { header: 'OBSERVACIONES', key: 'observaciones', width: 35 },

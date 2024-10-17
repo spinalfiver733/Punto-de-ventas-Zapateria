@@ -13,7 +13,8 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     modelo: '',
     numero: null,  // Cambiado a null para react-select
     color: '',
-    precio: ''
+    precio: '',
+    codigo_barra: ''  // Nuevo campo para el código de barras
   });
 
   const numeroOptions = [
@@ -44,7 +45,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.marca || !formData.modelo || !formData.numero || !formData.color || !formData.precio) {
+    if (!formData.marca || !formData.modelo || !formData.numero || !formData.color || !formData.precio || !formData.codigo_barra) {
       enqueueSnackbar('Por favor, complete todos los campos.', { variant: 'warning' });
       return;
     }
@@ -52,8 +53,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     try {
       const dataToSend = {
         ...formData,
-        numero: formData.numero.value // Extraer el valor del objeto de react-select
+        numero: formData.numero.value,  // Extraer el valor del objeto de react-select
       };
+
       console.log('Enviando datos:', dataToSend);
       const response = await axios.post('http://localhost:5000/api/inventario', dataToSend);
       console.log('Respuesta completa:', response);
@@ -62,7 +64,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
         console.log('Datos de respuesta:', response.data);
         enqueueSnackbar('Producto agregado con éxito.', { variant: 'success' });
         onProductoAgregado(response.data);
-        setFormData({marca: '', modelo: '', numero: null, color: '', precio: '' });
+        setFormData({
+          marca: '', modelo: '', numero: null, color: '', precio: '', codigo_barra: '' // Limpia el formulario
+        });
       } else {
         console.log('Respuesta vacía o inesperada');
         enqueueSnackbar('La respuesta del servidor no contiene datos. Por favor, verifica el backend.', { variant: 'error' });
@@ -137,10 +141,22 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               name="precio" 
               value={formData.precio} 
               onChange={handleChange} 
-              placeholder="Precio del producto"
+              placeholder="Ingrese el precio del producto"
               required
             />
-          </div>          
+          </div>  
+          <div className="form-group">
+            <label htmlFor="codigo_barra">Código de Barras:</label>  {/* Campo para el código */}
+            <input 
+              type="text" 
+              id="codigo_barra" 
+              name="codigo_barra" 
+              value={formData.codigo_barra} 
+              onChange={handleChange} 
+              placeholder="Escanea o ingresa el código"
+              required
+            />
+          </div>        
         </div>
         <button type="submit" className="btn-agregar">
           <img src={iconAgregar} alt="Agregar producto" />

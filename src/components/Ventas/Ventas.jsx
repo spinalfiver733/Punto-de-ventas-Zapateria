@@ -28,6 +28,7 @@ const Ventas = ({ onCancelVenta }) => {
   const [vendedorOptions, setVendedorOptions] = useState([]);
   const [metodoPagoOptions, setMetodoPagoOptions] = useState([]);
   const [formData, setFormData] = useState({
+    codigoBarras: '',
     marca: null,
     modelo: null,
     productoId: null,
@@ -41,14 +42,21 @@ const Ventas = ({ onCancelVenta }) => {
   const [inventarioDisponible, setInventarioDisponible] = useState([]);
 
   useEffect(() => {
+
     const fetchInventario = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/inventario');
-        const inventarioDisponible = response.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
+        const inventarioDisponible = response.data
+          .filter(item => item.FK_ESTATUS_PRODUCTO === 1)
+          .map(item => ({
+            ...item,
+            CODIGO_BARRA: item.CODIGO_BARRA || '' // Asegurarse de que CODIGO_BARRA esté incluido
+          }));
         setInventarioDisponible(inventarioDisponible);
         actualizarOpcionesMarca(inventarioDisponible);
       } catch (error) {
         console.error('Error al obtener el inventario:', error);
+        enqueueSnackbar('Error al cargar el inventario', { variant: 'error' });
       }
     };
 
@@ -72,9 +80,8 @@ const Ventas = ({ onCancelVenta }) => {
           label: `${vendedor.NOMBRE_USUARIO}`
         }));
         setVendedorOptions(vendedores);
-        console.log('Opciones de vendedor cargadas:', vendedores);
       } catch (error) {
-        console.log('Error al obtener los vendedores', error);
+        //console.log('Error al obtener los vendedores', error);
       }
     }
 
@@ -134,10 +141,8 @@ const Ventas = ({ onCancelVenta }) => {
   };
 
   const handleSelectChange = (name) => (selectedOption) => {
-    console.log(`Cambiando ${name}:`, selectedOption);
     setFormData(prev => {
       const newState = { ...prev, [name]: selectedOption };
-      console.log('Nuevo estado de formData:', newState);
       return newState;
     });
   };
@@ -167,11 +172,8 @@ const Ventas = ({ onCancelVenta }) => {
         observaciones: formData.observaciones,
         productoId: formData.productoId
       };
-      console.log('Nuevo producto a agregar:', nuevoProducto);
-      console.log('Estado actual de formData:', formData);
       setProductosAgregados(prev => {
         const nuevosProductos = [...prev, nuevoProducto];
-        console.log('Productos agregados actualizados:', nuevosProductos);
         return nuevosProductos;
       });
       
@@ -205,13 +207,7 @@ const Ventas = ({ onCancelVenta }) => {
       return;
     }
     try {
-      console.log('Iniciando proceso de finalización de venta');
-      console.log('Estado actual de formData:', formData);
-      console.log('Productos agregados:', productosAgregados);
-  
       const primerProducto = productosAgregados[0];
-      console.log('Primer producto:', primerProducto);
-  
       const ventaData = {
         VENDEDOR: primerProducto.vendedor || formData.vendedor?.value || null,
         METODO_PAGO: metodoPagoOptions.find(option => option.label === primerProducto.metodoPago)?.value,
@@ -226,9 +222,7 @@ const Ventas = ({ onCancelVenta }) => {
           COLOR: producto.color
         }))
       };
-      console.log('Datos que se están enviando:', JSON.stringify(ventaData, null, 2));
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
-      console.log('Respuesta del servidor:', response.data);
       setProductosAgregados([]);
       const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
       const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
@@ -299,6 +293,60 @@ const Ventas = ({ onCancelVenta }) => {
     }
   }, [productosAgregados, enqueueSnackbar, finalizarVenta, actualizarOpcionesMarca]);
 
+  const handleCodigoBarrasChange = async (e) => {
+    const codigoBarras = e.target.value;
+    setFormData(prev => ({ ...prev, codigoBarras }));
+
+    if (codigoBarras.length >= 6) { // Asumimos que el código de barras tiene al menos 6 caracteres
+      try {
+        const productoEncontrado = inventarioDisponible.find(item => item.CODIGO_BARRA === codigoBarras);
+
+        if (productoEncontrado) {
+          // Actualizar todos los campos del formulario
+          setFormData(prev => ({
+            ...prev,
+            marca: { value: productoEncontrado.MARCA, label: productoEncontrado.MARCA },
+            modelo: { value: productoEncontrado.MODELO, label: productoEncontrado.MODELO },
+            color: { value: productoEncontrado.COLOR, label: productoEncontrado.COLOR },
+            numero: { value: productoEncontrado.TALLA, label: productoEncontrado.TALLA },
+            precio: productoEncontrado.PRECIO.toString(),
+            productoId: productoEncontrado.PK_PRODUCTO
+          }));
+
+          // Actualizar las opciones de los selectores
+          setMarcaOptions([{ value: productoEncontrado.MARCA, label: productoEncontrado.MARCA }]);
+          setModeloOptions([{ value: productoEncontrado.MODELO, label: productoEncontrado.MODELO }]);
+          setColorOptions([{ value: productoEncontrado.COLOR, label: productoEncontrado.COLOR }]);
+          setNumeroOptions([{ value: productoEncontrado.TALLA, label: productoEncontrado.TALLA }]);
+
+          enqueueSnackbar('Producto encontrado', { variant: 'success' });
+        } else {
+          // Limpiar los campos si no se encuentra el producto
+          setFormData(prev => ({
+            ...prev,
+            marca: null,
+            modelo: null,
+            color: null,
+            numero: null,
+            precio: '',
+            productoId: null
+          }));
+
+          // Restablecer las opciones de los selectores
+          actualizarOpcionesMarca(inventarioDisponible);
+          setModeloOptions([]);
+          setColorOptions([]);
+          setNumeroOptions([]);
+
+          enqueueSnackbar('Producto no encontrado', { variant: 'warning' });
+        }
+      } catch (error) {
+        console.error('Error al buscar el producto:', error);
+        enqueueSnackbar('Error al buscar el producto', { variant: 'error' });
+      }
+    }
+  };
+
   useEffect(() => {
     onCancelVenta(handleCancelarCompra);
   }, [onCancelVenta, handleCancelarCompra]);
@@ -309,6 +357,19 @@ const Ventas = ({ onCancelVenta }) => {
       <div className="headerTitle">
         <h2>VENTAS</h2>
       </div>
+
+      <div className="codigo-barras-container">
+        <label htmlFor="codigoBarras">Código de Barras:</label>
+        <input
+          type="text"
+          id="codigoBarras"
+          name="codigoBarras"
+          value={formData.codigoBarras}
+          onChange={handleCodigoBarrasChange}
+          placeholder="Escanee o ingrese el código de barras"
+        />
+      </div>
+
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="form-row">
           <div className="form-group">
