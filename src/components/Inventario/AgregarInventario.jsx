@@ -3,7 +3,10 @@ import './AgregarInventario.css';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
+import Swal from 'sweetalert2';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
+import iconEditar from '../../assets/images/svg/editar.svg';
+import iconEliminar from '../../assets/images/svg/eliminar.svg';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 
 const AgregarInventario = ({ onProductoAgregado }) => {
@@ -17,6 +20,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     codigo_barra: ''
   });
   const [productosAgregar, setProductosAgregar] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
 
   const numeroOptions = [
     { value: '21', label: '21' },
@@ -26,6 +30,28 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     { value: '36', label: '36' },
     { value: '37', label: '37' },
   ];
+
+  const mostrarConfirmacion = async (titulo, texto) => {
+    return Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, agregar',
+      cancelButtonText: 'Cancelar'
+    });
+  };
+
+  const mostrarError = async (titulo, texto) => {
+    return Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: 'error',
+      confirmButtonColor: '#3085d6',
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,7 +79,19 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       numero: formData.numero.value,
     };
 
-    setProductosAgregar(prevState => [...prevState, nuevoProducto]);
+    if (editingIndex !== null) {
+      // Actualizar producto existente
+      const nuevosProductos = [...productosAgregar];
+      nuevosProductos[editingIndex] = nuevoProducto;
+      setProductosAgregar(nuevosProductos);
+      setEditingIndex(null);
+      enqueueSnackbar('Producto actualizado en la lista.', { variant: 'success' });
+    } else {
+      // Agregar nuevo producto
+      setProductosAgregar(prevState => [...prevState, nuevoProducto]);
+      enqueueSnackbar('Producto agregado a la lista.', { variant: 'success' });
+    }
+
     setFormData({
       marca: '',
       modelo: '',
@@ -62,8 +100,34 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       precio: '',
       codigo_barra: ''
     });
+  };
 
-    enqueueSnackbar('Producto agregado a la lista.', { variant: 'success' });
+  const handleEditar = (index) => {
+    const productoAEditar = productosAgregar[index];
+    setFormData({
+      ...productoAEditar,
+      numero: { value: productoAEditar.numero, label: productoAEditar.numero }
+    });
+    setEditingIndex(index);
+  };
+
+  const handleEliminar = async (index) => {
+    const result = await Swal.fire({
+      title: '¿Está seguro?',
+      text: "¿Desea eliminar este producto de la lista?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      const nuevosProductos = productosAgregar.filter((_, i) => i !== index);
+      setProductosAgregar(nuevosProductos);
+      enqueueSnackbar('Producto eliminado de la lista.', { variant: 'success' });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -74,18 +138,24 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       return;
     }
 
-    try {
-      for (const producto of productosAgregar) {
-        const response = await axios.post('http://localhost:5000/api/inventario', producto);
-        console.log('Respuesta completa:', response);
-      }
+    const result = await mostrarConfirmacion(
+      '¿Está seguro?',
+      `¿Desea agregar ${productosAgregar.length} producto(s) al inventario?`
+    );
 
-      enqueueSnackbar('Productos agregados al inventario con éxito.', { variant: 'success' });
-      setProductosAgregar([]);
-      onProductoAgregado();
-    } catch (error) {
-      console.error('Error al agregar productos:', error);
-      enqueueSnackbar(`Error al agregar los productos: ${error.message}`, { variant: 'error' });
+    if (result.isConfirmed) {
+      try {
+        for (const producto of productosAgregar) {
+          const response = await axios.post('http://localhost:5000/api/inventario', producto);
+          console.log('Respuesta completa:', response);
+        }
+        enqueueSnackbar('Los productos han sido agregados al inventario.', { variant: 'success' });
+        setProductosAgregar([]);
+        onProductoAgregado();
+      } catch (error) {
+        console.error('Error al agregar productos:', error);
+        await mostrarError('Error', 'Ha ocurrido un error al agregar los productos al inventario. Por favor, inténtelo de nuevo.');
+      }
     }
   };
 
@@ -172,7 +242,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
         </div>
         <button type="button" className="btn-agregar" onClick={handleAgregarALista}>
           <img src={iconAgregar} alt="Agregar a la lista" />
-          AGREGAR A LA LISTA
+          {editingIndex !== null ? 'ACTUALIZAR EN LA LISTA' : 'AGREGAR A LA LISTA'}
         </button>
       </form>
 
@@ -187,6 +257,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 <th>Número</th>
                 <th>Precio</th>
                 <th>Código de Barras</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -198,6 +269,14 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   <td>{producto.numero}</td>
                   <td>${parseFloat(producto.precio).toFixed(2)}</td>
                   <td>{producto.codigo_barra}</td>
+                  <td>
+                    <button onClick={() => handleEditar(index)} className="btn-accion">
+                      <img src={iconEditar} alt="Editar" />
+                    </button>
+                    <button onClick={() => handleEliminar(index)} className="btn-accion">
+                      <img src={iconEliminar} alt="Eliminar" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
