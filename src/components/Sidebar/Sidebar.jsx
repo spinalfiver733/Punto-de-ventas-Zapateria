@@ -3,6 +3,7 @@ import './Sidebar.css';
 import iconVentas from '../../assets/images/svg/iconoVentasNegro.svg';
 import iconInventario from '../../assets/images/svg/inventarioDisponibleNegro.svg';
 import iconoConfig from '../../assets/images/svg/iconoConfiguracionNegro.svg';
+import iconoDevolucion from '../../assets/images/svg/iconoDevolucion.svg';
 import iconoReportes from '../../assets/images/svg/reporteNegro.svg';
 import iconoMenu from '../../assets/images/svg/menu.svg';
 
@@ -10,6 +11,7 @@ const Sidebar = ({ isExpanded, setIsExpanded, activeComponent, setActiveComponen
   const menuItems = [
     { id: 'ventas', icon: iconVentas, text: 'VENTAS' },
     { id: 'inventario', icon: iconInventario, text: 'INVENTARIO' },
+    { id:  'devoluciones', icon:iconoDevolucion,text: 'DEVOLUCIONES'},
     { id: 'reportes', icon: iconoReportes, text: 'REPORTES' },
     { id: 'configuracion', icon: iconoConfig, text: 'CONFIGURACIÓN' },
   ];

@@ -5,6 +5,7 @@ import Ventas from '../components/Ventas/Ventas';
 import Inventario from '../components/Inventario/Inventario';
 import Reportes from '../components/Reportes/Reportes';
 import Configuracion from '../components/Configuracion/Configuracion';
+import Devoluciones from '../components/Devoluciones/Devoluciones';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import './MainLayout.css';
 
@@ -45,6 +46,8 @@ const MainLayout = () => {
         return <Ventas onCancelVenta={onCancelVenta} />;
       case 'inventario':
         return <Inventario />;
+      case 'devoluciones':
+        return <Devoluciones/>;
       case 'reportes':
         return <Reportes />;
       case 'configuracion':
