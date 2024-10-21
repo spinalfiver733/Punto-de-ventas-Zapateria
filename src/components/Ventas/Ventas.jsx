@@ -10,7 +10,6 @@ import { customSelectStyles } from '../../styles/estilosGenerales';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
 import iconCancelar from '../../assets/images/svg/aceptar.svg';
 import iconAceptar from '../../assets/images/svg/cancelar.svg';
-import iconDevolucion from '../../assets/images/svg/iconoDevolucionNaranja.svg';
 
 //Importación de librerias
 import { useSnackbar } from 'notistack';
@@ -490,16 +489,6 @@ const Ventas = ({ onCancelVenta }) => {
           AGREGAR
         </button>
       </form>
-      <div className="contenedorDevolucion">
-        <img 
-          src={iconDevolucion} 
-          alt="Realizar devolución" 
-          className="devolucionImg"  // Añades una clase personalizada
-          // onClick={handleDevolucionClick}  // Descomentar cuando se defina la función
-          style={{ cursor: 'pointer' }}  // Esto añade un cursor de mano para indicar que es clickeable
-        />
-      </div>
-
 
       {productosAgregados.length > 0 && (
         <div className="productos-agregados">
