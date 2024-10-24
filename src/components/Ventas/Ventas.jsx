@@ -472,7 +472,7 @@ const Ventas = ({ onCancelVenta }) => {
           </div>       
         </div>
         <div className="form-row">
-          <div className="form-group textarea">
+          <div className="textarea-group">
             <label htmlFor="observaciones">Observaciones:</label>
             <textarea 
               id="observaciones" 

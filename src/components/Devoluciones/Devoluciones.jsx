@@ -264,7 +264,7 @@ const Devoluciones = () => {
             </div>
 
             <div className="form-row">
-              <div className="form-group">
+              <div className="textarea-group">
                 <label>Descripción del motivo:</label>
                 <textarea
                   value={formData.descripcionMotivo}
@@ -276,7 +276,7 @@ const Devoluciones = () => {
             </div>
 
             <div className="form-row">
-              <div className="form-group">
+              <div className="textarea-group">
                 <label>Observaciones:</label>
                 <textarea
                   value={formData.observaciones}

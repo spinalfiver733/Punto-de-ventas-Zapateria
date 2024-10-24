@@ -19,7 +19,6 @@
   background-color: white;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-card);
-  /* Removemos overflow-x: hidden; o lo manejamos de otra manera */
   position: relative; /* Importante para el z-index */
 }
 
@@ -59,12 +58,21 @@ label {
 
 input, select, textarea {
   width: 100%;
-  padding: 10px;
+  height: 42px;
+  padding: 0 10px; /* Ajustamos el padding horizontal */
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: white;
   color: var(--color-gray);
   font-size: 16px;
+  box-sizing: border-box;
+  line-height: 42px; /* Añadimos line-height igual a la altura */
+}
+
+/* Excepciones para textarea */
+textarea {
+  height: 200px;
+  padding: 10px;
 }
 
 /* Select nativo */
@@ -268,4 +276,14 @@ td {
     width: 100px;
     height: 100px;
   }
+}
+
+.textarea-group {
+  width: 100% !important; /* Usamos !important para sobrescribir el width del form-group */
+  margin-bottom: 15px;
+}
+
+.textarea-group textarea {
+  width: 100%;
+  margin-top: 5px;
 }

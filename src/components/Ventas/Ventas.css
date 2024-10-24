@@ -52,4 +52,7 @@
   cursor: pointer;
 }
 
-/* Los demás estilos se moverán a general.css */
+.codigo-barras-container {
+  margin-bottom: 25px; /* Añadir espacio debajo */
+  width: 100%;
+}
