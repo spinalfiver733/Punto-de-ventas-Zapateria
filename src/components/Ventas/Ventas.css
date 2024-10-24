@@ -52,7 +52,18 @@
   cursor: pointer;
 }
 
-.codigo-barras-container {
-  margin-bottom: 25px; /* Añadir espacio debajo */
-  width: 100%;
+.btn-success {
+  background-color: #4caf50 !important; /* Verde */
+}
+
+.btn-success:hover {
+  background-color: #45a049 !important;
+}
+
+.btn-danger {
+  background-color: #ff4d4d !important; /* Rojo */
+}
+
+.btn-danger:hover {
+  background-color: #ff3333 !important;
 }

@@ -538,13 +538,13 @@ const Ventas = ({ onCancelVenta }) => {
             </span>
           </div>
           <div className="buttons-container">
-            <button className="btn-primary" onClick={handleFinalizarVenta}>
-            <img src={iconAceptar} alt="Finalizar venta" />
+            <button className="btn-primary btn-success" onClick={handleFinalizarVenta}>
+              <img src={iconAceptar} alt="Finalizar venta" />
               FINALIZAR VENTA
             </button>
-            <button className="btn-primary" onClick={handleCancelarCompra}>
-            <img src={iconCancelar} alt="Cancelar venta" />
-                CANCELAR VENTA
+            <button className="btn-primary btn-danger" onClick={handleCancelarCompra}>
+              <img src={iconCancelar} alt="Cancelar venta" />
+              CANCELAR VENTA
             </button>
           </div>
         </div>

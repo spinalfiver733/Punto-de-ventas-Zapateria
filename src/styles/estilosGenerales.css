@@ -130,6 +130,17 @@ textarea {
   margin-right: 10px;
 }
 
+.btn-primary img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+/* Añadir esta regla para el hover de las imágenes */
+.btn-primary:hover img {
+  filter: brightness(0) invert(1); /* Esto convierte el SVG a color blanco */
+}
+
 /* Tablas */
 .table-container {
   width: 100%;
@@ -286,4 +297,9 @@ td {
 .textarea-group textarea {
   width: 100%;
   margin-top: 5px;
+}
+
+.codigo-barras-container {
+  margin-bottom: 25px; 
+  width: 100%;
 }

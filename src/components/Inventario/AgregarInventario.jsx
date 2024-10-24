@@ -240,7 +240,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             />
           </div>        
         </div>
-        <button type="button" className="btn-agregar" onClick={handleAgregarALista}>
+        <button type="button" className="btn-primary" onClick={handleAgregarALista}>
           <img src={iconAgregar} alt="Agregar a la lista" />
           {editingIndex !== null ? 'ACTUALIZAR EN LA LISTA' : 'AGREGAR A LA LISTA'}
         </button>
@@ -281,7 +281,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               ))}
             </tbody>
           </table>
-          <button type="button" className="btn-agregar-inventario" onClick={handleSubmit}>
+          <button type="button" className="btn-primary" onClick={handleSubmit}>
             <img src={iconAgregar} alt="Agregar al inventario" />
             AGREGAR AL INVENTARIO
           </button>
