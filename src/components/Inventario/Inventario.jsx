@@ -3,6 +3,7 @@ import axios from 'axios';
 import './Inventario.css';
 import InventarioLista from './InventarioLista';
 import AgregarInventario from './AgregarInventario';
+import  '../../styles/estilosGenerales.css';
 
 const Inventario = () => {
   const [inventario, setInventario] = useState([]);
@@ -29,7 +30,7 @@ const Inventario = () => {
   };
 
   return (
-    <div className="inventario-container">
+    <div className="page-container">
       <div className="headerTitle">
         <h2>INVENTARIO</h2>
       </div>

@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import './Ventas.css';
 import { useVenta } from '../../context/VentaContext';
 import { customSelectStyles } from '../../styles/estilosGenerales';
+import  '../../styles/estilosGenerales.css';
 
 //Importación de imagenes
 import iconAgregar from '../../assets/images/svg/agregar.svg';
@@ -352,7 +353,7 @@ const Ventas = ({ onCancelVenta }) => {
 
   // El return con el JSX se omite aquí, ya que lo tienes en tu código original
   return (
-    <div className="ventas-container">
+    <div className="page-container">
       <div className="headerTitle">
         <h2>VENTAS</h2>
       </div>
@@ -484,7 +485,7 @@ const Ventas = ({ onCancelVenta }) => {
             ></textarea>
           </div>
         </div>
-        <button type="button" className="btn-agregar" onClick={handleAgregarProducto}>
+        <button type="button" className="btn-primary" onClick={handleAgregarProducto}>
           <img src={iconAgregar} alt="Agregar producto" />
           AGREGAR
         </button>
@@ -537,11 +538,11 @@ const Ventas = ({ onCancelVenta }) => {
             </span>
           </div>
           <div className="buttons-container">
-            <button className="btn-finalizar-venta" onClick={handleFinalizarVenta}>
+            <button className="btn-primary" onClick={handleFinalizarVenta}>
             <img src={iconAceptar} alt="Finalizar venta" />
               FINALIZAR VENTA
             </button>
-            <button className="btn-cancelar-compra" onClick={handleCancelarCompra}>
+            <button className="btn-primary" onClick={handleCancelarCompra}>
             <img src={iconCancelar} alt="Cancelar venta" />
                 CANCELAR VENTA
             </button>

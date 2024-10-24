@@ -185,7 +185,7 @@ const Devoluciones = () => {
   };
 
   return (
-    <div className="devoluciones-container">
+    <div className="page-container">
       <div className="headerTitle">
         <h2>DEVOLUCIONES</h2>
       </div>
@@ -204,7 +204,7 @@ const Devoluciones = () => {
               onKeyDown={handleKeyDown}
               placeholder="Escanee o ingrese el código de barras"
             />
-            <button onClick={buscarProductoVendido} className="btn-buscar">
+            <button onClick={buscarProductoVendido} className="btn-primary">
               Buscar
             </button>
           </div>
@@ -301,7 +301,7 @@ const Devoluciones = () => {
             </div>
 
             <button 
-              className="btn-procesar-devolucion"
+              className="btn-primary"
               onClick={handleProcesarDevolucion}
             >
               Procesar Devolución

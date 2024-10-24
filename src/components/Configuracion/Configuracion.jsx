@@ -72,7 +72,7 @@ const Configuracion = () => {
   };
 
   return (
-    <div className="configuracion-container">
+    <div className="page-container">
       <div className="headerTitle">
         <h2>CONFIGURACIÓN</h2>
       </div>
@@ -127,7 +127,7 @@ const Configuracion = () => {
           onChange={handleChange}
           required
         />
-        <button type="submit" className="btn-agregar-usuario">
+        <button type="submit" className="btn-primary">
         <img src={iconAgregar} alt="Cancelar venta" />
           AGREGAR USUARIO
         </button>

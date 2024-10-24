@@ -206,32 +206,36 @@ const Reportes = () => {
   };
 
   return (
-    <div className="reportes-container">
+    <div className="page-container">
       <div className="headerTitle">
         <h2>REPORTES</h2>
       </div>
-      <div className="content-container">
-        <div className="icon-container">
-          <img 
-            src={iconoExcel} 
-            className="icon-file" 
-            alt="Descargar Excel" 
-            onClick={generarReporteExcel}
-            style={{cursor: 'pointer'}}
-          />
-          <img src={iconoPDF} className="icon-file" alt="Descargar PDF" />
-        </div>
-        <div className="selector-container">
-          <label htmlFor="periodo-selector">Periodo:</label>
-          <Select
-            id="periodo-selector"
-            value={periodo}
-            onChange={handlePeriodoChange}
-            options={opciones}
-            styles={customSelectStyles}
-            placeholder="Seleccionar periodo..."
-          />
-        </div>
+      
+      <div className="reportes-grid">
+        <img 
+          src={iconoExcel} 
+          className="icon-file" 
+          alt="Descargar Excel" 
+          onClick={generarReporteExcel}
+        />
+        <img 
+          src={iconoPDF} 
+          className="icon-file" 
+          alt="Descargar PDF" 
+        />
+      </div>
+      
+      <div className="reportes-select-container">
+        <label htmlFor="periodo-selector">Periodo:</label>
+        <Select
+          id="periodo-selector"
+          value={periodo}
+          onChange={handlePeriodoChange}
+          options={opciones}
+          styles={customSelectStyles}
+          placeholder="Seleccionar periodo..."
+          className="select-period"
+        />
       </div>
     </div>
   );
