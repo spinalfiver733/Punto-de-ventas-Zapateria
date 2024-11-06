@@ -9,8 +9,9 @@ import  '../../styles/estilosGenerales.css';
 
 //Importación de imagenes
 import iconAgregar from '../../assets/images/svg/agregar.svg';
-import iconCancelar from '../../assets/images/svg/aceptar.svg';
-import iconAceptar from '../../assets/images/svg/cancelar.svg';
+import iconCancelar from '../../assets/images/svg/cancelar.svg';
+import iconAceptar from '../../assets/images/svg/aceptar.svg';
+
 
 //Importación de librerias
 import { useSnackbar } from 'notistack';
