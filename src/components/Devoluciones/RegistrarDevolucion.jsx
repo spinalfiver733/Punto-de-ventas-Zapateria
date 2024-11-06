@@ -130,53 +130,121 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   };
 
   const handleProcesarDevolucion = async () => {
+    // Validación inicial de campos requeridos
     if (!formData.motivoDevolucion || !formData.vendedor) {
       enqueueSnackbar('Por favor complete todos los campos requeridos', { variant: 'warning' });
       return;
     }
 
     try {
-      // 1. Actualizar estado del producto
+      // Obtener información actual
       const nuevoEstado = formData.motivoDevolucion.value === 'defecto_fabrica' ? 0 : 1;
+      
+      // Log de datos que se van a procesar
+      console.log('==========================================');
+      console.log('DATOS DE LA DEVOLUCIÓN A REGISTRAR:');
+      console.log('==========================================');
+      const datosDevolucion = {
+        producto: {
+          id: formData.productoVendido.PK_PRODUCTO,
+          marca: formData.productoVendido.MARCA,
+          modelo: formData.productoVendido.MODELO,
+          color: formData.productoVendido.COLOR,
+          talla: formData.productoVendido.TALLA,
+          precio: formData.productoVendido.PRECIO
+        },
+        ventaOriginal: {
+          id: formData.productoVendido.VentasInfos?.PK_VENTA,
+          fecha: format(new Date(formData.productoVendido.VentasInfos?.FECHA_VENTA), 'dd/MM/yyyy'),
+          vendedor: formData.productoVendido.VentasInfos?.VENDEDOR
+        },
+        devolucion: {
+          vendedor: {
+            id: formData.vendedor.value,
+            nombre: formData.vendedor.label
+          },
+          motivo: {
+            id: formData.motivoDevolucion.value,
+            descripcion: formData.motivoDevolucion.label
+          },
+          descripcionMotivo: formData.descripcionMotivo,
+          observaciones: formData.observaciones,
+          tipo: formData.requiereCambio ? 'Cambio de Producto' : 'Saldo a Favor',
+          estadoFinal: nuevoEstado === 0 ? 'Dado de Baja' : 'Retornado a Inventario'
+        }
+      };
+      console.log(JSON.stringify(datosDevolucion, null, 2));
+
+      // Validar que tengamos la información de la venta
+      if (!formData.productoVendido.VentasInfos?.PK_VENTA) {
+        throw new Error('No se encontró la información de la venta original');
+      }
+
+      // 1. Actualizar estado del producto
+      console.log('1. Actualizando estado del producto...');
       await axios.put(`http://localhost:5000/api/inventario/${formData.productoVendido.PK_PRODUCTO}`, {
         FK_ESTATUS_PRODUCTO: nuevoEstado
       });
+      console.log('Estado del producto actualizado a:', nuevoEstado);
 
       // 2. Registrar la devolución
+      console.log('2. Registrando devolución...');
       const devolucionData = {
         FK_PRODUCTO: formData.productoVendido.PK_PRODUCTO,
         FK_VENTA: formData.productoVendido.VentasInfos.PK_VENTA,
         FK_VENDEDOR: formData.vendedor.value,
         MOTIVO: formData.motivoDevolucion.value,
-        DESCRIPCION_MOTIVO: formData.descripcionMotivo,
+        DESCRIPCION_MOTIVO: formData.descripcionMotivo || '',
         ESTADO_FINAL: nuevoEstado,
-        OBSERVACIONES: formData.observaciones,
+        OBSERVACIONES: formData.observaciones || '',
         TIPO_DEVOLUCION: formData.requiereCambio ? 'cambio' : 'saldo_favor'
       };
 
+      console.log('Datos de devolución a enviar:', devolucionData);
       const responseDevolucion = await axios.post('http://localhost:5000/api/devoluciones', devolucionData);
+      console.log('Devolución registrada:', responseDevolucion.data);
 
+      // 3. Procesar según tipo de devolución
       if (formData.requiereCambio) {
+        console.log('3. Iniciando proceso de cambio...');
         setPaso(3);
       } else {
-        // Generar saldo a favor
+        console.log('3. Generando saldo a favor...');
         const saldoData = {
           FK_DEVOLUCION: responseDevolucion.data.PK_DEVOLUCION,
           CODIGO_UNICO: generarCodigoUnico(),
           MONTO: formData.productoVendido.PRECIO
         };
+        console.log('Datos de saldo a favor:', saldoData);
 
         const responseSaldo = await axios.post('http://localhost:5000/api/saldos', saldoData);
+        console.log('Saldo generado:', responseSaldo.data);
         setPaso(4);
       }
 
-      onDevolucionRegistrada(); // Notificar al componente padre
+      // 4. Notificar éxito
+      onDevolucionRegistrada();
       enqueueSnackbar('Devolución procesada correctamente', { variant: 'success' });
+      
+      console.log('==========================================');
+      console.log('DEVOLUCIÓN COMPLETADA EXITOSAMENTE');
+      console.log('==========================================');
+
     } catch (error) {
       console.error('Error al procesar la devolución:', error);
-      enqueueSnackbar('Error al procesar la devolución', { variant: 'error' });
+      console.log('Detalles del error:', error.response?.data || error.message);
+      
+      // Mensaje de error más específico para el usuario
+      let mensajeError = 'Error al procesar la devolución';
+      if (error.message === 'No se encontró la información de la venta original') {
+        mensajeError = 'No se encontró la información de la venta original';
+      } else if (error.response?.data?.error) {
+        mensajeError = error.response.data.error;
+      }
+      
+      enqueueSnackbar(mensajeError, { variant: 'error' });
     }
-  };
+};
 
   const handleCambioCompleto = async (datosNuevaVenta) => {
     try {
@@ -381,6 +449,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             modo="cambio"
             productoDevuelto={formData.productoVendido}
             onCambioCompleto={handleCambioCompleto}
+            onCancelVenta={() => {}} // Agregamos esta prop
           />
         </div>
       )}
