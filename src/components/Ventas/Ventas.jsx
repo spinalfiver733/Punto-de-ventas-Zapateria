@@ -18,7 +18,12 @@ import { useSnackbar } from 'notistack';
 import axios from 'axios';
 import Select from 'react-select';
 
-const Ventas = ({ onCancelVenta }) => {
+const Ventas = ({ 
+  modo = 'normal', 
+  productoDevuelto = null, 
+  onCambioCompleto = () => {}, 
+  onCancelVenta = () => {} 
+}) => {
   const { enqueueSnackbar } = useSnackbar();
   const { iniciarVenta, finalizarVenta } = useVenta();
   const [marcaOptions, setMarcaOptions] = useState([]);
@@ -207,6 +212,7 @@ const Ventas = ({ onCancelVenta }) => {
       enqueueSnackbar('Debe agregar al menos un producto a la venta', { variant: 'warning' });
       return;
     }
+
     try {
       const primerProducto = productosAgregados[0];
       const ventaData = {
@@ -223,12 +229,48 @@ const Ventas = ({ onCancelVenta }) => {
           COLOR: producto.color
         }))
       };
+
+      console.log('Datos de venta a enviar:', ventaData);
       const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
+      console.log('Respuesta de la orden:', response.data);
+
+      // Obtener la venta creada
+      const ventaResponse = await axios.get(`http://localhost:5000/api/ventas/orden/${response.data.PK_ORDEN}`);
+      const ventaInfo = ventaResponse.data;
+      console.log('Información de la venta:', ventaInfo);
+
+      // Si es modo cambio, procesar la diferencia
+      if (modo === 'cambio' && productoDevuelto) {
+        console.log('=== PROCESANDO VENTA COMO CAMBIO ===');
+        console.log('Producto devuelto:', productoDevuelto);
+        console.log('Producto nuevo:', productosAgregados[0]);
+        
+        const precioNuevo = parseFloat(productosAgregados[0].precio);
+        const precioDevuelto = parseFloat(productoDevuelto.PRECIO);
+        const diferencia = precioNuevo - precioDevuelto;
+
+        console.log('Precio nuevo:', precioNuevo);
+        console.log('Precio devuelto:', precioDevuelto);
+        console.log('Diferencia calculada:', diferencia);
+
+        const datosVentaCambio = {
+          PK_VENTA: ventaInfo.PK_VENTA,
+          PRECIO: precioNuevo,
+          diferencia: diferencia
+        };
+
+        console.log('Enviando datos del cambio:', datosVentaCambio);
+        onCambioCompleto(datosVentaCambio);
+        return; // Importante: retornar aquí para no ejecutar el resto
+      }
+
+      // Proceso normal de venta (no cambio)
       setProductosAgregados([]);
       const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
       const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
       setInventarioDisponible(nuevoInventarioDisponible);
       actualizarOpcionesMarca(nuevoInventarioDisponible);
+
       setFormData({
         marca: null,
         modelo: null,
@@ -240,7 +282,10 @@ const Ventas = ({ onCancelVenta }) => {
         metodoPago: null,
         observaciones: ''
       });
+
       enqueueSnackbar('Venta registrada con éxito', { variant: 'success' });
+      finalizarVenta();
+
     } catch (error) {
       console.error('Error al finalizar la venta:', error);
       if (error.response) {
@@ -252,10 +297,11 @@ const Ventas = ({ onCancelVenta }) => {
       } else {
         console.error('Error al configurar la solicitud:', error.message);
       }
-      enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { variant: 'error' });
+      enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { 
+        variant: 'error' 
+      });
     }
-    finalizarVenta();
-  };
+};
 
   const handleCancelarCompra = useCallback(async () => {
     if (productosAgregados.length === 0) {
