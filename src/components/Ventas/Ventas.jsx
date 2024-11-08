@@ -87,7 +87,7 @@ const Ventas = ({
         }));
         setVendedorOptions(vendedores);
       } catch (error) {
-        //console.log('Error al obtener los vendedores', error);
+        console.log('Error al obtener los vendedores', error);
       }
     }
 

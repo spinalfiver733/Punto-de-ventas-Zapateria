@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
@@ -7,6 +7,9 @@ import './Devoluciones.css';
 import Ventas from '../Ventas/Ventas';
 import { format } from 'date-fns';
 import es from 'date-fns/locale/es';
+import  './Devoluciones.css';
+import iconCancelar from '../../assets/images/svg/cancelar.svg';
+import iconAceptar from '../../assets/images/svg/aceptar.svg';
 
 const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -281,26 +284,43 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     });
     setConsultaSaldo({ codigo: '', resultado: null }); 
     setPaso(1);
-};
+  };
 
   const renderTicketOriginal = () => {
     if (!formData.ticketOriginal) return null;
-
+  
     return (
       <div className="ticket-original">
-        <h4>Detalles de la Venta Original</h4>
-        <div className="ticket-info">
-          <p><strong>Fecha:</strong> {format(new Date(formData.ticketOriginal.FECHA_VENTA), 'PPP', { locale: es })}</p>
-          <p><strong>Vendedor:</strong> {formData.ticketOriginal.VENDEDOR}</p>
-          <p><strong>Método de Pago:</strong> {formData.ticketOriginal.METODO_PAGO}</p>
-          {formData.ticketOriginal.OBSERVACIONES && (
-            <p><strong>Observaciones:</strong> {formData.ticketOriginal.OBSERVACIONES}</p>
-          )}
-        </div>
+        <table className="inventario-tabla">
+          <thead>
+            <tr>
+              <th colSpan="2">Detalles de la Venta Original</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Fecha</td>
+              <td className="value-cell">{format(new Date(formData.ticketOriginal.FECHA_VENTA), 'PPP', { locale: es })}</td>
+            </tr>
+            <tr>
+              <td>Vendedor</td>
+              <td className="value-cell">{formData.ticketOriginal.VENDEDOR}</td>
+            </tr>
+            <tr>
+              <td>Método de Pago</td>
+              <td className="value-cell">{formData.ticketOriginal.METODO_PAGO}</td>
+            </tr>
+            {formData.ticketOriginal.OBSERVACIONES && (
+              <tr>
+                <td>Observaciones</td>
+                <td className="value-cell">{formData.ticketOriginal.OBSERVACIONES}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     );
   };
-
   return (
     <div className="registrar-devolucion-container">
       {/* Paso 1: Búsqueda del producto */}
@@ -416,19 +436,15 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
               </div>
             </div>
 
-            <div className="form-actions">
-              <button 
-                className="btn-secondary"
-                onClick={resetForm}
-              >
+            <div className="buttons-container">
+              <button className="btn-primary btn-success" onClick={handleProcesarDevolucion}>
+                <img src={iconAceptar} alt="Finalizar venta" />
+                Procesar Devolución
+              </button>
+              <button className="btn-primary btn-danger" onClick={resetForm}>
+              <img src={iconCancelar} alt="Cancelar venta" />
                 Cancelar
               </button>
-              <button 
-                className="btn-primary"
-                onClick={handleProcesarDevolucion}
-              >
-                Procesar Devolución
-                </button>
             </div>
           </div>
         </div>

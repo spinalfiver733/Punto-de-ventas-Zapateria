@@ -1,0 +1,276 @@
+/* Estilos para el contenedor principal */
+.registrar-devolucion-container {
+    margin: 20px 0;
+    padding: 20px;
+  }
+  
+  /* Estilos para el paso de búsqueda */
+  .paso-busqueda {
+    margin-bottom: 20px;
+  }
+  
+  .codigo-barras-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    width: 100%;
+  }
+  
+  .codigo-barras-container input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+  }
+  
+  /* Estilos para el ticket original */
+  .ticket-original {
+    margin: 20px 0;
+  }
+  
+  .ticket-original .inventario-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: var(--shadow-table);
+  }
+  
+  /* Estilo específico para el header de la tabla */
+  .ticket-original .inventario-tabla thead tr th {
+    background-color: var(--color-gray-light);
+    color: var(--color-dark);
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .ticket-original .inventario-tabla thead tr {
+    width: 100%;
+  }
+  
+  .ticket-original .inventario-tabla td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .ticket-original .inventario-tabla td:first-child {
+    background-color: var(--color-gray-light);
+    font-weight: 500;
+    width: 30%;
+    text-align: center;
+  }
+  
+  .ticket-original .inventario-tabla .value-cell {
+    text-align: center;
+  }
+  
+  .ticket-original .inventario-tabla tbody tr:hover {
+    background-color: #f1f3f5;
+  }
+  
+  .ticket-original .inventario-tabla tbody tr:nth-child(even) {
+    background-color: var(--color-gray-light);
+  }
+  
+  /* Estilos para la información del producto */
+  .paso-devolucion {
+    margin: 20px 0;
+  }
+  
+  .producto-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: white;
+    box-shadow: var(--shadow-table);
+  }
+  
+  .producto-info-table thead {
+    background-color: var(--color-gray-light);
+  }
+  
+  .producto-info-table th,
+  .producto-info-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border: 1px solid var(--color-border);
+  }
+  
+  /* Estilos para el formulario */
+  .devolucion-form {
+    padding: 20px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    flex: 1;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--color-dark);
+  }
+  
+  .textarea-group {
+    width: 100% !important;
+    margin-bottom: 15px;
+  }
+  
+  .textarea-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--color-dark);
+  }
+  
+  .textarea-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  /* Checkbox específico */
+  .form-group.checkbox {
+    display: flex;
+    align-items: center;
+  }
+  
+  .form-group.checkbox input[type="checkbox"] {
+    margin-right: 8px;
+    width: auto;
+  }
+  
+  /* Botones del formulario */
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-dark);
+  }
+  
+  .btn-secondary {
+    background-color: #e9ecef;
+    color: var(--color-dark);
+    border: 1px solid var(--color-border);
+  }
+  
+  .btn-secondary:hover {
+    background-color: #dee2e6;
+  }
+  
+  /* Estilos para el paso de cambio */
+  .paso-cambio {
+    margin: 20px 0;
+  }
+  
+  .paso-cambio h3 {
+    color: var(--color-dark);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  /* Estilos para el paso finalizado */
+  .paso-finalizado {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .finalizado-content {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .finalizado-content h3 {
+    color: var(--color-primary);
+    margin-bottom: 20px;
+  }
+  
+  .codigo-saldo {
+    font-size: 1.2em;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: var(--color-gray-light);
+    border-radius: 4px;
+  }
+  
+  .monto-saldo {
+    font-size: 1.3em;
+    color: var(--color-primary);
+    margin: 15px 0;
+  }
+  
+  /* Responsivo */
+  @media (max-width: 768px) {
+    .registrar-devolucion-container {
+      padding: 10px;
+    }
+  
+    .form-row {
+      flex-direction: column;
+      gap: 15px;
+    }
+  
+    .codigo-barras-container {
+      flex-direction: column;
+    }
+  
+    .form-actions {
+      flex-direction: column;
+    }
+  
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+    }
+  
+    .producto-info-table {
+      font-size: 0.9em;
+    }
+  
+    .producto-info-table th,
+    .producto-info-table td {
+      padding: 8px;
+    }
+  
+    .finalizado-content {
+      padding: 0 10px;
+    }
+  }

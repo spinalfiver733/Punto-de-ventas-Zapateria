@@ -152,16 +152,6 @@ const SaldosDevoluciones = () => {
           </button>
         </div>
 
-        <div className="busqueda-general">
-          <input
-            type="text"
-            name="busquedaGeneral"
-            placeholder="Búsqueda general"
-            value={filters.busquedaGeneral}
-            onChange={handleFilterChange}
-          />
-        </div>
-
         <div className="saldos-table-container">
           <table className="saldos-table">
             <thead>
