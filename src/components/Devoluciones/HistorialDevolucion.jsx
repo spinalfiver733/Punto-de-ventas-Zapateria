@@ -4,6 +4,9 @@ import { es } from 'date-fns/locale';
 import './Devoluciones.css';
 
 const HistorialDevolucion = ({ devoluciones }) => {
+  console.log('=== TODAS LAS DEVOLUCIONES ===');
+  console.log(devoluciones);
+
   const [filters, setFilters] = useState({
     busquedaGeneral: '',
     marca: '',
@@ -142,30 +145,62 @@ const HistorialDevolucion = ({ devoluciones }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredDevoluciones.map((devolucion, index) => (
-              <tr key={devolucion.PK_DEVOLUCION || index}>
-                <td>{formatearFecha(devolucion.FECHA_DEVOLUCION)}</td>
-                <td>{devolucion.Producto?.MARCA || 'N/A'}</td>
-                <td>{devolucion.Producto?.MODELO || 'N/A'}</td>
-                <td>{opcionesMotivo[devolucion.MOTIVO] || devolucion.MOTIVO}</td>
-                <td>{devolucion.Vendedor?.NOMBRE_USUARIO || 'N/A'}</td>
-                <td>
-                  {devolucion.TIPO_DEVOLUCION === 'cambio' ? 'Cambio' : 'Saldo a Favor'}
-                  {devolucion.DIFERENCIA_PRECIO && devolucion.DIFERENCIA_PRECIO !== 0 && (
-                    <span className="diferencia-precio">
-                      {` (${devolucion.DIFERENCIA_PRECIO > 0 ? '+' : ''}${devolucion.DIFERENCIA_PRECIO})`}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  {devolucion.ESTADO_FINAL === 1 ? (
-                    <span className="estado-inventario">Retornado a Inventario</span>
-                  ) : (
-                    <span className="estado-baja">Dado de Baja</span>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {filteredDevoluciones.map((devolucion, index) => {
+              // Console.logs para debugging
+              console.log('=== DEVOLUCIÓN INDIVIDUAL ===');
+              console.log('Devolución completa:', devolucion);
+              console.log('Producto:', devolucion.Producto);
+              console.log('Precio del producto:', devolucion.Producto?.PRECIO);
+              console.log('FK_VENTA_NUEVA:', devolucion.FK_VENTA_NUEVA);
+              console.log('==========================');
+
+              return (
+                <tr key={devolucion.PK_DEVOLUCION || index}>
+                  <td>{formatearFecha(devolucion.FECHA_DEVOLUCION)}</td>
+                  <td>{devolucion.Producto?.MARCA || 'N/A'}</td>
+                  <td>{devolucion.Producto?.MODELO || 'N/A'}</td>
+                  <td>{opcionesMotivo[devolucion.MOTIVO] || devolucion.MOTIVO}</td>
+                  <td>{devolucion.Vendedor?.NOMBRE_USUARIO || 'N/A'}</td>
+                  <td>
+  {(() => {
+    // Es una devolución con cambio inmediato
+    if (devolucion.FK_VENTA_NUEVA) {
+      return (
+        <>
+          <div>Cambio por otro producto</div>
+          {devolucion.DIFERENCIA_PRECIO && (
+            <span className="diferencia-precio texto-pago">
+              {parseFloat(devolucion.DIFERENCIA_PRECIO) > 0 
+                ? `Cliente pagó: $${parseFloat(devolucion.DIFERENCIA_PRECIO).toFixed(2)}` 
+                : `Saldo generado: $${Math.abs(parseFloat(devolucion.DIFERENCIA_PRECIO)).toFixed(2)}`}
+            </span>
+          )}
+        </>
+      );
+    } 
+    // Es una devolución sin cambio (solo saldo)
+    else {
+      return (
+        <>
+          <div>Devolución sin cambio</div>
+          <span className="diferencia-precio texto-saldo">
+            Saldo total: ${parseFloat(devolucion.VentaOriginal?.PRECIO || 0).toFixed(2)}
+          </span>
+        </>
+      );
+    }
+  })()}
+</td>
+                  <td>
+                    {devolucion.ESTADO_FINAL === 1 ? (
+                      <span className="estado-inventario">Retornado a Inventario</span>
+                    ) : (
+                      <span className="estado-baja">Dado de Baja</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
