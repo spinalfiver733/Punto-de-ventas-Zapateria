@@ -17,7 +17,7 @@ const Ventas = () => {
       <div className="headerTitle">
         <h2>VENTAS</h2>
       </div>
-      <div className="ventas-nav">
+      <div className="module-nav">
         <div 
           onClick={() => cambiarVista('registrar')}
           className={`nav-item ${vistaActual === 'registrar' ? 'active' : ''}`}

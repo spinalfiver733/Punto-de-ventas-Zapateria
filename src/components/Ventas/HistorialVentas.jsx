@@ -10,6 +10,7 @@ const HistorialVentas = () => {
     const fetchVentas = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/ventas/historial');
+        console.log(response);
         setVentas(response.data);
       } catch (error) {
         console.error('Error al obtener historial de ventas:', error);
@@ -27,7 +28,7 @@ const HistorialVentas = () => {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    });
+    }).replace(',', ' - '); // Reemplaza la coma con ' - '
   };
 
   return (
@@ -42,6 +43,7 @@ const HistorialVentas = () => {
             <th>Precio</th>
             <th>Método de pago</th>
             <th>Vendedor</th>
+            <th>Código de Barras</th>
             <th>Fecha de venta</th>
           </tr>
         </thead>
@@ -55,6 +57,7 @@ const HistorialVentas = () => {
               <td>${parseFloat(venta.PRECIO).toFixed(2)}</td>
               <td>{venta.MetodoPago?.DESCRIPCION_METODO}</td>
               <td>{venta.Vendedor?.NOMBRE_USUARIO}</td>
+              <td>{venta.CODIGO_BARRA}</td>
               <td>{formatDate(venta.FECHA_VENTA)}</td>
             </tr>
           ))}

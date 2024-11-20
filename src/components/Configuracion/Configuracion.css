@@ -1,8 +1,37 @@
-.configuracion-nav {
-  padding: 15px;
+/* Configuracion.css */
+.agregar-empleado-form .form-group {
+  width: 100%; /* Sobreescribe el ancho para este formulario específico */
 }
 
-/* Si realmente necesitas que los inputs en configuración sean más estrechos */
-.configuracion-container input {
-  width: 97%;
+.agregar-empleado-form .form-group input,
+.agregar-empleado-form .form-group select,
+.agregar-empleado-form .css-b62m3t-container { /* Esta clase es del react-select */
+  width: 100% !important;
+}
+
+/* El resto de los estilos que ya teníamos */
+
+.agregar-empleado-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.estado-vendedores table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.estado-vendedores th,
+.estado-vendedores td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.estado-vendedores th {
+  background-color: #f8f9fa;
 }

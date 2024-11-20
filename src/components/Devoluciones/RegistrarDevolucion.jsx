@@ -17,18 +17,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const [paso, setPaso] = useState(1); // 1: Buscar, 2: Procesar devolución, 3: Cambio, 4: Saldo
   const [vendedorOptions, setVendedorOptions] = useState([]);
   const [consultaSaldo, setConsultaSaldo] = useState({ codigo: '', resultado: null });
-
-  // const formatearFecha = (fechaString) => {
-  //   if (!fechaString) return 'Fecha no disponible';
-  //   try {
-  //     const fecha = parseISO(fechaString);
-  //     return format(fecha, 'dd/MM/yyyy', { locale: es });
-  //   } catch (error) {
-  //     console.error('Error al formatear fecha:', error);
-  //     return 'Fecha inválida';
-  //   }
-  // };
-
   const formatearFechaCompleta = (fechaString) => {
     if (!fechaString) return 'Fecha no disponible';
     try {
@@ -332,50 +320,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     setPaso(1);
   };
 
-  const renderTicketOriginal = () => {
-    if (!formData.productoVendido?.VENTA?.[0]) return null;
-  
-    const ventaInfo = formData.productoVendido.VENTA[0];
-    
-    console.log('=== DATOS DE LA VENTA A RENDERIZAR ===');
-    console.log('Información de venta:', ventaInfo);
-  
-    return (
-      <div className="ticket-original">
-        <table className="inventario-tabla">
-          <thead>
-            <tr>
-              <th colSpan="2">Detalles de la Venta Original</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Fecha</td>
-              <td className="value-cell">
-                {ventaInfo.FECHA_VENTA ? 
-                  formatearFechaCompleta(ventaInfo.FECHA_VENTA) : 
-                  'Fecha no disponible'}
-              </td>
-            </tr>
-            <tr>
-              <td>Vendedor</td>
-              <td className="value-cell">{ventaInfo.VENDEDOR || 'No disponible'}</td>
-            </tr>
-            <tr>
-              <td>Método de Pago</td>
-              <td className="value-cell">{ventaInfo.METODO_PAGO || 'No disponible'}</td>
-            </tr>
-            {ventaInfo.OBSERVACIONES && (
-              <tr>
-                <td>Observaciones</td>
-                <td className="value-cell">{ventaInfo.OBSERVACIONES}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
   return (
     <div className="registrar-devolucion-container">
       {/* Paso 1: Búsqueda del producto */}
@@ -552,7 +496,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       {/* Paso 3: Proceso de cambio */}
       {paso === 3 && (
         <div className="paso-cambio">
-          <h3>Selección de Nuevo Producto</h3>
+          <h3>Venta por Devolución</h3>
           <RegistrarVenta 
             modo="cambio"
             productoDevuelto={formData.productoVendido}
