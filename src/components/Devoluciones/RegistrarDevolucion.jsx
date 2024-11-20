@@ -4,7 +4,7 @@ import { useSnackbar } from 'notistack';
 import Select from 'react-select';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 import './Devoluciones.css';
-import Ventas from '../Ventas/Ventas';
+import RegistrarVenta from '../Ventas/RegistrarVenta';
 import { format, parseISO } from 'date-fns'; // Agregamos parseISO aquí
 import es from 'date-fns/locale/es';
 import  './Devoluciones.css';
@@ -553,7 +553,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       {paso === 3 && (
         <div className="paso-cambio">
           <h3>Selección de Nuevo Producto</h3>
-          <Ventas 
+          <RegistrarVenta 
             modo="cambio"
             productoDevuelto={formData.productoVendido}
             onCambioCompleto={handleCambioCompleto}

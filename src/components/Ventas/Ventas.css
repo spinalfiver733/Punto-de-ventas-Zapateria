@@ -12,6 +12,21 @@
   margin-bottom: 30px;
 }
 
+.ventas-nav {
+  display: flex;
+  margin-bottom: 20px;
+}
+/*
+.nav-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-bottom: 5px solid transparent;
+}
+
+.nav-item.active {
+  border-bottom-color: #ff0000;
+}*/
+
 .total-row {
   background-color: var(--color-primary);
   color: white;
