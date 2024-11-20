@@ -5,17 +5,41 @@ import Select from 'react-select';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 import './Devoluciones.css';
 import Ventas from '../Ventas/Ventas';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns'; // Agregamos parseISO aquí
 import es from 'date-fns/locale/es';
 import  './Devoluciones.css';
 import iconCancelar from '../../assets/images/svg/cancelar.svg';
 import iconAceptar from '../../assets/images/svg/aceptar.svg';
+
 
 const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [paso, setPaso] = useState(1); // 1: Buscar, 2: Procesar devolución, 3: Cambio, 4: Saldo
   const [vendedorOptions, setVendedorOptions] = useState([]);
   const [consultaSaldo, setConsultaSaldo] = useState({ codigo: '', resultado: null });
+
+  // const formatearFecha = (fechaString) => {
+  //   if (!fechaString) return 'Fecha no disponible';
+  //   try {
+  //     const fecha = parseISO(fechaString);
+  //     return format(fecha, 'dd/MM/yyyy', { locale: es });
+  //   } catch (error) {
+  //     console.error('Error al formatear fecha:', error);
+  //     return 'Fecha inválida';
+  //   }
+  // };
+
+  const formatearFechaCompleta = (fechaString) => {
+    if (!fechaString) return 'Fecha no disponible';
+    try {
+      const fecha = parseISO(fechaString);
+      return format(fecha, 'PPP', { locale: es });
+    } catch (error) {
+      console.error('Error al formatear fecha completa:', error);
+      return 'Fecha inválida';
+    }
+  };
+  
   const [formData, setFormData] = useState({
     codigoBarras: '',
     productoVendido: null,
@@ -27,6 +51,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     ticketOriginal: null,
     devolucionActual: null  // Agregamos esta línea
   });
+
 
   const opcionesMotivo = [
     { value: 'no_talla', label: 'No es la talla correcta' },
@@ -61,6 +86,17 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       try {
         const response = await axios.get(`http://localhost:5000/api/inventario/vendido/${codigoBarras}`);
         if (response.data) {
+          console.log('=== ANÁLISIS DETALLADO DE LA VENTA ===');
+          console.log('VENTA completa:', response.data.VENTA);
+          console.log('VENTA[0]:', response.data.VENTA[0]);
+          console.log('Estructura de VENTA:', {
+            tieneVenta: !!response.data.VENTA,
+            tipoDeVenta: typeof response.data.VENTA,
+            vendedor: response.data.VENTA?.[0]?.VENDEDOR,
+            metodoPago: response.data.VENTA?.[0]?.METODO_PAGO,
+            fechaVenta: response.data.VENTA?.[0]?.FECHA_VENTA
+          });
+          
           if (response.data.FK_ESTATUS_PRODUCTO !== 2) {
             enqueueSnackbar('Este producto no está registrado como vendido', { variant: 'warning' });
             return;
@@ -72,6 +108,11 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             ticketOriginal: response.data.VentasInfos
           }));
           setPaso(2);
+
+          console.log('=== FORM DATA ACTUALIZADO ===');
+          console.log('Producto en formData:', response.data);
+          console.log('Ticket original:', response.data.VentasInfos);
+          console.log('============================');
           enqueueSnackbar('Producto vendido encontrado', { variant: 'success' });
         }
       } catch (error) {
@@ -141,6 +182,12 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       return;
     }
 
+    // Validar que existe información de la venta
+    if (!formData.productoVendido?.VENTA?.[0]?.PK_VENTA) {
+      enqueueSnackbar('No se encontró la información de la venta original', { variant: 'error' });
+      return;
+    }
+
     try {
       // 1. Actualizar estado del producto
       const nuevoEstado = formData.motivoDevolucion.value === 'defecto_fabrica' ? 0 : 1;
@@ -151,7 +198,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       // 2. Registrar la devolución
       const devolucionData = {
         FK_PRODUCTO: formData.productoVendido.PK_PRODUCTO,
-        FK_VENTA: formData.productoVendido.VentasInfos.PK_VENTA,
+        FK_VENTA: formData.productoVendido.VENTA[0].PK_VENTA, // Cambiado aquí
         FK_VENDEDOR: formData.vendedor.value,
         MOTIVO: formData.motivoDevolucion.value,
         DESCRIPCION_MOTIVO: formData.descripcionMotivo || '',
@@ -180,7 +227,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
         };
 
         const responseSaldo = await axios.post('http://localhost:5000/api/saldos', saldoData);
-        setConsultaSaldo({ codigo: responseSaldo.data.CODIGO_UNICO, resultado: responseSaldo.data }); // Agregar esta línea
+        setConsultaSaldo({ codigo: responseSaldo.data.CODIGO_UNICO, resultado: responseSaldo.data });
         setPaso(4);
       }
 
@@ -194,9 +241,8 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
 
     } catch (error) {
       console.error('Error al procesar la devolución:', error);
-      console.log('Detalles del error:', error.response?.data || error.message);
+      console.log('Detalles del error:', error.message);
       
-      // Mensaje de error más específico para el usuario
       let mensajeError = 'Error al procesar la devolución';
       if (error.message === 'No se encontró la información de la venta original') {
         mensajeError = 'No se encontró la información de la venta original';
@@ -206,7 +252,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       
       enqueueSnackbar(mensajeError, { variant: 'error' });
     }
-  };
+};
 
   const handleCambioCompleto = async (datosNuevaVenta) => {
     try {
@@ -275,7 +321,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
         codigoBarras: '',
         productoVendido: null,
         vendedor: null,
-        motivoDevolucion: null,
+        motivoDevolucion: null, 
         descripcionMotivo: '',
         requiereCambio: false,
         observaciones: '',
@@ -287,7 +333,12 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   };
 
   const renderTicketOriginal = () => {
-    if (!formData.ticketOriginal) return null;
+    if (!formData.productoVendido?.VENTA?.[0]) return null;
+  
+    const ventaInfo = formData.productoVendido.VENTA[0];
+    
+    console.log('=== DATOS DE LA VENTA A RENDERIZAR ===');
+    console.log('Información de venta:', ventaInfo);
   
     return (
       <div className="ticket-original">
@@ -300,20 +351,24 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
           <tbody>
             <tr>
               <td>Fecha</td>
-              <td className="value-cell">{format(new Date(formData.ticketOriginal.FECHA_VENTA), 'PPP', { locale: es })}</td>
+              <td className="value-cell">
+                {ventaInfo.FECHA_VENTA ? 
+                  formatearFechaCompleta(ventaInfo.FECHA_VENTA) : 
+                  'Fecha no disponible'}
+              </td>
             </tr>
             <tr>
               <td>Vendedor</td>
-              <td className="value-cell">{formData.ticketOriginal.VENDEDOR}</td>
+              <td className="value-cell">{ventaInfo.VENDEDOR || 'No disponible'}</td>
             </tr>
             <tr>
               <td>Método de Pago</td>
-              <td className="value-cell">{formData.ticketOriginal.METODO_PAGO}</td>
+              <td className="value-cell">{ventaInfo.METODO_PAGO || 'No disponible'}</td>
             </tr>
-            {formData.ticketOriginal.OBSERVACIONES && (
+            {ventaInfo.OBSERVACIONES && (
               <tr>
                 <td>Observaciones</td>
-                <td className="value-cell">{formData.ticketOriginal.OBSERVACIONES}</td>
+                <td className="value-cell">{ventaInfo.OBSERVACIONES}</td>
               </tr>
             )}
           </tbody>
@@ -348,33 +403,77 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       {/* Paso 2: Información del producto y proceso de devolución */}
       {paso === 2 && formData.productoVendido && (
         <div className="paso-devolucion">
-          {renderTicketOriginal()}
-          
-          <h3>Información del Producto Vendido</h3>
-          <table className="producto-info-table">
-            <thead>
-              <tr>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Color</th>
-                <th>Talla</th>
-                <th>Precio</th>
-                <th>Fecha de Venta</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{formData.productoVendido.MARCA}</td>
-                <td>{formData.productoVendido.MODELO}</td>
-                <td>{formData.productoVendido.COLOR}</td>
-                <td>{formData.productoVendido.TALLA}</td>
-                <td>${parseFloat(formData.productoVendido.PRECIO).toFixed(2)}</td>
-                <td>{format(new Date(formData.productoVendido.VentasInfos?.FECHA_VENTA), 'dd/MM/yyyy')}</td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="venta-info-container">
+            <h3>Detalles de la Devolución</h3>
+            
+            {/* Información de la venta original */}
+            <div className="seccion-info">
+              <h4>Venta Original</h4>
+              <div className="ticket-original">
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>Fecha</td>
+                      <td>
+                        {formData.productoVendido?.VENTA?.[0]?.FECHA_VENTA ? 
+                          formatearFechaCompleta(formData.productoVendido.VENTA[0].FECHA_VENTA) : 
+                          'Fecha no disponible'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Vendedor</td>
+                      <td>
+                        {formData.productoVendido?.VENTA?.[0]?.Vendedor?.NOMBRE_USUARIO || 'No disponible'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Método de Pago</td>
+                      <td>
+                        {formData.productoVendido?.VENTA?.[0]?.MetodoPago?.DESCRIPCION_METODO || 'No disponible'}
+                      </td>
+                    </tr>
+                    {formData.productoVendido?.VENTA?.[0]?.OBSERVACIONES && (
+                      <tr>
+                        <td>Observaciones</td>
+                        <td>
+                          {formData.productoVendido.VENTA[0].OBSERVACIONES}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
+            {/* Información del producto */}
+            <div className="seccion-info">
+              <h4>Producto a Devolver</h4>
+              <table className="producto-info-table">
+                <thead>
+                  <tr>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Color</th>
+                    <th>Talla</th>
+                    <th>Precio</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{formData.productoVendido.MARCA}</td>
+                    <td>{formData.productoVendido.MODELO}</td>
+                    <td>{formData.productoVendido.COLOR}</td>
+                    <td>{formData.productoVendido.TALLA}</td>
+                    <td>${parseFloat(formData.productoVendido.PRECIO).toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Formulario de devolución */}
           <div className="devolucion-form">
+            <h4>Proceso de Devolución</h4>
             <div className="form-row">
               <div className="form-group">
                 <label>Vendedor que procesa:</label>
@@ -426,12 +525,12 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             <div className="form-row">
               <div className="form-group checkbox">
                 <label>
+                  El cliente requiere cambio de producto                 
                   <input
                     type="checkbox"
                     checked={formData.requiereCambio}
                     onChange={(e) => setFormData(prev => ({ ...prev, requiereCambio: e.target.checked }))}
                   />
-                  El cliente requiere cambio de producto
                 </label>
               </div>
             </div>
@@ -442,7 +541,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
                 Procesar Devolución
               </button>
               <button className="btn-primary btn-danger" onClick={resetForm}>
-              <img src={iconCancelar} alt="Cancelar venta" />
+                <img src={iconCancelar} alt="Cancelar venta" />
                 Cancelar
               </button>
             </div>
@@ -469,19 +568,25 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
           <div className="finalizado-content">
             <h3>Devolución Completada</h3>
             <p>La devolución se ha procesado correctamente.</p>
+            
             {formData.requiereCambio ? (
-              consultaSaldo.resultado ? (
+              // Caso cuando hubo cambio de producto
+              consultaSaldo.resultado && (
                 <>
                   <p>Se ha generado un saldo a favor por la diferencia:</p>
                   <p className="codigo-saldo">Código: <strong>{consultaSaldo.resultado.CODIGO_UNICO}</strong></p>
                   <p className="monto-saldo">Monto: <strong>${parseFloat(consultaSaldo.resultado.MONTO).toFixed(2)}</strong></p>
                 </>
-              ) : (
-                <p>El cambio de producto ha sido registrado.</p>
               )
             ) : (
-              <p>Se ha generado un saldo a favor para el cliente.</p>
+              // Caso cuando NO hubo cambio de producto (devolución completa)
+              <>
+                <p>Se ha generado un saldo a favor para el cliente:</p>
+                <p className="codigo-saldo">Código: <strong>{consultaSaldo.resultado.CODIGO_UNICO}</strong></p>
+                <p className="monto-saldo">Monto: <strong>${parseFloat(consultaSaldo.resultado.MONTO).toFixed(2)}</strong></p>
+              </>
             )}
+            
             <button 
               className="btn-primary"
               onClick={resetForm}

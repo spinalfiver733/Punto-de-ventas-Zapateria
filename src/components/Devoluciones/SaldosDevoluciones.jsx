@@ -28,11 +28,10 @@ const SaldosDevoluciones = () => {
 
     try {
       const response = await axios.get(`http://localhost:5000/api/saldos/${codigoConsulta}`);
-      setSaldoInfo(response.data);
+      setSaldoInfo(response.data.estado);
       setConsultaRealizada(true);
-      
-      if (response.data.estado === 'activo') {
-        enqueueSnackbar(`Saldo disponible: $${response.data.monto}`, { variant: 'success' });
+      if (response.data.ESTADO === 'activo') {
+        enqueueSnackbar(`Saldo disponible: $${response.data.MONTO}`, { variant: 'success' });
       } else {
         enqueueSnackbar('Este saldo ya ha sido utilizado', { variant: 'info' });
       }
@@ -145,13 +144,6 @@ const SaldosDevoluciones = () => {
 
       {/* Historial de Saldos */}
       <div className="historial-saldos-section">
-        <div className="historial-header">
-          <h3>Historial de Saldos</h3>
-          <button onClick={cargarHistorialSaldos} className="btn-secondary">
-            Actualizar Historial
-          </button>
-        </div>
-
         <div className="saldos-table-container">
           <table className="saldos-table">
             <thead>
@@ -215,6 +207,12 @@ const SaldosDevoluciones = () => {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="historial-header">
+          <h3>Historial de Saldos</h3>
+          <button onClick={cargarHistorialSaldos} className="btn-primary">
+            Actualizar Historial
+          </button>
         </div>
       </div>
     </div>
