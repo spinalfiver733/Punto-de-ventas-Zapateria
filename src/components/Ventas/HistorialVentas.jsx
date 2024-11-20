@@ -1,5 +1,3 @@
-
-// HistorialVentas.jsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
@@ -12,7 +10,6 @@ const HistorialVentas = () => {
     const fetchVentas = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/ventas/historial');
-        console.log('Datos de ventas:', response.data);
         setVentas(response.data);
       } catch (error) {
         console.error('Error al obtener historial de ventas:', error);
@@ -23,26 +20,42 @@ const HistorialVentas = () => {
     fetchVentas();
   }, [enqueueSnackbar]);
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('es-MX', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="historial-ventas">
       <table>
         <thead>
           <tr>
-            <th>Fecha</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Color</th>
+            <th>Número</th>
+            <th>Precio</th>
+            <th>Método de pago</th>
             <th>Vendedor</th>
-            <th>Productos</th>
-            <th>Método de Pago</th>
-            <th>Total</th>
+            <th>Fecha de venta</th>
           </tr>
         </thead>
         <tbody>
           {ventas.map((venta) => (
             <tr key={venta.PK_VENTA}>
-              <td>{new Date(venta.FECHA_VENTA).toLocaleDateString()}</td>
-              <td>{venta.VENDEDOR}</td>
-              <td>{venta.productos?.length || 0}</td>
-              <td>{venta.METODO_PAGO}</td>
-              <td>${venta.TOTAL?.toFixed(2)}</td>
+              <td>{venta.MARCA}</td>
+              <td>{venta.MODELO}</td>
+              <td>{venta.COLOR}</td>
+              <td>{venta.TALLA}</td>
+              <td>${parseFloat(venta.PRECIO).toFixed(2)}</td>
+              <td>{venta.MetodoPago?.DESCRIPCION_METODO}</td>
+              <td>{venta.Vendedor?.NOMBRE_USUARIO}</td>
+              <td>{formatDate(venta.FECHA_VENTA)}</td>
             </tr>
           ))}
         </tbody>
