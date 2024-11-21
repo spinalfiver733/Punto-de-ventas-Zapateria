@@ -37,10 +37,10 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       text: texto,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
+      confirmButtonColor: '#4caf50',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, agregar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'AGREGAR',
+      cancelButtonText: 'CANCELAR'
     });
   };
 
@@ -117,10 +117,10 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       text: "¿Desea eliminar este producto de la lista?",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
+      confirmButtonColor: '#4caf50',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'ELIMINAR',
+      cancelButtonText: 'CANCELAR'
     });
 
     if (result.isConfirmed) {

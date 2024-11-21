@@ -1,14 +1,15 @@
 import { useState, useMemo } from 'react';
 import './InventarioLista.css';
 
-// eslint-disable-next-line react/prop-types
 const InventarioLista = ({ inventario }) => {
   const [filters, setFilters] = useState({
-    busquedaGeneral: '',
     marca: '',
     modelo: '',
     talla: '',
-    color: ''
+    color: '',
+    codigo_barra: '',
+    precio: '',
+    fecha_ingreso: ''
   });
 
   const formatearFecha = (fecha) => {
@@ -26,37 +27,22 @@ const InventarioLista = ({ inventario }) => {
   };
 
   const filteredInventario = useMemo(() => {
-    // eslint-disable-next-line react/prop-types
     return inventario.filter(item => {
+      const fechaFormateada = formatearFecha(item.FECHA_INGRESO);
       return (
         (item.MARCA.toLowerCase().includes(filters.marca.toLowerCase()) || filters.marca === '') &&
         (item.MODELO.toLowerCase().includes(filters.modelo.toLowerCase()) || filters.modelo === '') &&
         (item.TALLA.toString().includes(filters.talla) || filters.talla === '') &&
         (item.COLOR.toLowerCase().includes(filters.color.toLowerCase()) || filters.color === '') &&
-        (
-          item.MARCA.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          item.MODELO.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          item.TALLA.toString().includes(filters.busquedaGeneral) ||
-          item.COLOR.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          item.PRECIO.toString().includes(filters.busquedaGeneral) ||
-          formatearFecha(item.FECHA_INGRESO).includes(filters.busquedaGeneral) ||
-          filters.busquedaGeneral === ''
-        )
+        (item.CODIGO_BARRA?.toString().includes(filters.codigo_barra) || filters.codigo_barra === '') &&
+        (item.PRECIO.toString().includes(filters.precio) || filters.precio === '') &&
+        (fechaFormateada.includes(filters.fecha_ingreso) || filters.fecha_ingreso === '')
       );
     });
   }, [inventario, filters]);
 
   return (
     <div className="inventario-lista-container">
-      <div className="busqueda-general">
-        <input
-          type="text"
-          name="busquedaGeneral"
-          placeholder="Búsqueda general"
-          value={filters.busquedaGeneral}
-          onChange={handleFilterChange}
-        />
-      </div>
       <table className="inventario-tabla">
         <thead>
           <tr className="filtros-row">
@@ -97,8 +83,33 @@ const InventarioLista = ({ inventario }) => {
                 onChange={handleFilterChange}
               />
             </th>
-            <th></th>
-            <th></th>
+            <th>
+              <input
+                type="text"
+                name="codigo_barra"
+                placeholder="Filtrar código"
+                value={filters.codigo_barra}
+                onChange={handleFilterChange}
+              />
+            </th>
+            <th>
+              <input
+                type="text"
+                name="precio"
+                placeholder="Filtrar precio"
+                value={filters.precio}
+                onChange={handleFilterChange}
+              />
+            </th>
+            <th>
+              <input
+                type="text"
+                name="fecha_ingreso"
+                placeholder="Filtrar fecha"
+                value={filters.fecha_ingreso}
+                onChange={handleFilterChange}
+              />
+            </th>
           </tr>
           <tr>
             <th>No.</th>
@@ -106,6 +117,7 @@ const InventarioLista = ({ inventario }) => {
             <th>Modelo</th>
             <th>Color</th>
             <th>Número</th>
+            <th>Código de Barras</th>
             <th>Precio</th>
             <th>Fecha de Ingreso</th>
           </tr>
@@ -118,6 +130,7 @@ const InventarioLista = ({ inventario }) => {
               <td>{item.MODELO}</td>        
               <td>{item.COLOR}</td>
               <td>{item.TALLA}</td>
+              <td>{item.CODIGO_BARRA}</td>
               <td>{item.PRECIO}</td>
               <td>{formatearFecha(item.FECHA_INGRESO)}</td>
             </tr>
