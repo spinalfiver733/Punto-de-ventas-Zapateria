@@ -1,5 +1,3 @@
-
-// EstadoVendedores.jsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
@@ -8,18 +6,32 @@ const EstadoVendedores = () => {
   const [vendedores, setVendedores] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
 
-  useEffect(() => {
-    const fetchVendedores = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/usuarios');
-        setVendedores(response.data);
-      } catch (error) {
-        enqueueSnackbar('Error al cargar los vendedores', { variant: 'error' });
-      }
-    };
+  const fetchVendedores = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/usuarios');
+      setVendedores(response.data);
+    } catch (error) {
+      enqueueSnackbar('Error al cargar los vendedores', { variant: 'error' });
+    }
+  };
 
+  useEffect(() => {
     fetchVendedores();
   }, [enqueueSnackbar]);
+
+  const handleToggleStatus = async (idUsuario, estadoActual) => {
+    try {
+      await axios.patch(`http://localhost:5000/api/usuarios/${idUsuario}/toggle-status`);
+      enqueueSnackbar(
+        `Usuario ${estadoActual ? 'desactivado' : 'activado'} exitosamente`, 
+        { variant: 'success' }
+      );
+      // Recargar la lista de vendedores
+      fetchVendedores();
+    } catch (error) {
+      enqueueSnackbar('Error al cambiar el estado del usuario', { variant: 'error' });
+    }
+  };
 
   return (
     <div className="estado-vendedores">
@@ -31,6 +43,7 @@ const EstadoVendedores = () => {
             <th>Teléfono</th>
             <th>Rol</th>
             <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +53,15 @@ const EstadoVendedores = () => {
               <td>{`${vendedor.PATERNO_USUARIO} ${vendedor.MATERNO_USUARIO}`}</td>
               <td>{vendedor.NUMERO_USUARIO}</td>
               <td>{vendedor.FK_ROL_USUARIO}</td>
-              <td>{vendedor.ESTATUS_USUARIO ? 'Activo' : 'Inactivo'}</td>
+              <td>{Boolean(vendedor.ESTATUS_USUARIO) ? 'Activo' : 'Inactivo'}</td>
+              <td>
+                <button 
+                  className={`btn ${vendedor.ESTATUS_USUARIO ? 'btn-danger' : 'btn-success'}`}
+                  onClick={() => handleToggleStatus(vendedor.ID_USUARIO, vendedor.ESTATUS_USUARIO)}
+                >
+                  {vendedor.ESTATUS_USUARIO ? 'Desactivar' : 'Activar'}
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
