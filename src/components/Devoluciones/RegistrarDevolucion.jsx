@@ -5,12 +5,11 @@ import Select from 'react-select';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 import './Devoluciones.css';
 import RegistrarVenta from '../Ventas/RegistrarVenta';
-import { format, parseISO } from 'date-fns'; // Agregamos parseISO aquí
+import { format, parseISO } from 'date-fns';
 import es from 'date-fns/locale/es';
 import  './Devoluciones.css';
 import iconCancelar from '../../assets/images/svg/cancelar.svg';
 import iconAceptar from '../../assets/images/svg/aceptar.svg';
-
 
 const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -39,7 +38,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     ticketOriginal: null,
     devolucionActual: null  // Agregamos esta línea
   });
-
 
   const opcionesMotivo = [
     { value: 'no_talla', label: 'No es la talla correcta' },
@@ -181,6 +179,10 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       const nuevoEstado = formData.motivoDevolucion.value === 'defecto_fabrica' ? 0 : 1;
       await axios.put(`http://localhost:5000/api/inventario/${formData.productoVendido.PK_PRODUCTO}`, {
         FK_ESTATUS_PRODUCTO: nuevoEstado
+      });
+
+      await axios.put(`http://localhost:5000/api/ventas/${formData.productoVendido.VENTA[0].PK_VENTA}`,{
+        FK_ESTATUS_VENTA: 2// 2 = Devolución
       });
 
       // 2. Registrar la devolución

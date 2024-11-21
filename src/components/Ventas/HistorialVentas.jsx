@@ -64,7 +64,6 @@ const HistorialVentas = () => {
         </tbody>
       </table>
     </div>
-  );
-};
+  );};
 
 export default HistorialVentas;
