@@ -36,6 +36,7 @@ const HistorialVentas = () => {
       <table>
         <thead>
           <tr>
+            <th>No.</th>
             <th>Marca</th>
             <th>Modelo</th>
             <th>Color</th>
@@ -48,8 +49,9 @@ const HistorialVentas = () => {
           </tr>
         </thead>
         <tbody>
-          {ventas.map((venta) => (
+          {ventas.map((venta,index) => (
             <tr key={venta.PK_VENTA}>
+              <td>{index + 1}</td>
               <td>{venta.MARCA}</td>
               <td>{venta.MODELO}</td>
               <td>{venta.COLOR}</td>

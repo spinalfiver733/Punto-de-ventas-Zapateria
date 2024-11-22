@@ -8,7 +8,6 @@ const HistorialDevolucion = ({ devoluciones }) => {
   console.log(devoluciones);
 
   const [filters, setFilters] = useState({
-    busquedaGeneral: '',
     marca: '',
     modelo: '',
     motivo: '',
@@ -44,15 +43,7 @@ const HistorialDevolucion = ({ devoluciones }) => {
         (devolucion.MOTIVO?.toLowerCase().includes(filters.motivo.toLowerCase()) || !filters.motivo) &&
         (vendedor.NOMBRE_USUARIO?.toLowerCase().includes(filters.vendedor.toLowerCase()) || !filters.vendedor) &&
         (fechaDevolucion.includes(filters.fecha) || !filters.fecha) &&
-        (devolucion.TIPO_DEVOLUCION?.toLowerCase().includes(filters.tipo.toLowerCase()) || !filters.tipo) &&
-        (
-          producto.MARCA?.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          producto.MODELO?.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          vendedor.NOMBRE_USUARIO?.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          fechaDevolucion.includes(filters.busquedaGeneral) ||
-          opcionesMotivo[devolucion.MOTIVO]?.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          !filters.busquedaGeneral
-        )
+        (devolucion.TIPO_DEVOLUCION?.toLowerCase().includes(filters.tipo.toLowerCase()) || !filters.tipo)
       );
     });
   }, [devoluciones, filters]);
@@ -64,29 +55,11 @@ const HistorialDevolucion = ({ devoluciones }) => {
 
   return (
     <div className="historial-devolucion-container">
-      <div className="busqueda-general">
-        <input
-          type="text"
-          name="busquedaGeneral"
-          placeholder="Búsqueda general"
-          value={filters.busquedaGeneral}
-          onChange={handleFilterChange}
-        />
-      </div>
-
       <div className="devolucion-table-container">
         <table className="devolucion-table">
           <thead>
             <tr className="filtros-row">
-              <th>
-                <input
-                  type="text"
-                  name="fecha"
-                  placeholder="Filtrar fecha"
-                  value={filters.fecha}
-                  onChange={handleFilterChange}
-                />
-              </th>
+              <th></th>
               <th>
                 <input
                   type="text"
@@ -105,6 +78,8 @@ const HistorialDevolucion = ({ devoluciones }) => {
                   onChange={handleFilterChange}
                 />
               </th>
+              <th></th>
+              <th></th>
               <th>
                 <input
                   type="text"
@@ -133,20 +108,31 @@ const HistorialDevolucion = ({ devoluciones }) => {
                 />
               </th>
               <th></th>
+              <th>
+                <input
+                  type="text"
+                  name="fecha"
+                  placeholder="Filtrar fecha"
+                  value={filters.fecha}
+                  onChange={handleFilterChange}
+                />
+              </th>
             </tr>
             <tr>
-              <th>Fecha</th>
+              <th>No.</th>
               <th>Marca</th>
               <th>Modelo</th>
+              <th>Color</th>
+              <th>Número</th>
               <th>Motivo</th>
               <th>Vendedor</th>
               <th>Tipo</th>
               <th>Estado</th>
+              <th>Fecha</th>
             </tr>
           </thead>
           <tbody>
             {filteredDevoluciones.map((devolucion, index) => {
-              // Console.logs para debugging
               console.log('=== DEVOLUCIÓN INDIVIDUAL ===');
               console.log('Devolución completa:', devolucion);
               console.log('Producto:', devolucion.Producto);
@@ -156,41 +142,41 @@ const HistorialDevolucion = ({ devoluciones }) => {
 
               return (
                 <tr key={devolucion.PK_DEVOLUCION || index}>
-                  <td>{formatearFecha(devolucion.FECHA_DEVOLUCION)}</td>
+                  <td>{index + 1}</td>
                   <td>{devolucion.Producto?.MARCA || 'N/A'}</td>
                   <td>{devolucion.Producto?.MODELO || 'N/A'}</td>
+                  <td>{devolucion.Producto?.COLOR|| 'N/A'}</td>
+                  <td>{devolucion.Producto?.TALLA|| 'N/A'}</td>
                   <td>{opcionesMotivo[devolucion.MOTIVO] || devolucion.MOTIVO}</td>
                   <td>{devolucion.Vendedor?.NOMBRE_USUARIO || 'N/A'}</td>
                   <td>
-  {(() => {
-    // Es una devolución con cambio inmediato
-    if (devolucion.FK_VENTA_NUEVA) {
-      return (
-        <>
-          <div>Cambio por otro producto</div>
-          {devolucion.DIFERENCIA_PRECIO && (
-            <span className="diferencia-precio texto-pago">
-              {parseFloat(devolucion.DIFERENCIA_PRECIO) > 0 
-                ? `Cliente pagó: $${parseFloat(devolucion.DIFERENCIA_PRECIO).toFixed(2)}` 
-                : `Saldo generado: $${Math.abs(parseFloat(devolucion.DIFERENCIA_PRECIO)).toFixed(2)}`}
-            </span>
-          )}
-        </>
-      );
-    } 
-    // Es una devolución sin cambio (solo saldo)
-    else {
-      return (
-        <>
-          <div>Devolución sin cambio</div>
-          <span className="diferencia-precio texto-saldo">
-            Saldo total: ${parseFloat(devolucion.VentaOriginal?.PRECIO || 0).toFixed(2)}
-          </span>
-        </>
-      );
-    }
-  })()}
-</td>
+                    {(() => {
+                      if (devolucion.FK_VENTA_NUEVA) {
+                        return (
+                          <>
+                            <div>Cambio por otro producto</div>
+                            {devolucion.DIFERENCIA_PRECIO && (
+                              <span className="diferencia-precio texto-pago">
+                                {parseFloat(devolucion.DIFERENCIA_PRECIO) > 0 
+                                  ? `Cliente pagó: $${parseFloat(devolucion.DIFERENCIA_PRECIO).toFixed(2)}` 
+                                  : `Saldo generado: $${Math.abs(parseFloat(devolucion.DIFERENCIA_PRECIO)).toFixed(2)}`}
+                              </span>
+                            )}
+                          </>
+                        );
+                      } 
+                      else {
+                        return (
+                          <>
+                            <div>Devolución sin cambio</div>
+                            <span className="diferencia-precio texto-saldo">
+                              Saldo total: ${parseFloat(devolucion.VentaOriginal?.PRECIO || 0).toFixed(2)}
+                            </span>
+                          </>
+                        );
+                      }
+                    })()}
+                  </td>
                   <td>
                     {devolucion.ESTADO_FINAL === 1 ? (
                       <span className="estado-inventario">Retornado a Inventario</span>
@@ -198,6 +184,7 @@ const HistorialDevolucion = ({ devoluciones }) => {
                       <span className="estado-baja">Dado de Baja</span>
                     )}
                   </td>
+                  <td>{formatearFecha(devolucion.FECHA_DEVOLUCION)}</td>
                 </tr>
               );
             })}

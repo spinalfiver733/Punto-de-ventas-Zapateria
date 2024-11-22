@@ -13,6 +13,7 @@ const Devoluciones = () => {
   const fetchDevoluciones = useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/devoluciones');
+      console.log(response);
       setDevoluciones(response.data);
     } catch (error) {
       console.error('Error fetching devoluciones:', error);

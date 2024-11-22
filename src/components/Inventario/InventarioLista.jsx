@@ -117,8 +117,8 @@ const InventarioLista = ({ inventario }) => {
             <th>Modelo</th>
             <th>Color</th>
             <th>Número</th>
-            <th>Código de Barras</th>
             <th>Precio</th>
+            <th>Código de Barras</th>
             <th>Fecha de Ingreso</th>
           </tr>
         </thead>
@@ -130,8 +130,8 @@ const InventarioLista = ({ inventario }) => {
               <td>{item.MODELO}</td>        
               <td>{item.COLOR}</td>
               <td>{item.TALLA}</td>
-              <td>{item.CODIGO_BARRA}</td>
               <td>{item.PRECIO}</td>
+              <td>{item.CODIGO_BARRA}</td>
               <td>{formatearFecha(item.FECHA_INGRESO)}</td>
             </tr>
           ))}
