@@ -1,33 +1,6 @@
-/* Ventas.css */
-.headerTitle {
-  background: linear-gradient(
-    to right, 
-    white, 
-    var(--color-primary) 10%, 
-    var(--color-primary) 90%, 
-    white
-  );
-  padding: 1px;
-  text-align: center;
-  margin-bottom: 30px;
-}
 
-.ventas-nav {
-  display: flex;
-  margin-bottom: 20px;
-}
-/*
-.nav-item {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  border-bottom: 5px solid transparent;
-}
 
-.nav-item.active {
-  border-bottom-color: #ff0000;
-}*/
-
-.total-row {
+.total-row{
   background-color: var(--color-primary);
   color: white;
   padding: 10px;
@@ -39,12 +12,23 @@
   border-bottom-right-radius: 10px;
 }
 
-.total-label {
+.subtotal-row , .descuento-row{
+  background-color: var(--color-primary);
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1px;
+
+}
+
+.total-label, .subtotal-label ,.descuento-label{
   font-weight: bold;
   font-size: 1.1em;
 }
 
-.total-amount {
+.total-amount,.subtotal-amount, .descuento-amount {
   font-weight: bold;
   font-size: 1.2em;
 }
@@ -65,20 +49,4 @@
   width: 70px;
   height: 70px;
   cursor: pointer;
-}
-
-.btn-success {
-  background-color: #4caf50 !important; /* Verde */
-}
-
-.btn-success:hover {
-  background-color: #45a049 !important;
-}
-
-.btn-danger {
-  background-color: #ff4d4d !important; /* Rojo */
-}
-
-.btn-danger:hover {
-  background-color: #ff3333 !important;
 }

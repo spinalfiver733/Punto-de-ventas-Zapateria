@@ -23,7 +23,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   const [editingIndex, setEditingIndex] = useState(null);
 
   const numeroOptions = [
-    { value: '21', label: '21' },
+    { value: '21.5', label: '21.5' },
     { value: '22', label: '22' },
     { value: '23', label: '23' },
     { value: '35', label: '35' },

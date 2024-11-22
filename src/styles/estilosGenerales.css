@@ -24,11 +24,16 @@
 
 /* Headers */
 .headerTitle {
-  background-color: var(--color-primary);
+  background: linear-gradient(
+    to right, 
+    white, 
+    var(--color-primary) 10%, 
+    var(--color-primary) 90%, 
+    white
+  );
   padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 5px;
   text-align: center;
+  margin-bottom: 30px;
 }
 
 .headerTitle h2 {
@@ -140,6 +145,23 @@ textarea {
 .btn-primary:hover img {
   filter: brightness(0) invert(1); /* Esto convierte el SVG a color blanco */
 }
+
+.btn-success {
+  background-color: #4caf50 !important; /* Verde */
+}
+
+.btn-success:hover {
+  background-color: #45a049 !important;
+}
+
+.btn-danger {
+  background-color: #ff4d4d !important; /* Rojo */
+}
+
+.btn-danger:hover {
+  background-color: #ff3333 !important;
+}
+
 
 /* Tablas */
 .table-container {

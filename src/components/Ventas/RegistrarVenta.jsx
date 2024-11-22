@@ -33,6 +33,12 @@ const RegistrarVenta = ({
   const [productosAgregados, setProductosAgregados] = useState([]);
   const [vendedorOptions, setVendedorOptions] = useState([]);
   const [metodoPagoOptions, setMetodoPagoOptions] = useState([]);
+
+  const [usarSaldoFavor, setUsarSaldoFavor] = useState(false);
+  const [codigoSaldo, setCodigoSaldo] = useState('');
+  const [saldoInfo, setSaldoInfo] = useState(null);
+  const [errorSaldo, setErrorSaldo] = useState('');
+
   const [formData, setFormData] = useState({
     codigoBarras: '',
     marca: null,
@@ -212,96 +218,115 @@ const RegistrarVenta = ({
       enqueueSnackbar('Debe agregar al menos un producto a la venta', { variant: 'warning' });
       return;
     }
-
+  
     try {
       const primerProducto = productosAgregados[0];
+      const subtotal = productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0);
+      const montoAplicado = usarSaldoFavor && saldoInfo ? 
+        Math.min(saldoInfo.MONTO, subtotal) : 0;
+      const totalConDescuento = subtotal - montoAplicado;
+  
       const ventaData = {
         VENDEDOR: primerProducto.vendedor || formData.vendedor?.value || null,
         METODO_PAGO: metodoPagoOptions.find(option => option.label === primerProducto.metodoPago)?.value,
         OBSERVACIONES: primerProducto.observaciones,
+        SALDO_FAVOR: usarSaldoFavor && saldoInfo ? {
+          CODIGO_SALDO: codigoSaldo,
+          MONTO_APLICADO: montoAplicado
+        } : null,
+        TOTAL_CON_DESCUENTO: totalConDescuento,
         productos: productosAgregados.map(producto => ({
           FK_PRODUCTO: producto.productoId,
           PRECIO: producto.precio,
           OBSERVACIONES: producto.observaciones,
           MARCA: producto.marca,
-          TALLA: producto.numero, 
+          TALLA: producto.numero,
           MODELO: producto.modelo,
           COLOR: producto.color
         }))
       };
 
-      console.log('Datos de venta a enviar:', ventaData);
-      const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
-      console.log('Respuesta de la orden:', response.data);
+        console.log('Datos de venta a enviar:', ventaData);
+        // Crear la venta
+        const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
+        const ventaCreada = response.data;
+        console.log('Respuesta de la orden:', response.data);
 
-      // Obtener la venta creada
-      const ventaResponse = await axios.get(`http://localhost:5000/api/ventas/orden/${response.data.PK_ORDEN}`);
-      const ventaInfo = ventaResponse.data;
-      console.log('Información de la venta:', ventaInfo);
+        // Si hay saldo a favor, actualizarlo
+        if (usarSaldoFavor && saldoInfo) {
+          await axios.put(`http://localhost:5000/api/saldos/${codigoSaldo}/usar`, {
+            FK_VENTA_USO: ventaCreada.PK_VENTA
+          });
+        }
 
-      // Si es modo cambio, procesar la diferencia
-      if (modo === 'cambio' && productoDevuelto) {
-        console.log('=== PROCESANDO VENTA COMO CAMBIO ===');
-        console.log('Producto devuelto:', productoDevuelto);
-        console.log('Producto nuevo:', productosAgregados[0]);
-        
-        const precioNuevo = parseFloat(productosAgregados[0].precio);
-        const precioDevuelto = parseFloat(productoDevuelto.PRECIO);
-        const diferencia = precioNuevo - precioDevuelto;
+        // Obtener la venta creada
+        const ventaResponse = await axios.get(`http://localhost:5000/api/ventas/orden/${response.data.PK_ORDEN}`);
+        const ventaInfo = ventaResponse.data;
+        console.log('Información de la venta:', ventaInfo);
 
-        console.log('Precio nuevo:', precioNuevo);
-        console.log('Precio devuelto:', precioDevuelto);
-        console.log('Diferencia calculada:', diferencia);
+        // Si es modo cambio, procesar la diferencia
+        if (modo === 'cambio' && productoDevuelto) {
+          console.log('=== PROCESANDO VENTA COMO CAMBIO ===');
+          console.log('Producto devuelto:', productoDevuelto);
+          console.log('Producto nuevo:', productosAgregados[0]);
+          
+          const precioNuevo = parseFloat(productosAgregados[0].precio);
+          const precioDevuelto = parseFloat(productoDevuelto.PRECIO);
+          const diferencia = precioNuevo - precioDevuelto;
 
-        const datosVentaCambio = {
-          PK_VENTA: ventaInfo.PK_VENTA,
-          PRECIO: precioNuevo,
-          diferencia: diferencia
-        };
+          console.log('Precio nuevo:', precioNuevo);
+          console.log('Precio devuelto:', precioDevuelto);
+          console.log('Diferencia calculada:', diferencia);
 
-        console.log('Enviando datos del cambio:', datosVentaCambio);
-        onCambioCompleto(datosVentaCambio);
-        return; // Importante: retornar aquí para no ejecutar el resto
+          const datosVentaCambio = {
+            PK_VENTA: ventaInfo.PK_VENTA,
+            PRECIO: precioNuevo,
+            diferencia: diferencia
+          };
+
+          console.log('Enviando datos del cambio:', datosVentaCambio);
+          onCambioCompleto(datosVentaCambio);
+          return; // Importante: retornar aquí para no ejecutar el resto
+        }
+
+        // Proceso normal de venta (no cambio)
+        setProductosAgregados([]);
+        const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
+        const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
+        setInventarioDisponible(nuevoInventarioDisponible);
+        actualizarOpcionesMarca(nuevoInventarioDisponible);
+
+        setFormData({
+          marca: null,
+          modelo: null,
+          color: null,
+          numero: null,
+          precio: '',
+          productoId: null,
+          vendedor: null,
+          metodoPago: null,
+          observaciones: ''
+        });
+
+        enqueueSnackbar('Venta registrada con éxito', { variant: 'success' });
+        finalizarVenta();
+
+      } catch (error) {
+        console.error('Error al finalizar la venta:', error);
+        if (error.response) {
+          console.error('Datos de la respuesta de error:', error.response.data);
+          console.error('Estado de la respuesta de error:', error.response.status);
+          console.error('Cabeceras de la respuesta de error:', error.response.headers);
+        } else if (error.request) {
+          console.error('No se recibió respuesta del servidor');
+        } else {
+          console.error('Error al configurar la solicitud:', error.message);
+        }
+        enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { 
+          variant: 'error' 
+        });
       }
-
-      // Proceso normal de venta (no cambio)
-      setProductosAgregados([]);
-      const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
-      const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
-      setInventarioDisponible(nuevoInventarioDisponible);
-      actualizarOpcionesMarca(nuevoInventarioDisponible);
-
-      setFormData({
-        marca: null,
-        modelo: null,
-        color: null,
-        numero: null,
-        precio: '',
-        productoId: null,
-        vendedor: null,
-        metodoPago: null,
-        observaciones: ''
-      });
-
-      enqueueSnackbar('Venta registrada con éxito', { variant: 'success' });
-      finalizarVenta();
-
-    } catch (error) {
-      console.error('Error al finalizar la venta:', error);
-      if (error.response) {
-        console.error('Datos de la respuesta de error:', error.response.data);
-        console.error('Estado de la respuesta de error:', error.response.status);
-        console.error('Cabeceras de la respuesta de error:', error.response.headers);
-      } else if (error.request) {
-        console.error('No se recibió respuesta del servidor');
-      } else {
-        console.error('Error al configurar la solicitud:', error.message);
-      }
-      enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { 
-        variant: 'error' 
-      });
-    }
-};
+  };
 
   const handleCancelarCompra = useCallback(async () => {
     if (productosAgregados.length === 0) {
@@ -344,7 +369,7 @@ const RegistrarVenta = ({
     const codigoBarras = e.target.value;
     setFormData(prev => ({ ...prev, codigoBarras }));
 
-    if (codigoBarras.length >= 6) { // Asumimos que el código de barras tiene al menos 6 caracteres
+    if (codigoBarras.length >= 6) {
       try {
         const productoEncontrado = inventarioDisponible.find(item => item.CODIGO_BARRA === codigoBarras);
 
@@ -390,6 +415,45 @@ const RegistrarVenta = ({
       } catch (error) {
         console.error('Error al buscar el producto:', error);
         enqueueSnackbar('Error al buscar el producto', { variant: 'error' });
+      }
+    }
+  };
+
+  const handleSaldoFavorChange = (e) => {
+    setUsarSaldoFavor(e.target.checked);
+    if (!e.target.checked) {
+      setCodigoSaldo('');
+      setSaldoInfo(null);
+      setErrorSaldo('');
+    }
+  };
+
+  const handleCodigoSaldoChange = async (e) => {
+    const codigo = e.target.value;
+    setCodigoSaldo(codigo);
+    setErrorSaldo('');
+  
+    if (codigo.length >= 6) {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/saldos/${codigo}`);
+        if (response.data) {
+          // Convertir el MONTO a número cuando se guarda en el estado
+          setSaldoInfo({
+            ...response.data,
+            MONTO: parseFloat(response.data.MONTO)
+          });
+          enqueueSnackbar('Saldo encontrado', { variant: 'success' });
+        }
+      } catch (error) {
+        console.error('Error al buscar el saldo:', error);
+        setSaldoInfo(null);
+        if (error.response?.status === 404) {
+          setErrorSaldo('Código no válido o ya utilizado');
+          enqueueSnackbar('Saldo no encontrado o ya utilizado', { variant: 'warning' });
+        } else {
+          setErrorSaldo('Error al buscar el saldo');
+          enqueueSnackbar('Error al verificar el saldo', { variant: 'error' });
+        }
       }
     }
   };
@@ -574,12 +638,83 @@ const RegistrarVenta = ({
               })}
             </tbody>
           </table>
-          <div className="total-row">
-            <span className="total-label">Total General:</span>
-            <span className="total-amount">
-              ${productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0).toFixed(2)}
-            </span>
+
+          {/* Sección de Totales */}
+          <div className="totales-section">
+            <div className="subtotal-row">
+              <span className="subtotal-label">Subtotal:</span>
+              <span className="subtotal-amount">
+                ${productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0).toFixed(2)}
+              </span>
+            </div>
+
+            {usarSaldoFavor && saldoInfo && typeof saldoInfo.MONTO === 'number' && (
+              <div className="descuento-row">
+                <span className="descuento-label">Saldo aplicado:</span>
+                <span className="descuento-amount">
+                  -${Math.min(
+                    saldoInfo.MONTO,
+                    productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0)
+                  ).toFixed(2)}
+                </span>
+              </div>
+            )}
+
+            <div className="total-row">
+              <span className="total-label">Total Final:</span>
+              <span className="total-amount">
+                ${(productosAgregados.reduce((sum, producto) => 
+                  sum + parseFloat(producto.precio), 0) - (usarSaldoFavor && saldoInfo ? 
+                    Math.min(
+                      saldoInfo.MONTO,
+                      productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0)
+                    ) : 0)).toFixed(2)}
+              </span>
+            </div>
           </div>
+
+          {/* Sección de Saldo a Favor */}
+          <div className="saldo-favor-section" style={{ marginTop: '15px' }}>
+            <div className="checkbox-container">
+              <label htmlFor="saldoFavor" className="saldo-label">Con saldo a favor</label>
+              <input
+                type="checkbox"
+                id="saldoFavor"
+                checked={usarSaldoFavor}
+                onChange={handleSaldoFavorChange}
+                className="saldo-checkbox"
+              />
+            </div>
+            
+            {usarSaldoFavor && (
+              <div className="codigo-saldo-container">
+                <input
+                  type="text"
+                  value={codigoSaldo}
+                  onChange={handleCodigoSaldoChange}
+                  placeholder="Ingrese código de saldo a favor"
+                  className="input-codigo-saldo"
+                />
+                {errorSaldo && (
+                  <div className="error-message">
+                    {errorSaldo}
+                  </div>
+                )}
+                {saldoInfo && typeof saldoInfo.MONTO === 'number' && (
+                  <div className="saldo-info">
+                    <span>Saldo disponible: ${saldoInfo.MONTO.toFixed(2)}</span>
+                    {saldoInfo.Devolucion && (
+                      <div className="devolucion-info">
+                        <span>Devolución: {saldoInfo.Devolucion.CODIGO_DEVOLUCION}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Botones de acción */}
           <div className="buttons-container">
             <button className="btn-primary btn-success" onClick={handleFinalizarVenta}>
               <img src={iconAceptar} alt="Finalizar venta" />
