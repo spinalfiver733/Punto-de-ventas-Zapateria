@@ -9,6 +9,7 @@ const EstadoVendedores = () => {
   const fetchVendedores = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/usuarios');
+      console.log(response);
       setVendedores(response.data);
     } catch (error) {
       enqueueSnackbar('Error al cargar los vendedores', { variant: 'error' });
@@ -52,7 +53,7 @@ const EstadoVendedores = () => {
               <td>{vendedor.NOMBRE_USUARIO}</td>
               <td>{`${vendedor.PATERNO_USUARIO} ${vendedor.MATERNO_USUARIO}`}</td>
               <td>{vendedor.NUMERO_USUARIO}</td>
-              <td>{vendedor.FK_ROL_USUARIO}</td>
+              <td>{vendedor.Rol.DESCRIPCION_ROL}</td>
               <td>{Boolean(vendedor.ESTATUS_USUARIO) ? 'Activo' : 'Inactivo'}</td>
               <td>
                 <button 
