@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import { format } from 'date-fns';
@@ -12,12 +12,27 @@ const SaldosDevoluciones = () => {
   const [saldoInfo, setSaldoInfo] = useState(null);
   const [historialSaldos, setHistorialSaldos] = useState([]);
   const [filters, setFilters] = useState({
-    busquedaGeneral: '',
     codigo: '',
     estado: '',
     fecha: '',
     monto: ''
   });
+
+  // Cargar historial de saldos
+  const cargarHistorialSaldos = async () => { 
+    try {
+      const response = await axios.get('http://localhost:5000/api/saldos/historial/todos');
+      setHistorialSaldos(response.data);
+    } catch (error) {
+      console.error('Error al cargar historial de saldos:', error);
+      enqueueSnackbar('Error al cargar historial de saldos', { variant: 'error' });
+    }
+  };
+
+  // Cargar historial al montar el componente
+  useEffect(() => {
+    cargarHistorialSaldos();
+  }, []); // Array vacío significa que solo se ejecutará al montar el componente
 
   // Consulta de saldo específico
   const consultarSaldo = async () => {
@@ -42,17 +57,6 @@ const SaldosDevoluciones = () => {
     }
   };
 
-  // Cargar historial de saldos
-  const cargarHistorialSaldos = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/saldos/historial/todos');
-      setHistorialSaldos(response.data);
-    } catch (error) {
-      console.error('Error al cargar historial de saldos:', error);
-      enqueueSnackbar('Error al cargar historial de saldos', { variant: 'error' });
-    }
-  };
-
   // Manejar cambios en los filtros
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -71,14 +75,7 @@ const SaldosDevoluciones = () => {
         saldo.CODIGO_UNICO.toLowerCase().includes(filters.codigo.toLowerCase()) &&
         saldo.ESTADO.toLowerCase().includes(filters.estado.toLowerCase()) &&
         fechaCreacion.includes(filters.fecha) &&
-        saldo.MONTO.toString().includes(filters.monto) &&
-        (
-          saldo.CODIGO_UNICO.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          saldo.ESTADO.toLowerCase().includes(filters.busquedaGeneral.toLowerCase()) ||
-          saldo.MONTO.toString().includes(filters.busquedaGeneral) ||
-          fechaCreacion.includes(filters.busquedaGeneral) ||
-          !filters.busquedaGeneral
-        )
+        saldo.MONTO.toString().includes(filters.monto)
       );
     });
   }, [historialSaldos, filters]);
@@ -144,6 +141,12 @@ const SaldosDevoluciones = () => {
 
       {/* Historial de Saldos */}
       <div className="historial-saldos-section">
+        <div className="historial-header">
+          <h3>Historial de Saldos</h3>
+          <button onClick={cargarHistorialSaldos} className="btn-primary">
+            Actualizar Historial
+          </button>
+        </div>
         <div className="saldos-table-container">
           <table className="saldos-table">
             <thead>
@@ -207,12 +210,6 @@ const SaldosDevoluciones = () => {
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="historial-header">
-          <h3>Historial de Saldos</h3>
-          <button onClick={cargarHistorialSaldos} className="btn-primary">
-            Actualizar Historial
-          </button>
         </div>
       </div>
     </div>
