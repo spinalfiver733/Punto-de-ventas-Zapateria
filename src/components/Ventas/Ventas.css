@@ -50,3 +50,11 @@
   height: 70px;
   cursor: pointer;
 }
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Alinea los elementos a la izquierda */
+  gap: 10px; /* Espacio entre el label y el checkbox */
+}
+

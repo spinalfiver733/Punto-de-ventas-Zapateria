@@ -361,3 +361,36 @@ td {
     padding: 0.5rem 1rem;
   }
 }
+
+/*checbox*/
+/* Primero reseteamos los estilos generales para los checkboxes */
+input[type="checkbox"] {
+  padding: 0;
+  line-height: normal;
+  width: 30px;
+  height: 30px;
+}
+
+/* Estilos específicos para tu checkbox */
+.saldo-checkbox {
+  appearance: none;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+}
+
+
+/* Creamos la palomita personalizada */
+.saldo-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 1px;
+  width: 8px;
+  height: 15px;
+  border: solid #ff9800; /* Color naranja */
+  border-width: 0 4px 4px 0;
+  transform: rotate(45deg);
+}
