@@ -50,3 +50,19 @@
   height: 70px;
   cursor: pointer;
 }
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Alinea los elementos a la izquierda */
+  gap: 8px; /* Espacio entre el label y el checkbox */
+  margin-bottom:10px;
+}
+
+.saldo-label {
+  margin: 0; /* Elimina cualquier margen que pueda afectar la alineación */
+}
+
+.saldo-checkbox {
+  margin: 0; /* Elimina cualquier margen que pueda afectar la alineación */
+}
