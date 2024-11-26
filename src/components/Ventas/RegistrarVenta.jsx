@@ -674,7 +674,7 @@ const RegistrarVenta = ({
           </div>
 
           {/* Sección de Saldo a Favor */}
-          <div className="saldo-favor-section" style={{ marginTop: '15px' }}>
+          <div className="saldo-favor-section" style={{ marginTop: '10px' }}>
             <div className="checkbox-container">
               <label htmlFor="saldoFavor" className="saldo-label">Con saldo a favor</label>
               <input
