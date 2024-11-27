@@ -4,7 +4,6 @@ import { useSnackbar } from 'notistack';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import './Devoluciones.css';
-
 const SaldosDevoluciones = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [codigoConsulta, setCodigoConsulta] = useState('');
@@ -141,13 +140,8 @@ const SaldosDevoluciones = () => {
 
       {/* Historial de Saldos */}
       <div className="historial-saldos-section">
-        <div className="historial-header">
-          <h3>Historial de Saldos</h3>
-          <button onClick={cargarHistorialSaldos} className="btn-primary">
-            Actualizar Historial
-          </button>
-        </div>
         <div className="saldos-table-container">
+          <h3>Historial de Saldos</h3>
           <table className="saldos-table">
             <thead>
               <tr className="filtros-row">
@@ -210,6 +204,11 @@ const SaldosDevoluciones = () => {
               ))}
             </tbody>
           </table>
+          <div className="historial-header">
+            <button onClick={cargarHistorialSaldos} className="btn-primary">
+              Actualizar Historial
+            </button>
+          </div>
         </div>
       </div>
     </div>

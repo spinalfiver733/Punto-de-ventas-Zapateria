@@ -1,3 +1,77 @@
 .producto-info-table {
   margin-bottom: 15px;
 }
+
+/* Contenedor principal */
+.saldos-devoluciones-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Estilos para las cards individuales */
+.consulta-saldo-section,
+.historial-saldos-section {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3), 
+              0px 4px 8px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Efecto hover suave para las cards */
+.consulta-saldo-section:hover,
+.historial-saldos-section:hover {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 
+              0px 8px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Estilos específicos para la sección de consulta */
+.consulta-saldo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.consulta-saldo-section h3,
+.historial-saldos-section h3 {
+  margin: 0 0 15px 0;
+  color: var(--color-primary);
+}
+
+.consulta-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+/* Estilos específicos para la sección de historial */
+.historial-saldos-section {
+  overflow: hidden;
+}
+
+.saldos-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .consulta-form {
+    flex-direction: column;
+  }
+
+  .consulta-saldo-section,
+  .historial-saldos-section {
+    padding: 15px;
+  }
+
+  .codigo-input,
+  .btn-primary {
+    width: 100%;
+  }
+}
