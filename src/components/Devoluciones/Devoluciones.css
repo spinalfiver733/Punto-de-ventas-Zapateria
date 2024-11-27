@@ -1,3 +1,4 @@
+/* Estilos base */
 .producto-info-table {
   margin-bottom: 15px;
 }
@@ -43,10 +44,27 @@
   color: var(--color-primary);
 }
 
+/* Estilos del formulario de consulta */
 .consulta-form {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
+  align-items: center; /* Alinea verticalmente el input y el botón */
+}
+
+.codigo-input {
+  flex: 1; /* Permite que el input tome el espacio disponible */
+  height: 40px; /* Altura fija para alineación con el botón */
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+}
+
+.btn-primary {
+  height: 40px; /* Misma altura que el input */
+  padding: 8px 16px;
+  white-space: nowrap; /* Evita que el texto del botón se rompa */
+  min-width: fit-content; /* Asegura que el botón mantenga su ancho mínimo */
 }
 
 /* Estilos específicos para la sección de historial */
@@ -63,6 +81,7 @@
 @media (max-width: 768px) {
   .consulta-form {
     flex-direction: column;
+    gap: 15px; /* Aumentado para mejor separación en móvil */
   }
 
   .consulta-saldo-section,
@@ -73,5 +92,10 @@
   .codigo-input,
   .btn-primary {
     width: 100%;
+  }
+
+  /* Ajustes adicionales para móvil */
+  .btn-primary {
+    margin-top: 0; /* Elimina cualquier margen superior adicional */
   }
 }
