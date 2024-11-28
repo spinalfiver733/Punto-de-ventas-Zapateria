@@ -86,7 +86,7 @@ const RegistrarVenta = ({
 
     const fetchVendedor = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/usuarios');
+        const response = await axios.get('http://localhost:5000/api/usuarios/activos');
         const vendedores = response.data.map(vendedor => ({
           value: vendedor.ID_USUARIO,
           label: `${vendedor.NOMBRE_USUARIO}`
