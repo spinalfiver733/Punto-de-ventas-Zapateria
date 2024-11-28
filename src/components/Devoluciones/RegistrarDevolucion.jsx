@@ -469,15 +469,14 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             </div>
 
             <div className="form-row">
-              <div className="form-group checkbox">
-                <label>
-                  El cliente requiere cambio de producto                 
-                  <input
-                    type="checkbox"
-                    checked={formData.requiereCambio}
-                    onChange={(e) => setFormData(prev => ({ ...prev, requiereCambio: e.target.checked }))}
-                  />
-                </label>
+              <div className="checkbox-container">
+                <label htmlFor="requiereCambio">El cliente requiere cambio de producto</label>
+                <input
+                  type="checkbox"
+                  id="requiereCambio"
+                  checked={formData.requiereCambio}
+                  onChange={(e) => setFormData(prev => ({ ...prev, requiereCambio: e.target.checked }))}
+                />
               </div>
             </div>
 

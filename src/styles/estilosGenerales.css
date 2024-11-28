@@ -391,15 +391,14 @@ input[type="checkbox"]:checked::after {
 }
 
 /* Estilos para los contenedores de checkbox y label */
-.checkbox-container, .form-group.checkbox {
+.checkbox-container{
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
 /* Asegurarse que los labels estén alineados correctamente */
-.checkbox-container label,
-.form-group.checkbox label {
+.checkbox-container label{
   display: flex;
   align-items: center;
   gap: 10px;
