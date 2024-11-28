@@ -44,6 +44,7 @@ const HistorialVentas = () => {
             <th>Precio</th>
             <th>Método de pago</th>
             <th>Vendedor</th>
+            <th>Tipo</th>
             <th>Código de Barras</th>
             <th>Fecha de venta</th>
           </tr>
@@ -59,6 +60,7 @@ const HistorialVentas = () => {
               <td>${parseFloat(venta.PRECIO).toFixed(2)}</td>
               <td>{venta.MetodoPago?.DESCRIPCION_METODO}</td>
               <td>{venta.Vendedor?.NOMBRE_USUARIO}</td>
+              <td>{venta.Estatus?.DESCRIPCION}</td>
               <td>{venta.CODIGO_BARRA}</td>
               <td>{formatDate(venta.FECHA_VENTA)}</td>
             </tr>
