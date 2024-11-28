@@ -363,17 +363,13 @@ td {
 }
 
 /*checbox*/
-/* Primero reseteamos los estilos generales para los checkboxes */
+/* Estilos base para todos los checkboxes */
 input[type="checkbox"] {
+  appearance: none;
   padding: 0;
   line-height: normal;
   width: 30px;
   height: 30px;
-}
-
-/* Estilos específicos para tu checkbox */
-.saldo-checkbox {
-  appearance: none;
   border: 2px solid #000000;
   border-radius: 4px;
   background-color: white;
@@ -381,18 +377,32 @@ input[type="checkbox"] {
   position: relative;
 }
 
-
-/* Creamos la palomita personalizada */
-.saldo-checkbox:checked::after {
+/* Palomita personalizada para todos los checkboxes */
+input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
   left: 8px;
   top: 1px;
   width: 8px;
   height: 15px;
-  border: solid #ff9800; /* Color naranja */
+  border: solid var(--color-primary);
   border-width: 0 4px 4px 0;
   transform: rotate(45deg);
+}
+
+/* Estilos para los contenedores de checkbox y label */
+.checkbox-container, .form-group.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Asegurarse que los labels estén alineados correctamente */
+.checkbox-container label,
+.form-group.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /*Header*/
