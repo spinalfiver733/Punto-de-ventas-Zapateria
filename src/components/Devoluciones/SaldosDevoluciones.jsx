@@ -10,6 +10,7 @@ const SaldosDevoluciones = () => {
   const [consultaRealizada, setConsultaRealizada] = useState(false);
   const [saldoInfo, setSaldoInfo] = useState(null);
   const [historialSaldos, setHistorialSaldos] = useState([]);
+  const [mensaje, setMensaje] = useState({ texto: '', tipo: '' });
   const [filters, setFilters] = useState({
     codigo: '',
     estado: '',
@@ -36,22 +37,31 @@ const SaldosDevoluciones = () => {
   // Consulta de saldo específico
   const consultarSaldo = async () => {
     if (!codigoConsulta.trim()) {
-      enqueueSnackbar('Por favor ingrese un código de saldo', { variant: 'warning' });
+      setMensaje({ texto: 'Por favor ingrese un código de saldo', tipo: 'warning' });
       return;
     }
-
+  
     try {
       const response = await axios.get(`http://localhost:5000/api/saldos/${codigoConsulta}`);
       setSaldoInfo(response.data.estado);
       setConsultaRealizada(true);
       if (response.data.ESTADO === 'activo') {
-        enqueueSnackbar(`Saldo disponible: $${response.data.MONTO}`, { variant: 'success' });
+        setMensaje({ 
+          texto: `Saldo disponible: $${response.data.MONTO}`, 
+          tipo: 'success' 
+        });
       } else {
-        enqueueSnackbar('Este saldo ya ha sido utilizado', { variant: 'info' });
+        setMensaje({ 
+          texto: 'Este saldo ya ha sido utilizado', 
+          tipo: 'info' 
+        });
       }
     } catch (error) {
       console.error('Error al consultar saldo:', error);
-      enqueueSnackbar('Código de saldo no encontrado', { variant: 'error' });
+      setMensaje({ 
+        texto: 'Código de saldo no encontrado', 
+        tipo: 'error' 
+      });
       setSaldoInfo(null);
     }
   };
@@ -119,7 +129,7 @@ const SaldosDevoluciones = () => {
   return (
     <div className="saldos-devoluciones-container">
       {/* Sección de consulta de saldo */}
-      <div className="consulta-saldo-section">
+      <div className="consulta-saldo-section"> 
         <h3>Consultar Saldo a Favor</h3>
         <div className="consulta-form">
           <input
@@ -134,6 +144,12 @@ const SaldosDevoluciones = () => {
             Consultar
           </button>
         </div>
+          {/* Nuevo div para mostrar el mensaje */}
+          {mensaje.texto && (
+            <div className={`mensaje-consulta ${mensaje.tipo}`}>
+              {mensaje.texto}
+            </div>
+          )}
         
         {consultaRealizada && saldoInfo && <SaldoDetalle saldo={saldoInfo} />}
       </div>

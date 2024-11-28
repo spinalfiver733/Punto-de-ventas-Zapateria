@@ -703,11 +703,6 @@ const RegistrarVenta = ({
                 {saldoInfo && typeof saldoInfo.MONTO === 'number' && (
                   <div className="saldo-info">
                     <span>Saldo disponible: ${saldoInfo.MONTO.toFixed(2)}</span>
-                    {saldoInfo.Devolucion && (
-                      <div className="devolucion-info">
-                        <span>Devolución: {saldoInfo.Devolucion.CODIGO_DEVOLUCION}</span>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
