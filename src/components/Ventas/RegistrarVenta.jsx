@@ -696,13 +696,13 @@ const RegistrarVenta = ({
                   className="input-codigo-saldo"
                 />
                 {errorSaldo && (
-                  <div className="error-message">
+                  <div className="mensaje-consulta error">
                     {errorSaldo}
                   </div>
                 )}
                 {saldoInfo && typeof saldoInfo.MONTO === 'number' && (
-                  <div className="saldo-info">
-                    <span>Saldo disponible: ${saldoInfo.MONTO.toFixed(2)}</span>
+                  <div className="mensaje-consulta success">
+                    Saldo disponible: ${saldoInfo.MONTO.toFixed(2)}
                   </div>
                 )}
               </div>
