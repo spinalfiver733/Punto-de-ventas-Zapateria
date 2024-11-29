@@ -12,7 +12,6 @@ import iconAgregar from '../../assets/images/svg/agregar.svg';
 import iconCancelar from '../../assets/images/svg/cancelar.svg';
 import iconAceptar from '../../assets/images/svg/aceptar.svg';
 
-
 //Importación de librerias
 import { useSnackbar } from 'notistack';
 import axios from 'axios';
@@ -608,7 +607,7 @@ const RegistrarVenta = ({
   
       {productosAgregados.length > 0 && (
         <>
-          <div className="saldo-favor-section" style={{ marginTop: '20px', marginBottom: '20px' }}>
+          <div className="saldo-favor-section" style={{ marginTop: '20px', marginBottom: '5px' }}>
             <div className="checkbox-container">
               <label htmlFor="saldoFavor" className="saldo-label">Con saldo a favor</label>
               <input

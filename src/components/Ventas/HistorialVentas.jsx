@@ -1,16 +1,26 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
+import Select from 'react-select';
+import '../../styles/estilosGenerales.css';
+import { customSelectStyles } from '../../styles/estilosGenerales';
 
 const HistorialVentas = () => {
   const [ventas, setVentas] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
+  const [filtroEstatus, setFiltroEstatus] = useState({ value: 'GLOBAL', label: 'GLOBAL' });
+
+  const opcionesEstatus = [
+    { value: 'GLOBAL', label: 'GLOBAL' },
+    { value: 'FINALIZADA', label: 'FINALIZADA' },
+    { value: 'DEVOLUCIÓN', label: 'DEVOLUCIÓN' }
+  ];
 
   useEffect(() => {
     const fetchVentas = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/ventas/historial');
-        console.log(response);
+        const estado = filtroEstatus.value === 'GLOBAL' ? '' : filtroEstatus.value;
+        const response = await axios.get(`http://localhost:5000/api/ventas/historial${estado ? `?estado=${estado}` : ''}`);
         setVentas(response.data);
       } catch (error) {
         console.error('Error al obtener historial de ventas:', error);
@@ -19,7 +29,11 @@ const HistorialVentas = () => {
     };
 
     fetchVentas();
-  }, [enqueueSnackbar]);
+  }, [filtroEstatus, enqueueSnackbar]);
+
+  const handleEstatusChange = (selectedOption) => {
+    setFiltroEstatus(selectedOption);
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('es-MX', {
@@ -28,11 +42,22 @@ const HistorialVentas = () => {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).replace(',', ' - '); // Reemplaza la coma con ' - '
+    }).replace(',', ' - ');
   };
 
   return (
     <div className="historial-ventas">
+      <div className="selector-container">
+        <label htmlFor="estatus">Filtrar por estatus:</label>
+        <Select
+          id="estatus"
+          value={filtroEstatus}
+          onChange={handleEstatusChange}
+          options={opcionesEstatus}
+          styles={customSelectStyles}
+        />
+      </div>
+
       <table>
         <thead>
           <tr>
@@ -50,7 +75,7 @@ const HistorialVentas = () => {
           </tr>
         </thead>
         <tbody>
-          {ventas.map((venta,index) => (
+          {ventas.map((venta, index) => (
             <tr key={venta.PK_VENTA}>
               <td>{index + 1}</td>
               <td>{venta.MARCA}</td>
@@ -68,6 +93,7 @@ const HistorialVentas = () => {
         </tbody>
       </table>
     </div>
-  );};
+  );
+};
 
 export default HistorialVentas;
