@@ -627,7 +627,7 @@ const RegistrarVenta = ({
                   onChange={handleCodigoSaldoChange}
                   placeholder="Ingrese código de saldo a favor"
                   className="input-codigo-saldo"
-                  style={{marginBottom: '20px'}}
+                  style={{marginBottom: '5px'}}
                 />
                 {errorSaldo && (
                   <div className="mensaje-consulta error">

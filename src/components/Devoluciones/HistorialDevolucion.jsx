@@ -50,7 +50,8 @@ const HistorialDevolucion = ({ devoluciones }) => {
 
   const formatearFecha = (fecha) => {
     if (!fecha) return 'Fecha no disponible';
-    return format(new Date(fecha), 'dd/MM/yyyy HH:mm', { locale: es });
+    return format(new Date(fecha), 'dd/MM/yyyy', { locale: es });
+    // return format(new Date(fecha), 'dd/MM/yyyy HH:mm', { locale: es });
   };
 
   return (
