@@ -226,6 +226,26 @@ const RegistrarVenta = ({
         Math.min(saldoInfo.MONTO, subtotal) : 0;
       const totalConDescuento = subtotal - montoAplicado;
   
+      // Ajustar los precios de los productos cuando hay saldo a favor
+      const productosConDescuento = productosAgregados.map((producto, index) => {
+        let precioAjustado = parseFloat(producto.precio);
+        
+        // Solo aplicar descuento al primer producto si hay saldo a favor
+        if (index === 0 && montoAplicado > 0) {
+          precioAjustado = Math.max(0, precioAjustado - montoAplicado);
+        }
+  
+        return {
+          FK_PRODUCTO: producto.productoId,
+          PRECIO: precioAjustado,
+          OBSERVACIONES: producto.observaciones,
+          MARCA: producto.marca,
+          TALLA: producto.numero,
+          MODELO: producto.modelo,
+          COLOR: producto.color
+        };
+      });
+  
       const ventaData = {
         VENDEDOR: primerProducto.vendedor || formData.vendedor?.value || null,
         METODO_PAGO: metodoPagoOptions.find(option => option.label === primerProducto.metodoPago)?.value,
@@ -235,97 +255,80 @@ const RegistrarVenta = ({
           MONTO_APLICADO: montoAplicado
         } : null,
         TOTAL_CON_DESCUENTO: totalConDescuento,
-        productos: productosAgregados.map(producto => ({
-          FK_PRODUCTO: producto.productoId,
-          PRECIO: producto.precio,
-          OBSERVACIONES: producto.observaciones,
-          MARCA: producto.marca,
-          TALLA: producto.numero,
-          MODELO: producto.modelo,
-          COLOR: producto.color
-        }))
+        productos: productosConDescuento
       };
-
-        console.log('Datos de venta a enviar:', ventaData);
-        // Crear la venta
-        const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
-        const ventaCreada = response.data;
-        console.log('Respuesta de la orden:', response.data);
-
-        // Si hay saldo a favor, actualizarlo
-        if (usarSaldoFavor && saldoInfo) {
-          await axios.put(`http://localhost:5000/api/saldos/${codigoSaldo}/usar`, {
-            FK_VENTA_USO: ventaCreada.PK_VENTA
-          });
-        }
-
-        // Obtener la venta creada
-        const ventaResponse = await axios.get(`http://localhost:5000/api/ventas/orden/${response.data.PK_ORDEN}`);
-        const ventaInfo = ventaResponse.data;
-        console.log('Información de la venta:', ventaInfo);
-
-        // Si es modo cambio, procesar la diferencia
-        if (modo === 'cambio' && productoDevuelto) {
-          console.log('=== PROCESANDO VENTA COMO CAMBIO ===');
-          console.log('Producto devuelto:', productoDevuelto);
-          console.log('Producto nuevo:', productosAgregados[0]);
-          
-          const precioNuevo = parseFloat(productosAgregados[0].precio);
-          const precioDevuelto = parseFloat(productoDevuelto.PRECIO);
-          const diferencia = precioNuevo - precioDevuelto;
-
-          console.log('Precio nuevo:', precioNuevo);
-          console.log('Precio devuelto:', precioDevuelto);
-          console.log('Diferencia calculada:', diferencia);
-
-          const datosVentaCambio = {
-            PK_VENTA: ventaInfo.PK_VENTA,
-            PRECIO: precioNuevo,
-            diferencia: diferencia
-          };
-
-          console.log('Enviando datos del cambio:', datosVentaCambio);
-          onCambioCompleto(datosVentaCambio);
-          return; // Importante: retornar aquí para no ejecutar el resto
-        }
-
-        // Proceso normal de venta (no cambio)
-        setProductosAgregados([]);
-        const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
-        const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
-        setInventarioDisponible(nuevoInventarioDisponible);
-        actualizarOpcionesMarca(nuevoInventarioDisponible);
-
-        setFormData({
-          marca: null,
-          modelo: null,
-          color: null,
-          numero: null,
-          precio: '',
-          productoId: null,
-          vendedor: null,
-          metodoPago: null,
-          observaciones: ''
-        });
-
-        enqueueSnackbar('Venta registrada con éxito', { variant: 'success' });
-        finalizarVenta();
-
-      } catch (error) {
-        console.error('Error al finalizar la venta:', error);
-        if (error.response) {
-          console.error('Datos de la respuesta de error:', error.response.data);
-          console.error('Estado de la respuesta de error:', error.response.status);
-          console.error('Cabeceras de la respuesta de error:', error.response.headers);
-        } else if (error.request) {
-          console.error('No se recibió respuesta del servidor');
-        } else {
-          console.error('Error al configurar la solicitud:', error.message);
-        }
-        enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { 
-          variant: 'error' 
+  
+      console.log('Datos de venta a enviar:', ventaData);
+      const response = await axios.post('http://localhost:5000/api/ordenes', ventaData);
+      const ventaCreada = response.data;
+      console.log('Respuesta de la orden:', response.data);
+  
+      // Si hay saldo a favor, actualizarlo
+      if (usarSaldoFavor && saldoInfo) {
+        await axios.put(`http://localhost:5000/api/saldos/${codigoSaldo}/usar`, {
+          FK_VENTA_USO: ventaCreada.PK_VENTA
         });
       }
+  
+      // Obtener la venta creada
+      const ventaResponse = await axios.get(`http://localhost:5000/api/ventas/orden/${response.data.PK_ORDEN}`);
+      const ventaInfo = ventaResponse.data;
+      console.log('Información de la venta:', ventaInfo);
+  
+      // ... resto del código para manejar modo cambio y limpieza ...
+      if (modo === 'cambio' && productoDevuelto) {
+        console.log('=== PROCESANDO VENTA COMO CAMBIO ===');
+        const precioNuevo = parseFloat(productosAgregados[0].precio);
+        const precioDevuelto = parseFloat(productoDevuelto.PRECIO);
+        const diferencia = precioNuevo - precioDevuelto;
+  
+        const datosVentaCambio = {
+          PK_VENTA: ventaInfo.PK_VENTA,
+          PRECIO: precioNuevo,
+          diferencia: diferencia
+        };
+  
+        onCambioCompleto(datosVentaCambio);
+        return;
+      }
+  
+      // Proceso normal de venta
+      setProductosAgregados([]);
+      const inventarioActualizado = await axios.get('http://localhost:5000/api/inventario');
+      const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
+      setInventarioDisponible(nuevoInventarioDisponible);
+      actualizarOpcionesMarca(nuevoInventarioDisponible);
+  
+      setFormData({
+        marca: null,
+        modelo: null,
+        color: null,
+        numero: null,
+        precio: '',
+        productoId: null,
+        vendedor: null,
+        metodoPago: null,
+        observaciones: ''
+      });
+  
+      enqueueSnackbar('Venta registrada con éxito', { variant: 'success' });
+      finalizarVenta();
+  
+    } catch (error) {
+      console.error('Error al finalizar la venta:', error);
+      if (error.response) {
+        console.error('Datos de la respuesta de error:', error.response.data);
+        console.error('Estado de la respuesta de error:', error.response.status);
+        console.error('Cabeceras de la respuesta de error:', error.response.headers);
+      } else if (error.request) {
+        console.error('No se recibió respuesta del servidor');
+      } else {
+        console.error('Error al configurar la solicitud:', error.message);
+      }
+      enqueueSnackbar('Error al registrar la venta: ' + (error.response?.data?.message || error.message), { 
+        variant: 'error' 
+      });
+    }
   };
 
   const handleCancelarCompra = useCallback(async () => {
@@ -476,7 +479,7 @@ const RegistrarVenta = ({
           placeholder="Escanee o ingrese el código de barras"
         />
       </div>
-
+  
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="form-row">
           <div className="form-group">
@@ -507,6 +510,7 @@ const RegistrarVenta = ({
             />
           </div>
         </div>
+  
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="color">Color:</label>
@@ -537,6 +541,7 @@ const RegistrarVenta = ({
             />
           </div>
         </div>
+  
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="precio">Precio:</label>
@@ -563,6 +568,7 @@ const RegistrarVenta = ({
             />
           </div>
         </div>
+  
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="metodoPago">Método de pago:</label>
@@ -578,6 +584,7 @@ const RegistrarVenta = ({
             />
           </div>       
         </div>
+  
         <div className="form-row">
           <div className="textarea-group">
             <label htmlFor="observaciones">Observaciones:</label>
@@ -592,89 +599,16 @@ const RegistrarVenta = ({
             ></textarea>
           </div>
         </div>
+  
         <button type="button" className="btn-primary" onClick={handleAgregarProducto}>
           <img src={iconAgregar} alt="Agregar producto" />
           AGREGAR
         </button>
       </form>
-
+  
       {productosAgregados.length > 0 && (
-        <div className="productos-agregados">
-          <table>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Color</th>
-                <th>Número</th>
-                <th>Vendedor</th>
-                <th>Método de pago</th>
-                <th>Observaciones</th>
-                <th>Precio</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productosAgregados.map((producto, index) => {
-                const precioNumerico = parseFloat(producto.precio);
-                const totalAcumulado = productosAgregados
-                  .slice(0, index + 1)
-                  .reduce((sum, p) => sum + parseFloat(p.precio), 0);
-                return (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{producto.marca}</td>
-                    <td>{producto.modelo}</td>
-                    <td>{producto.color}</td>
-                    <td>{producto.numero}</td>
-                    <td>{producto.vendedor ? vendedorOptions.find(v => v.value === producto.vendedor)?.label : ''}</td>
-                    <td>{producto.metodoPago}</td>
-                    <td>{producto.observaciones}</td>
-                    <td>${precioNumerico.toFixed(2)}</td>
-                    <td>${totalAcumulado.toFixed(2)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-
-          {/* Sección de Totales */}
-          <div className="totales-section">
-            <div className="subtotal-row">
-              <span className="subtotal-label">Subtotal:</span>
-              <span className="subtotal-amount">
-                ${productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0).toFixed(2)}
-              </span>
-            </div>
-
-            {usarSaldoFavor && saldoInfo && typeof saldoInfo.MONTO === 'number' && (
-              <div className="descuento-row">
-                <span className="descuento-label">Saldo aplicado:</span>
-                <span className="descuento-amount">
-                  -${Math.min(
-                    saldoInfo.MONTO,
-                    productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0)
-                  ).toFixed(2)}
-                </span>
-              </div>
-            )}
-
-            <div className="total-row">
-              <span className="total-label">Total Final:</span>
-              <span className="total-amount">
-                ${(productosAgregados.reduce((sum, producto) => 
-                  sum + parseFloat(producto.precio), 0) - (usarSaldoFavor && saldoInfo ? 
-                    Math.min(
-                      saldoInfo.MONTO,
-                      productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0)
-                    ) : 0)).toFixed(2)}
-              </span>
-            </div>
-          </div>
-
-          {/* Sección de Saldo a Favor */}
-          <div className="saldo-favor-section" style={{ marginTop: '10px' }}>
+        <>
+          <div className="saldo-favor-section" style={{ marginTop: '20px', marginBottom: '20px' }}>
             <div className="checkbox-container">
               <label htmlFor="saldoFavor" className="saldo-label">Con saldo a favor</label>
               <input
@@ -694,6 +628,7 @@ const RegistrarVenta = ({
                   onChange={handleCodigoSaldoChange}
                   placeholder="Ingrese código de saldo a favor"
                   className="input-codigo-saldo"
+                  style={{marginBottom: '20px'}}
                 />
                 {errorSaldo && (
                   <div className="mensaje-consulta error">
@@ -708,19 +643,92 @@ const RegistrarVenta = ({
               </div>
             )}
           </div>
-
-          {/* Botones de acción */}
-          <div className="buttons-container">
-            <button className="btn-primary btn-success" onClick={handleFinalizarVenta}>
-              <img src={iconAceptar} alt="Finalizar venta" />
-              FINALIZAR VENTA
-            </button>
-            <button className="btn-primary btn-danger" onClick={handleCancelarCompra}>
-              <img src={iconCancelar} alt="Cancelar venta" />
-              CANCELAR VENTA
-            </button>
+  
+          <div className="productos-agregados">
+            <table>
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Color</th>
+                  <th>Número</th>
+                  <th>Vendedor</th>
+                  <th>Método de pago</th>
+                  <th>Observaciones</th>
+                  <th>Precio</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productosAgregados.map((producto, index) => {
+                  const precioNumerico = parseFloat(producto.precio);
+                  const totalAcumulado = productosAgregados
+                    .slice(0, index + 1)
+                    .reduce((sum, p) => sum + parseFloat(p.precio), 0);
+                  return (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{producto.marca}</td>
+                      <td>{producto.modelo}</td>
+                      <td>{producto.color}</td>
+                      <td>{producto.numero}</td>
+                      <td>{producto.vendedor ? vendedorOptions.find(v => v.value === producto.vendedor)?.label : ''}</td>
+                      <td>{producto.metodoPago}</td>
+                      <td>{producto.observaciones}</td>
+                      <td>${precioNumerico.toFixed(2)}</td>
+                      <td>${totalAcumulado.toFixed(2)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+  
+            <div className="totales-section">
+              <div className="subtotal-row">
+                <span className="subtotal-label">Subtotal:</span>
+                <span className="subtotal-amount">
+                  ${productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0).toFixed(2)}
+                </span>
+              </div>
+  
+              {usarSaldoFavor && saldoInfo && typeof saldoInfo.MONTO === 'number' && (
+                <div className="descuento-row">
+                  <span className="descuento-label">Saldo aplicado:</span>
+                  <span className="descuento-amount">
+                    -${Math.min(
+                      saldoInfo.MONTO,
+                      productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0)
+                    ).toFixed(2)}
+                  </span>
+                </div>
+              )}
+  
+              <div className="total-row">
+                <span className="total-label">Total Final:</span>
+                <span className="total-amount">
+                  ${(productosAgregados.reduce((sum, producto) => 
+                    sum + parseFloat(producto.precio), 0) - (usarSaldoFavor && saldoInfo ? 
+                      Math.min(
+                        saldoInfo.MONTO,
+                        productosAgregados.reduce((sum, producto) => sum + parseFloat(producto.precio), 0)
+                      ) : 0)).toFixed(2)}
+                </span>
+              </div>
+            </div>
+  
+            <div className="buttons-container">
+              <button className="btn-primary btn-success" onClick={handleFinalizarVenta}>
+                <img src={iconAceptar} alt="Finalizar venta" />
+                FINALIZAR VENTA
+              </button>
+              <button className="btn-primary btn-danger" onClick={handleCancelarCompra}>
+                <img src={iconCancelar} alt="Cancelar venta" />
+                CANCELAR VENTA
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
