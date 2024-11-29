@@ -129,7 +129,7 @@ const SaldosDevoluciones = () => {
   return (
     <div className="saldos-devoluciones-container">
       {/* Sección de consulta de saldo */}
-      <div className="consulta-saldo-section"> 
+      <div className="card-container"> 
         <h3>Consultar Saldo a Favor</h3>
         <div className="consulta-form">
           <input
@@ -155,7 +155,7 @@ const SaldosDevoluciones = () => {
       </div>
 
       {/* Historial de Saldos */}
-      <div className="historial-saldos-section">
+      <div className="card-container">
         <div className="saldos-table-container">
           <h3>Historial de Saldos</h3>
           <table className="saldos-table">
