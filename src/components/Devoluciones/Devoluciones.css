@@ -53,6 +53,10 @@
   overflow-x: auto;
 }
 
+.ventaXDevolucion{
+  color: #FF6E31;
+}
+
 /* Estilos responsivos */
 @media (max-width: 768px) {
   .consulta-form {

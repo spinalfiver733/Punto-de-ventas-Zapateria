@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; 
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
@@ -13,6 +13,7 @@ import iconAceptar from '../../assets/images/svg/aceptar.svg';
 
 const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const { enqueueSnackbar } = useSnackbar();
+  const ventaDevolucionRef = useRef(null);
   const [paso, setPaso] = useState(1); // 1: Buscar, 2: Procesar devolución, 3: Cambio, 4: Saldo
   const [vendedorOptions, setVendedorOptions] = useState([]);
   const [consultaSaldo, setConsultaSaldo] = useState({ codigo: '', resultado: null });
@@ -207,6 +208,12 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       }));
 
       if (formData.requiereCambio) {
+        setTimeout(() => {
+          ventaDevolucionRef.current?.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 100);
         setPaso(3);
       } else {
         // Generar saldo a favor
@@ -497,7 +504,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       {/* Paso 3: Proceso de cambio */}
       {paso === 3 && (
         <div className="paso-cambio">
-          <h3>Venta por Devolución</h3>
+          <h3 class="ventaXDevolucion" ref={ventaDevolucionRef}>Venta por Devolución</h3>
           <RegistrarVenta 
             modo="cambio"
             productoDevuelto={formData.productoVendido}
