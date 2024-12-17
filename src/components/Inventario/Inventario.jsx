@@ -3,6 +3,7 @@ import axios from 'axios';
 import './Inventario.css';
 import InventarioLista from './InventarioLista';
 import AgregarInventario from './AgregarInventario';
+import GeneracionCodigoBarras from './generacionCodigoBarras';
 import  '../../styles/estilosGenerales.css';
 
 const Inventario = () => {
@@ -47,11 +48,19 @@ const Inventario = () => {
         >
           Ver Inventario
         </div>
+        <div 
+          onClick={() => cambiarVista('codigos')}
+          className={`nav-item ${vistaActual === 'codigos' ? 'active' : ''}`}
+        >
+          Generar Códigos
+        </div>
       </div>
       {vistaActual === 'lista' ? (
         <InventarioLista inventario={inventario} />
-      ) : (
+      ) : vistaActual === 'agregar' ? (
         <AgregarInventario onProductoAgregado={fetchInventario} />
+      ) : (
+        <GeneracionCodigoBarras inventario={inventario} />
       )}
     </div>
   );
