@@ -124,19 +124,24 @@ const GeneracionCodigoBarras = () => {
             </div>
             
             <div className="controls" style={{ marginBottom: '20px' }}>
-                <div className="form-group" style={{ marginBottom: '15px' }}>
-                    <label htmlFor="numCodes">¿Cuántos códigos desea generar?</label>
-                    <input 
-                        type="number" 
-                        id="numCodes"
-                        min="1"
-                        value={numCodigos}
-                        onChange={(e) => setNumCodigos(parseInt(e.target.value) || 1)}
-                        className="form-control"
-                        style={{ margin: '0 10px' }}
-                        disabled={cargando}
-                    />
-                </div>
+            <div className="form-group" style={{ marginBottom: '15px' }}>
+                <label htmlFor="numCodes">¿Cuántos códigos desea generar?</label>
+                <input 
+                    type="text" 
+                    id="numCodes"
+                    value={numCodigos}
+                    onChange={(e) => {
+                        // Solo permitir números
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        // Convertir a entero o usar 1 como valor predeterminado si está vacío
+                        const numValue = value;
+                        setNumCodigos(numValue);
+                    }}
+                    className="form-control"
+                    style={{ margin: '0 10px' }}
+                    disabled={cargando}
+                />
+            </div>
 
                 <button 
                     onClick={handleGenerar}
@@ -171,7 +176,7 @@ const GeneracionCodigoBarras = () => {
                     
                     {hayHuecos && (
                         <p className="nota" style={{ color: '#0066cc' }}>
-                            <strong>Nota:</strong> Se han incluido códigos de "huecos" en la secuencia para optimizar el uso de códigos.
+                            <strong>Nota:</strong> Se han incluido códigos de huecos en la secuencia para optimizar el uso de códigos.
                         </p>
                     )}
                     
