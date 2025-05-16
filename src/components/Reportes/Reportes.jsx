@@ -44,7 +44,7 @@ const Reportes = () => {
       }, {});
       setMetodosPago(metodos);
     } catch (error) {
-      //console.error('Error fetching metodos de pago:', error);
+      console.error('Error fetching metodos de pago:', error);
       enqueueSnackbar('Error al obtener métodos de pago', { variant: 'error' });
     }
   };
@@ -57,7 +57,7 @@ const Reportes = () => {
       setVentasData(Array.isArray(response.data) ? response.data : []);
       console.log(response.data);
     } catch (error) {
-      //console.error('Error fetching ventas data:', error);
+      console.error('Error fetching ventas data:', error);
       enqueueSnackbar('Error al obtener datos de ventas', { variant: 'error' });
       setVentasData([]);
     }
