@@ -476,6 +476,7 @@ const RegistrarVenta = ({
           value={formData.codigoBarras}
           onChange={handleCodigoBarrasChange}
           placeholder="Escanee o ingrese el código de barras"
+          maxLength={6}
         />
       </div>
   

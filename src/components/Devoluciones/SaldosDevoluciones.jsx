@@ -137,7 +137,7 @@ const SaldosDevoluciones = () => {
             value={codigoConsulta}
             onChange={(e) => setCodigoConsulta(e.target.value.toUpperCase())}
             placeholder="Ingrese código de saldo"
-            maxLength="8"
+            maxLength={6}
             className="codigo-input"
           />
           <button onClick={consultarSaldo} className="btn-primary">

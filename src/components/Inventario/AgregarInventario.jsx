@@ -24,7 +24,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   const [validandoCodigo, setValidandoCodigo] = useState(false);
   const [estadoCodigo, setEstadoCodigo] = useState(null);
   const [mensajeValidacion, setMensajeValidacion] = useState('');
-  
+
   // Estados para corridas
   const [mostrarCorridas, setMostrarCorridas] = useState(false);
   const [corridaData, setCorridaData] = useState({
@@ -37,15 +37,19 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     incremento: '1' // '1' para enteros, '0.5' para medios
   });
   const [productosCorreida, setProductosCorreida] = useState([]);
+  
+  // NUEVO: Estado para validaciones de códigos en corridas
+  const [validacionesCorrida, setValidacionesCorrida] = useState({});
+  const [validandosCorrida, setValidandosCorrida] = useState({});
 
-  const numeroOptions = [
-    { value: '21.5', label: '21.5' },
-    { value: '22', label: '22' },
-    { value: '23', label: '23' },
-    { value: '35', label: '35' },
-    { value: '36', label: '36' },
-    { value: '37', label: '37' },
-  ];
+  const numeroOptions = [];
+
+  for (let i = 10; i <= 27; i += 0.5) {
+    numeroOptions.push({
+      value: i.toString(),
+      label: i.toString()
+    });
+  }
 
   const incrementoOptions = [
     { value: '1', label: 'Números enteros (22, 23, 24, 25...)' },
@@ -105,23 +109,23 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }
 
     // Validar en la lista local
-    const duplicadoLocal = productosAgregar.find((producto, index) => 
+    const duplicadoLocal = productosAgregar.find((producto, index) =>
       producto.codigo_barra === codigoBarras && index !== indexExcluir
     );
 
     if (duplicadoLocal) {
-      const indice = productosAgregar.findIndex((producto, index) => 
+      const indice = productosAgregar.findIndex((producto, index) =>
         producto.codigo_barra === codigoBarras && index !== indexExcluir
       );
       const mensaje = `Ya está en la lista (Producto ${indice + 1}: ${duplicadoLocal.marca} ${duplicadoLocal.modelo} - ${duplicadoLocal.color})`;
-      
+
       setEstadoCodigo('duplicado');
       setMensajeValidacion(mensaje);
-      
+
       if (mostrarMensaje) {
         enqueueSnackbar(mensaje, { variant: 'error' });
       }
-      
+
       return { valido: false, mensaje: mensaje };
     }
 
@@ -139,19 +143,123 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     if (resultadoBD.existe) {
       const producto = resultadoBD.producto;
       const mensaje = `Ya existe en inventario: ${producto.MARCA} ${producto.MODELO} - ${producto.COLOR} (Talla: ${producto.TALLA})`;
-      
+
       setEstadoCodigo('duplicado');
       setMensajeValidacion(mensaje);
-      
+
       if (mostrarMensaje) {
         enqueueSnackbar(mensaje, { variant: 'error' });
       }
-      
+
       return { valido: false, mensaje: mensaje };
     }
 
     setEstadoCodigo('valido');
     setMensajeValidacion('Código disponible');
+    return { valido: true };
+  };
+
+  // NUEVA: Función para validar código en corridas
+  const validarCodigoEnCorrida = async (codigoBarras, indexCorrida) => {
+    if (!codigoBarras || codigoBarras.trim() === '') {
+      setValidacionesCorrida(prev => {
+        const nuevas = { ...prev };
+        delete nuevas[indexCorrida];
+        return nuevas;
+      });
+      return { valido: true };
+    }
+
+    if (codigoBarras.length !== 6) {
+      setValidacionesCorrida(prev => ({
+        ...prev,
+        [indexCorrida]: {
+          estado: 'incompleto',
+          mensaje: `Ingrese 6 dígitos (faltan ${6 - codigoBarras.length})`
+        }
+      }));
+      return { valido: false, mensaje: 'El código debe tener 6 dígitos' };
+    }
+
+    // Validar duplicados dentro de la misma corrida
+    const duplicadoEnCorrida = productosCorreida.find((producto, index) =>
+      producto.codigo_barra === codigoBarras && index !== indexCorrida
+    );
+
+    if (duplicadoEnCorrida) {
+      const mensaje = `Duplicado en la corrida (Talla: ${duplicadoEnCorrida.numero})`;
+      setValidacionesCorrida(prev => ({
+        ...prev,
+        [indexCorrida]: {
+          estado: 'duplicado',
+          mensaje: mensaje
+        }
+      }));
+      return { valido: false, mensaje: mensaje };
+    }
+
+    // Validar en la lista principal
+    const duplicadoEnLista = productosAgregar.find(producto =>
+      producto.codigo_barra === codigoBarras
+    );
+
+    if (duplicadoEnLista) {
+      const mensaje = `Ya está en la lista principal: ${duplicadoEnLista.marca} ${duplicadoEnLista.modelo} - ${duplicadoEnLista.color} (Talla: ${duplicadoEnLista.numero})`;
+      setValidacionesCorrida(prev => ({
+        ...prev,
+        [indexCorrida]: {
+          estado: 'duplicado',
+          mensaje: mensaje
+        }
+      }));
+      return { valido: false, mensaje: mensaje };
+    }
+
+    // Validar en la base de datos
+    setValidandosCorrida(prev => ({ ...prev, [indexCorrida]: true }));
+    const resultadoBD = await verificarCodigoEnBD(codigoBarras);
+    setValidandosCorrida(prev => {
+      const nuevos = { ...prev };
+      delete nuevos[indexCorrida];
+      return nuevos;
+    });
+
+    if (resultadoBD.error) {
+      setValidacionesCorrida(prev => ({
+        ...prev,
+        [indexCorrida]: {
+          estado: 'valido',
+          mensaje: 'Código disponible (error de conexión)'
+        }
+      }));
+      return { valido: true };
+    }
+
+    if (resultadoBD.existe) {
+      const producto = resultadoBD.producto;
+      const mensaje = `Ya existe en inventario: ${producto.MARCA} ${producto.MODELO} - ${producto.COLOR} (Talla: ${producto.TALLA})`;
+
+      setValidacionesCorrida(prev => ({
+        ...prev,
+        [indexCorrida]: {
+          estado: 'duplicado',
+          mensaje: mensaje
+        }
+      }));
+
+      // Mostrar snackbar
+      enqueueSnackbar(mensaje, { variant: 'error' });
+
+      return { valido: false, mensaje: mensaje };
+    }
+
+    setValidacionesCorrida(prev => ({
+      ...prev,
+      [indexCorrida]: {
+        estado: 'valido',
+        mensaje: 'Código disponible'
+      }
+    }));
     return { valido: true };
   };
 
@@ -161,18 +269,18 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     const inicioNum = parseFloat(inicio);
     const finNum = parseFloat(fin);
     const inc = parseFloat(incremento);
-    
+
     for (let i = inicioNum; i <= finNum; i += inc) {
       numeros.push(i.toString());
     }
-    
+
     return numeros;
   };
 
   // Manejar generación de corrida
   const handleGenerarCorreida = () => {
-    if (!corridaData.marca || !corridaData.modelo || !corridaData.color || !corridaData.precio || 
-        !corridaData.numeroInicio || !corridaData.numeroFin) {
+    if (!corridaData.marca || !corridaData.modelo || !corridaData.color || !corridaData.precio ||
+      !corridaData.numeroInicio || !corridaData.numeroFin) {
       enqueueSnackbar('Por favor, complete todos los campos de la corrida.', { variant: 'warning' });
       return;
     }
@@ -186,7 +294,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }
 
     const numeros = generarNumerosCorreida(corridaData.numeroInicio, corridaData.numeroFin, corridaData.incremento);
-    
+
     if (numeros.length > 10) {
       enqueueSnackbar('La corrida no puede tener más de 10 productos.', { variant: 'warning' });
       return;
@@ -202,14 +310,34 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }));
 
     setProductosCorreida(nuevosProductos);
+    // Limpiar validaciones previas
+    setValidacionesCorrida({});
+    setValidandosCorrida({});
     enqueueSnackbar(`Corrida generada: ${numeros.length} productos`, { variant: 'success' });
   };
 
-  // Manejar cambio de código en corrida
-  const handleCodigoCorridaChange = (index, codigo) => {
+  // MODIFICADO: Manejar cambio de código en corrida con validación
+  const handleCodigoCorridaChange = async (index, codigo) => {
     const nuevosProductos = [...productosCorreida];
     nuevosProductos[index].codigo_barra = codigo;
     setProductosCorreida(nuevosProductos);
+
+    // Validar el código después de un pequeño delay
+    if (codigo.trim() === '') {
+      setValidacionesCorrida(prev => {
+        const nuevas = { ...prev };
+        delete nuevas[index];
+        return nuevas;
+      });
+      return;
+    }
+
+    // Delay para evitar demasiadas llamadas a la API
+    setTimeout(() => {
+      if (nuevosProductos[index].codigo_barra === codigo) {
+        validarCodigoEnCorrida(codigo, index);
+      }
+    }, 500);
   };
 
   // Agregar corrida completa a la lista principal
@@ -221,6 +349,13 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       return;
     }
 
+    // Verificar que no haya códigos con errores
+    const codigosConErrores = Object.values(validacionesCorrida).filter(v => v.estado === 'duplicado' || v.estado === 'incompleto');
+    if (codigosConErrores.length > 0) {
+      enqueueSnackbar('Hay códigos con errores. Por favor, corrija antes de continuar.', { variant: 'error' });
+      return;
+    }
+
     // Validar códigos duplicados dentro de la corrida
     const codigos = productosCorreida.map(p => p.codigo_barra);
     const duplicados = codigos.filter((codigo, index) => codigos.indexOf(codigo) !== index);
@@ -229,11 +364,11 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       return;
     }
 
-    // Validar cada código contra BD y lista actual
+    // Validar cada código contra BD y lista actual (validación final)
     for (let i = 0; i < productosCorreida.length; i++) {
       const producto = productosCorreida[i];
       const validacion = await validarCodigoBarras(producto.codigo_barra, null, false);
-      
+
       if (!validacion.valido) {
         enqueueSnackbar(`Código ${producto.codigo_barra} (Talla ${producto.numero}): ${validacion.mensaje}`, { variant: 'error' });
         return;
@@ -243,9 +378,11 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     // Agregar todos los productos a la lista principal
     setProductosAgregar(prev => [...prev, ...productosCorreida]);
     enqueueSnackbar(`${productosCorreida.length} productos agregados a la lista.`, { variant: 'success' });
-    
+
     // Limpiar y cerrar modal
     setProductosCorreida([]);
+    setValidacionesCorrida({});
+    setValidandosCorrida({});
     setCorridaData({
       marca: '',
       modelo: '',
@@ -257,6 +394,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     });
     setMostrarCorridas(false);
   };
+
   // Funciones originales...
   const verificarDuplicadosEnLista = () => {
     const codigosContador = {};
@@ -331,7 +469,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }
 
     const validacion = await validarCodigoBarras(formData.codigo_barra.trim(), editingIndex, true);
-    
+
     if (!validacion.valido) {
       return;
     }
@@ -361,7 +499,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       precio: '',
       codigo_barra: ''
     });
-    
+
     setEstadoCodigo(null);
     setMensajeValidacion('');
     setValidandoCodigo(false);
@@ -374,7 +512,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       numero: { value: productoAEditar.numero, label: productoAEditar.numero }
     });
     setEditingIndex(index);
-    
+
     setEstadoCodigo(null);
     setMensajeValidacion('');
     setValidandoCodigo(false);
@@ -396,7 +534,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       const nuevosProductos = productosAgregar.filter((_, i) => i !== index);
       setProductosAgregar(nuevosProductos);
       enqueueSnackbar('Producto eliminado de la lista.', { variant: 'success' });
-      
+
       if (editingIndex === index) {
         setEditingIndex(null);
         setFormData({
@@ -445,7 +583,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
         onProductoAgregado();
       } catch (error) {
         console.error('💥 Error al agregar productos:', error);
-        
+
         if (error.response?.status === 400 || error.response?.data?.message?.includes('duplicado')) {
           await mostrarError('Código Duplicado', 'Uno de los códigos ya existe en la base de datos. Por favor, verifique y corrija.');
         } else {
@@ -456,9 +594,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   };
 
   const duplicadosEnLista = verificarDuplicadosEnLista();
-  const botonDeshabilitado = validandoCodigo || 
-                            estadoCodigo === 'duplicado' || 
-                            estadoCodigo === 'incompleto';
+  const botonDeshabilitado = validandoCodigo ||
+    estadoCodigo === 'duplicado' ||
+    estadoCodigo === 'incompleto';
 
   return (
     <div className="agregar-inventario-container">
@@ -469,24 +607,24 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="marca">Marca:</label>
-                <input 
-                  type="text" 
-                  id="marca" 
-                  name="marca" 
-                  value={formData.marca} 
-                  onChange={handleChange} 
+                <input
+                  type="text"
+                  id="marca"
+                  name="marca"
+                  value={formData.marca}
+                  onChange={handleChange}
                   placeholder="Ingrese la marca"
                   required
                 />
               </div>
               <div className="form-group">
                 <label htmlFor="modelo">Modelo:</label>
-                <input 
-                  type="text" 
-                  id="modelo" 
-                  name="modelo" 
-                  value={formData.modelo} 
-                  onChange={handleChange} 
+                <input
+                  type="text"
+                  id="modelo"
+                  name="modelo"
+                  value={formData.modelo}
+                  onChange={handleChange}
                   placeholder="Ingrese el modelo"
                   required
                 />
@@ -495,16 +633,16 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="color">Color:</label>
-                <input 
-                  type="text" 
-                  id="color" 
-                  name="color" 
-                  value={formData.color} 
-                  onChange={handleChange} 
+                <input
+                  type="text"
+                  id="color"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
                   placeholder="Ingrese el color"
                   required
                 />
-              </div>         
+              </div>
               <div className="form-group">
                 <label htmlFor="numero">Número:</label>
                 <Select
@@ -521,33 +659,33 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="precio">Precio:</label>
-                <input 
-                  type="text" 
-                  id="precio" 
-                  name="precio" 
-                  value={formData.precio} 
-                  onChange={handleChange} 
+                <input
+                  type="text"
+                  id="precio"
+                  name="precio"
+                  value={formData.precio}
+                  onChange={handleChange}
                   placeholder="Ingrese el precio del producto"
                   required
                 />
-              </div>  
+              </div>
               <div className="form-group">
                 <label htmlFor="codigo_barra">Código de Barras:</label>
-                <input 
-                  type="text" 
-                  id="codigo_barra" 
-                  name="codigo_barra" 
-                  value={formData.codigo_barra} 
-                  onChange={handleChange} 
+                <input
+                  type="text"
+                  id="codigo_barra"
+                  name="codigo_barra"
+                  value={formData.codigo_barra}
+                  onChange={handleChange}
                   placeholder="Escanea o ingresa el código"
                   required
                   disabled={validandoCodigo}
                   maxLength="6"
                   style={{
-                    borderColor: estadoCodigo === 'valido' ? '#4caf50' : 
-                               estadoCodigo === 'duplicado' ? '#f44336' : 
-                               estadoCodigo === 'incompleto' ? '#ff9800' : 
-                               estadoCodigo === 'error' ? '#f44336' : '',
+                    borderColor: estadoCodigo === 'valido' ? '#4caf50' :
+                      estadoCodigo === 'duplicado' ? '#f44336' :
+                        estadoCodigo === 'incompleto' ? '#ff9800' :
+                          estadoCodigo === 'error' ? '#f44336' : '',
                     borderWidth: estadoCodigo ? '2px' : '1px'
                   }}
                 />
@@ -557,33 +695,42 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   </small>
                 )}
                 {mensajeValidacion && !validandoCodigo && (
-                  <small style={{ 
-                    color: estadoCodigo === 'valido' ? '#4caf50' : 
-                           estadoCodigo === 'duplicado' ? '#f44336' : 
-                           estadoCodigo === 'incompleto' ? '#ff9800' : 
-                           estadoCodigo === 'error' ? '#f44336' : '#666', 
+                  <small style={{
+                    color: estadoCodigo === 'valido' ? '#4caf50' :
+                      estadoCodigo === 'duplicado' ? '#f44336' :
+                        estadoCodigo === 'incompleto' ? '#ff9800' :
+                          estadoCodigo === 'error' ? '#f44336' : '#666',
                     fontSize: '12px',
                     display: 'block',
                     marginTop: '4px'
                   }}>
-                    {estadoCodigo === 'valido' ? '✅' : 
-                     estadoCodigo === 'duplicado' ? '❌' : 
-                     estadoCodigo === 'incompleto' ? '⚠️' : 
-                     estadoCodigo === 'error' ? '💥' : ''} {mensajeValidacion}
+                    {estadoCodigo === 'valido' ? '✅' :
+                      estadoCodigo === 'duplicado' ? '❌' :
+                        estadoCodigo === 'incompleto' ? '⚠️' :
+                          estadoCodigo === 'error' ? '💥' : ''} {mensajeValidacion}
                   </small>
                 )}
-              </div>        
+              </div>
             </div>
-            
-            <div className="form-actions"style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                gap: '15px',
-                marginTop: '20px' 
-              }}>
-              <button 
-                type="button" 
-                className="btn-primary" 
+
+            <div className="form-actions" style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '15px',
+              marginTop: '20px'
+            }}>
+
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => setMostrarCorridas(true)}
+              >
+                📏 INTRODUCIR POR CORRIDAS
+              </button>
+
+              <button
+                type="button"
+                className="btn-primary"
                 onClick={handleAgregarALista}
                 disabled={botonDeshabilitado}
                 style={{
@@ -597,25 +744,17 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 {estadoCodigo === 'duplicado' && ' (Código duplicado)'}
                 {estadoCodigo === 'incompleto' && ' (Código incompleto)'}
               </button>
-              
-              <button 
-                type="button" 
-                className="btn-primary" 
-                onClick={() => setMostrarCorridas(true)}
-              >
-                📏 INTRODUCIR POR CORRIDAS
-              </button>
             </div>
           </form>
         </>
       ) : (
         // FORMULARIO DE CORRIDAS
         <div className="corridas-container">
-          <div style={{ 
-            backgroundColor: '#f5f5f5', 
-            padding: '20px', 
-            borderRadius: '8px', 
-            marginBottom: '20px' 
+          <div style={{
+            backgroundColor: '#f5f5f5',
+            padding: '20px',
+            borderRadius: '8px',
+            marginBottom: '20px'
           }}>
             <h3 style={{ marginTop: 0, color: '#333' }}>
               📏 Introducir Corrida de Medias
@@ -623,107 +762,109 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>
               Complete los datos generales y seleccione el rango de tallas. Después agregue el código de barras para cada producto.
             </p>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Marca:</label>
-                <input 
-                  type="text" 
-                  value={corridaData.marca} 
-                  onChange={(e) => setCorridaData({...corridaData, marca: e.target.value})}
+                <input
+                  type="text"
+                  value={corridaData.marca}
+                  onChange={(e) => setCorridaData({ ...corridaData, marca: e.target.value })}
                   placeholder="Ingrese la marca"
                   required
                 />
               </div>
               <div className="form-group">
                 <label>Modelo:</label>
-                <input 
-                  type="text" 
-                  value={corridaData.modelo} 
-                  onChange={(e) => setCorridaData({...corridaData, modelo: e.target.value})}
+                <input
+                  type="text"
+                  value={corridaData.modelo}
+                  onChange={(e) => setCorridaData({ ...corridaData, modelo: e.target.value })}
                   placeholder="Ingrese el modelo"
                   required
                 />
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Color:</label>
-                <input 
-                  type="text" 
-                  value={corridaData.color} 
-                  onChange={(e) => setCorridaData({...corridaData, color: e.target.value})}
+                <input
+                  type="text"
+                  value={corridaData.color}
+                  onChange={(e) => setCorridaData({ ...corridaData, color: e.target.value })}
                   placeholder="Ingrese el color"
                   required
                 />
               </div>
               <div className="form-group">
                 <label>Precio:</label>
-                <input 
-                  type="text" 
-                  value={corridaData.precio} 
-                  onChange={(e) => setCorridaData({...corridaData, precio: e.target.value})}
+                <input
+                  type="text"
+                  value={corridaData.precio}
+                  onChange={(e) => setCorridaData({ ...corridaData, precio: e.target.value })}
                   placeholder="Precio para todos"
                   required
                 />
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Tipo de numeración:</label>
                 <Select
                   value={incrementoOptions.find(opt => opt.value === corridaData.incremento)}
-                  onChange={(selectedOption) => setCorridaData({...corridaData, incremento: selectedOption.value})}
+                  onChange={(selectedOption) => setCorridaData({ ...corridaData, incremento: selectedOption.value })}
                   options={incrementoOptions}
                   styles={customSelectStyles}
                   placeholder="Selecciona el tipo"
                 />
               </div>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Número inicial:</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step={corridaData.incremento}
-                  value={corridaData.numeroInicio} 
-                  onChange={(e) => setCorridaData({...corridaData, numeroInicio: e.target.value})}
+                  value={corridaData.numeroInicio}
+                  onChange={(e) => setCorridaData({ ...corridaData, numeroInicio: e.target.value })}
                   placeholder="Ej: 22"
                   required
                 />
               </div>
               <div className="form-group">
                 <label>Número final:</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step={corridaData.incremento}
-                  value={corridaData.numeroFin} 
-                  onChange={(e) => setCorridaData({...corridaData, numeroFin: e.target.value})}
+                  value={corridaData.numeroFin}
+                  onChange={(e) => setCorridaData({ ...corridaData, numeroFin: e.target.value })}
                   placeholder="Ej: 27"
                   required
                 />
               </div>
             </div>
-            
+
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <button 
-                type="button" 
-                className="btn-primary" 
+              <button
+                type="button"
+                className="btn-primary"
                 onClick={handleGenerarCorreida}
                 style={{ marginRight: '10px' }}
               >
                 ⚡ GENERAR CORRIDA
               </button>
-              
-              <button 
-                type="button" 
-                className="btn-secondary" 
+
+              <button
+                type="button"
+                className="btn-secondary"
                 onClick={() => {
                   setMostrarCorridas(false);
                   setProductosCorreida([]);
+                  setValidacionesCorrida({});
+                  setValidandosCorrida({});
                   setCorridaData({
                     marca: '',
                     modelo: '',
@@ -747,12 +888,12 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               </button>
             </div>
           </div>
-          
+
           {/* TABLA DE PRODUCTOS GENERADOS */}
           {productosCorreida.length > 0 && (
-            <div style={{ 
-              backgroundColor: 'white', 
-              padding: '20px', 
+            <div style={{
+              backgroundColor: 'white',
+              padding: '20px',
               borderRadius: '8px',
               border: '1px solid #ddd'
             }}>
@@ -762,7 +903,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               <p style={{ color: '#666', fontSize: '14px', marginBottom: '15px' }}>
                 Agregue el código de barras para cada producto:
               </p>
-              
+
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8f9fa' }}>
@@ -775,49 +916,99 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {productosCorreida.map((producto, index) => (
-                    <tr key={index}>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.marca}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.modelo}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.color}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{producto.numero}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>${producto.precio}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>
-                        <input 
-                          type="text" 
-                          value={producto.codigo_barra}
-                          onChange={(e) => handleCodigoCorridaChange(index, e.target.value)}
-                          placeholder="6 dígitos"
-                          maxLength="6"
-                          style={{
-                            width: '100%',
-                            padding: '5px',
-                            border: '1px solid #ccc',
-                            borderRadius: '3px',
-                            fontSize: '12px',
-                            borderColor: producto.codigo_barra?.length === 6 ? '#4caf50' : '#ccc',
-                            borderWidth: producto.codigo_barra?.length === 6 ? '2px' : '1px'
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+                  {productosCorreida.map((producto, index) => {
+                    const validacion = validacionesCorrida[index];
+                    const estaValidando = validandosCorrida[index];
+                    
+                    return (
+                      <tr key={index}>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.marca}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.modelo}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.color}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{producto.numero}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>${producto.precio}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>
+                          <div>
+                            <input
+                              type="text"
+                              value={producto.codigo_barra}
+                              onChange={(e) => handleCodigoCorridaChange(index, e.target.value)}
+                              placeholder="6 dígitos"
+                              maxLength="6"
+                              disabled={estaValidando}
+                              style={{
+                                width: '100%',
+                                padding: '5px',
+                                border: '1px solid #ccc',
+                                borderRadius: '3px',
+                                fontSize: '12px',
+                                borderColor: validacion?.estado === 'valido' ? '#4caf50' :
+                                  validacion?.estado === 'duplicado' ? '#f44336' :
+                                    validacion?.estado === 'incompleto' ? '#ff9800' :
+                                      producto.codigo_barra?.length === 6 ? '#4caf50' : '#ccc',
+                                borderWidth: validacion?.estado ? '2px' : 
+                                  (producto.codigo_barra?.length === 6 ? '2px' : '1px')
+                              }}
+                            />
+                            {estaValidando && (
+                              <small style={{ 
+                                color: '#666', 
+                                fontSize: '10px',
+                                display: 'block',
+                                marginTop: '2px'
+                              }}>
+                                🔄 Verificando...
+                              </small>
+                            )}
+                            {validacion && !estaValidando && (
+                              <small style={{
+                                color: validacion.estado === 'valido' ? '#4caf50' :
+                                  validacion.estado === 'duplicado' ? '#f44336' :
+                                    validacion.estado === 'incompleto' ? '#ff9800' : '#666',
+                                fontSize: '10px',
+                                display: 'block',
+                                marginTop: '2px'
+                              }}>
+                                {validacion.estado === 'valido' ? '✅' :
+                                  validacion.estado === 'duplicado' ? '❌' :
+                                    validacion.estado === 'incompleto' ? '⚠️' : ''} {validacion.mensaje}
+                              </small>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
-              
+
               <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <button 
-                  type="button" 
-                  className="btn-primary" 
+                <button
+                  type="button"
+                  className="btn-primary"
                   onClick={handleAgregarCorreida}
-                  disabled={productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6)}
+                  disabled={
+                    productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ||
+                    Object.values(validacionesCorrida).some(v => v.estado === 'duplicado' || v.estado === 'incompleto') ||
+                    Object.keys(validandosCorrida).length > 0
+                  }
                   style={{
-                    opacity: productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ? 0.6 : 1,
-                    cursor: productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ? 'not-allowed' : 'pointer'
+                    opacity: (
+                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ||
+                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado' || v.estado === 'incompleto') ||
+                      Object.keys(validandosCorrida).length > 0
+                    ) ? 0.6 : 1,
+                    cursor: (
+                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ||
+                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado' || v.estado === 'incompleto') ||
+                      Object.keys(validandosCorrida).length > 0
+                    ) ? 'not-allowed' : 'pointer'
                   }}
                 >
                   <img src={iconAgregar} alt="Agregar corrida" />
                   AGREGAR CORRIDA A LA LISTA ({productosCorreida.filter(p => p.codigo_barra?.length === 6).length}/{productosCorreida.length})
+                  {Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') && ' (Hay duplicados)'}
+                  {Object.keys(validandosCorrida).length > 0 && ' (Verificando...)'}
                 </button>
               </div>
             </div>
@@ -845,7 +1036,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             </thead>
             <tbody>
               {productosAgregar.map((producto, index) => (
-                <tr 
+                <tr
                   key={index}
                   style={{
                     backgroundColor: duplicadosEnLista[index] ? '#ffebee' : 'transparent'
@@ -864,8 +1055,8 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                       {producto.codigo_barra}
                     </span>
                     {duplicadosEnLista[index] && (
-                      <small style={{ 
-                        color: '#f44336', 
+                      <small style={{
+                        color: '#f44336',
                         fontSize: '11px',
                         display: 'block',
                         fontWeight: 'normal'
@@ -886,9 +1077,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               ))}
             </tbody>
           </table>
-          <button 
-            type="button" 
-            className="btn-primary" 
+          <button
+            type="button"
+            className="btn-primary"
             onClick={handleSubmit}
             disabled={Object.keys(duplicadosEnLista).length > 0}
             style={{ marginTop: '15px' }}

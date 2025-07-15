@@ -78,17 +78,8 @@ const InventarioLista = ({ inventario }) => {
               <input
                 type="text"
                 name="talla"
-                placeholder="Filtrar talla"
+                placeholder="Filtrar número"
                 value={filters.talla}
-                onChange={handleFilterChange}
-              />
-            </th>
-            <th>
-              <input
-                type="text"
-                name="codigo_barra"
-                placeholder="Filtrar código"
-                value={filters.codigo_barra}
                 onChange={handleFilterChange}
               />
             </th>
@@ -98,6 +89,15 @@ const InventarioLista = ({ inventario }) => {
                 name="precio"
                 placeholder="Filtrar precio"
                 value={filters.precio}
+                onChange={handleFilterChange}
+              />
+            </th>
+            <th>
+              <input
+                type="text"
+                name="codigo_barra"
+                placeholder="Filtrar código"
+                value={filters.codigo_barra}
                 onChange={handleFilterChange}
               />
             </th>
@@ -127,7 +127,7 @@ const InventarioLista = ({ inventario }) => {
             <tr key={item.PK_PRODUCTO}>
               <td>{index + 1}</td>
               <td>{item.MARCA}</td>
-              <td>{item.MODELO}</td>        
+              <td>{item.MODELO}</td>
               <td>{item.COLOR}</td>
               <td>{item.TALLA}</td>
               <td>{item.PRECIO}</td>

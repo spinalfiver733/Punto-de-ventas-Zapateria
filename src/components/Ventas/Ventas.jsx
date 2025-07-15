@@ -2,11 +2,12 @@
 import { useState } from 'react';
 import RegistrarVenta from './RegistrarVenta';
 import HistorialVentas from './HistorialVentas';
+import VentasSinProcesar from './VentasSinProcesar';
 import './Ventas.css';
 import '../../styles/estilosGenerales.css';
 
 const Ventas = () => {
-  const [vistaActual, setVistaActual] = useState('registrar'); // 'registrar' o 'historial'
+  const [vistaActual, setVistaActual] = useState('registrar'); // 'registrar', 'historial', 'sinprocesar'
 
   const cambiarVista = (vista) => {
     setVistaActual(vista);
@@ -18,17 +19,23 @@ const Ventas = () => {
         <h2>VENTAS</h2>
       </div>
       <div className="module-nav">
-        <div 
+        <div
           onClick={() => cambiarVista('registrar')}
           className={`nav-item ${vistaActual === 'registrar' ? 'active' : ''}`}
         >
           Registrar Venta
         </div>
-        <div 
+        <div
           onClick={() => cambiarVista('historial')}
           className={`nav-item ${vistaActual === 'historial' ? 'active' : ''}`}
         >
           Historial de Ventas
+        </div>
+        <div
+          onClick={() => cambiarVista('sinprocesar')}
+          className={`nav-item ${vistaActual === 'sinprocesar' ? 'active' : ''}`}
+        >
+          Ventas Sin Procesar
         </div>
       </div>
 
@@ -37,6 +44,9 @@ const Ventas = () => {
       )}
       {vistaActual === 'historial' && (
         <HistorialVentas />
+      )}
+      {vistaActual === 'sinprocesar' && (
+        <VentasSinProcesar />
       )}
     </div>
   );

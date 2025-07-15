@@ -57,36 +57,6 @@ const GeneracionCodigoBarras = () => {
         }
     };
 
-    // Agregar esta función en tu componente
-const handleDiagnostico = async () => {
-    try {
-        setCargando(true);
-        
-        const response = await axios.post(`${API_URL}/codigo-barras/diagnostico-impresora`, {
-            codigo: 'TEST001'
-        });
-
-        if (response.data.success) {
-            console.log('📊 Resultados del diagnóstico:', response.data);
-            
-            const { resultados } = response.data;
-            let mensaje = `🔧 Diagnóstico Completo:\n\n`;
-            mensaje += `✅ Impresión directa: ${resultados.pruebaDirecta?.exito ? 'FUNCIONA' : 'FALLA'}\n`;
-            mensaje += `✅ BarTender: ${resultados.pruebaBarTender?.exito ? 'FUNCIONA' : 'FALLA'}\n`;
-            mensaje += `✅ Estado impresora: ${resultados.estadoImpresora?.exito ? 'OK' : 'ERROR'}\n\n`;
-            mensaje += `💡 Recomendaciones:\n${response.data.recomendaciones.join('\n')}`;
-            
-            alert(mensaje);
-        }
-        
-    } catch (error) {
-        console.error('Error en diagnóstico:', error);
-        alert(`❌ Error en diagnóstico: ${error.response?.data?.mensaje || error.message}`);
-    } finally {
-        setCargando(false);
-    }
-};
-
     const handleGenerar = async () => {
         if (isNaN(numCodigos) || numCodigos < 1) {
             alert('Ingrese un número válido de códigos.');
@@ -118,92 +88,90 @@ const handleDiagnostico = async () => {
         }
     };
 
-// En tu componente GeneracionCodigoBarras, reemplaza la función handleImprimir:
+    const handleImprimir = async () => {
+        if (!codigosActuales || codigosActuales.length === 0) {
+            alert('No hay códigos para imprimir');
+            return;
+        }
 
-const handleImprimir = async () => {
-    if (!codigosActuales || codigosActuales.length === 0) {
-        alert('No hay códigos para imprimir');
-        return;
-    }
+        // Confirmar antes de imprimir
+        const confirmar = window.confirm(
+            `¿Estás seguro de que deseas imprimir ${codigosActuales.length} etiquetas?\n\n` +
+            `Códigos: ${codigosActuales.slice(0, 5).join(', ')}${codigosActuales.length > 5 ? '...' : ''}`
+        );
 
-    // Confirmar antes de imprimir
-    const confirmar = window.confirm(
-        `¿Estás seguro de que deseas imprimir ${codigosActuales.length} etiquetas?\n\n` +
-        `Códigos: ${codigosActuales.slice(0, 5).join(', ')}${codigosActuales.length > 5 ? '...' : ''}`
-    );
+        if (!confirmar) return;
 
-    if (!confirmar) return;
-
-    try {
-        setCargando(true);
-        
-        console.log('Enviando códigos a imprimir:', codigosActuales);
-        
-        // Enviar códigos al endpoint de impresión
-        const response = await axios.post(`${API_URL}/codigo-barras/imprimir`, {
-            codigos: codigosActuales
-        });
-
-        if (response.data.success) {
-            const { exitosos, fallidos, total } = response.data;
+        try {
+            setCargando(true);
             
-            let mensaje = `🎉 Proceso de impresión completado\n\n`;
-            mensaje += `📊 Resumen:\n`;
-            mensaje += `Total procesados: ${total}\n`;
-            mensaje += `✅ Exitosos: ${exitosos}\n`;
-            mensaje += `❌ Fallidos: ${fallidos}\n`;
+            console.log('Enviando códigos a imprimir:', codigosActuales);
             
-            // Si hay fallidos, mostrar detalles
-            if (fallidos > 0) {
-                mensaje += `\n⚠️ Códigos con problemas:\n`;
-                const errores = response.data.resultados
-                    .filter(r => r.status === 'error')
-                    .slice(0, 5); // Mostrar solo los primeros 5 errores
+            // Enviar códigos al endpoint de impresión
+            const response = await axios.post(`${API_URL}/codigo-barras/imprimir`, {
+                codigos: codigosActuales
+            });
+
+            if (response.data.success) {
+                const { exitosos, fallidos, total } = response.data;
                 
-                errores.forEach(r => {
-                    mensaje += `• ${r.codigo}: ${r.error}\n`;
-                });
+                let mensaje = `🎉 Proceso de impresión completado\n\n`;
+                mensaje += `📊 Resumen:\n`;
+                mensaje += `Total procesados: ${total}\n`;
+                mensaje += `✅ Exitosos: ${exitosos}\n`;
+                mensaje += `❌ Fallidos: ${fallidos}\n`;
                 
-                if (response.data.resultados.filter(r => r.status === 'error').length > 5) {
-                    mensaje += `• ... y ${response.data.resultados.filter(r => r.status === 'error').length - 5} más\n`;
+                // Si hay fallidos, mostrar detalles
+                if (fallidos > 0) {
+                    mensaje += `\n⚠️ Códigos con problemas:\n`;
+                    const errores = response.data.resultados
+                        .filter(r => r.status === 'error')
+                        .slice(0, 5); // Mostrar solo los primeros 5 errores
+                    
+                    errores.forEach(r => {
+                        mensaje += `• ${r.codigo}: ${r.error}\n`;
+                    });
+                    
+                    if (response.data.resultados.filter(r => r.status === 'error').length > 5) {
+                        mensaje += `• ... y ${response.data.resultados.filter(r => r.status === 'error').length - 5} más\n`;
+                    }
                 }
+                
+                alert(mensaje);
+                
+                // Si todo fue exitoso, limpiar los códigos generados
+                if (fallidos === 0) {
+                    setCodigosGenerados(false);
+                    setCodigosActuales([]);
+                }
+                
+            } else {
+                throw new Error(response.data.message || 'Error desconocido en el servidor');
             }
             
-            alert(mensaje);
+        } catch (error) {
+            console.error('Error al enviar códigos a imprimir:', error);
             
-            // Si todo fue exitoso, limpiar los códigos generados
-            if (fallidos === 0) {
-                setCodigosGenerados(false);
-                setCodigosActuales([]);
+            let mensajeError = '❌ Error al procesar la impresión\n\n';
+            
+            if (error.response) {
+                // Error del servidor
+                mensajeError += `Error del servidor: ${error.response.data?.message || error.response.statusText}\n`;
+                mensajeError += `Código de estado: ${error.response.status}`;
+            } else if (error.request) {
+                // Error de red
+                mensajeError += 'No se pudo conectar con el servidor.\n';
+                mensajeError += 'Verifica tu conexión a internet y que el servidor esté funcionando.';
+            } else {
+                // Otro tipo de error
+                mensajeError += `Error: ${error.message}`;
             }
             
-        } else {
-            throw new Error(response.data.message || 'Error desconocido en el servidor');
+            alert(mensajeError);
+        } finally {
+            setCargando(false);
         }
-        
-    } catch (error) {
-        console.error('Error al enviar códigos a imprimir:', error);
-        
-        let mensajeError = '❌ Error al procesar la impresión\n\n';
-        
-        if (error.response) {
-            // Error del servidor
-            mensajeError += `Error del servidor: ${error.response.data?.message || error.response.statusText}\n`;
-            mensajeError += `Código de estado: ${error.response.status}`;
-        } else if (error.request) {
-            // Error de red
-            mensajeError += 'No se pudo conectar con el servidor.\n';
-            mensajeError += 'Verifica tu conexión a internet y que el servidor esté funcionando.';
-        } else {
-            // Otro tipo de error
-            mensajeError += `Error: ${error.message}`;
-        }
-        
-        alert(mensajeError);
-    } finally {
-        setCargando(false);
-    }
-};
+    };
 
     const handleRefresh = () => {
         consultarUltimoCodigo();
@@ -237,13 +205,6 @@ const handleImprimir = async () => {
     return (
         <div className="generacion-codigo-barras" style={styles.container}>
             <h3 style={styles.title}>Generar e Imprimir Códigos de Barras</h3>
-                                <button 
-    onClick={handleDiagnostico}
-    style={{...styles.btnSecondary, marginRight: '10px', backgroundColor: '#17a2b8'}}
-    disabled={cargando}
->
-    🔧 Diagnóstico Completo
-</button>
             
             <div style={styles.infoContainer}>
                 <p><strong>Último código registrado en la base:</strong> {String(ultimoCodigo).padStart(6, '0')}</p>
@@ -321,7 +282,6 @@ const handleImprimir = async () => {
                             ))}
                         </div>
                     </div>
-                    
                     
                     <p style={styles.nota}>
                         Estos códigos se utilizarán al registrar nuevos productos en el inventario.
