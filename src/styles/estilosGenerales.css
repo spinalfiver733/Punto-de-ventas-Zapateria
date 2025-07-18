@@ -11,6 +11,10 @@
   --container-width: 1200px;
 }
 
+p{
+  color: var(--color-dark);
+}
+
 /* Contenedores principales */
 .page-container {
   max-width: var(--container-width);
