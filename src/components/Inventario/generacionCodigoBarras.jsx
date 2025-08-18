@@ -11,7 +11,7 @@ const GeneracionCodigoBarras = () => {
     const [hayHuecos, setHayHuecos] = useState(false);
     
     // API base URL
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API_URL = import.meta.env.VITE_API_URL || '/api';
 
     useEffect(() => {
         // Consultar el último código de barras en la base de datos

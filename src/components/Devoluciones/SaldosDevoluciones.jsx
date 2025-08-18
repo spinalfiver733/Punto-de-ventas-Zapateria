@@ -21,7 +21,7 @@ const SaldosDevoluciones = () => {
   // Cargar historial de saldos
   const cargarHistorialSaldos = async () => { 
     try {
-      const response = await axios.get('http://localhost:5000/api/saldos/historial/todos');
+      const response = await axios.get('/api/saldos/historial/todos');
       setHistorialSaldos(response.data);
     } catch (error) {
       console.error('Error al cargar historial de saldos:', error);
@@ -42,7 +42,7 @@ const SaldosDevoluciones = () => {
     }
   
     try {
-      const response = await axios.get(`http://localhost:5000/api/saldos/${codigoConsulta}`);
+      const response = await axios.get(`/api/saldos/${codigoConsulta}`);
       setSaldoInfo(response.data.estado);
       setConsultaRealizada(true);
       if (response.data.ESTADO === 'activo') {

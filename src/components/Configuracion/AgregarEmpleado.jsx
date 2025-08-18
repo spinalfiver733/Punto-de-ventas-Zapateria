@@ -21,7 +21,7 @@ const AgregarEmpleado = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/roles');
+        const response = await axios.get('/api/roles');
         const roles = response.data.map(rol => ({
           value: rol.ID_ROL,
           label: rol.DESCRIPCION_ROL
@@ -57,7 +57,7 @@ const AgregarEmpleado = () => {
         enqueueSnackbar('Por favor, seleccione un rol para el usuario', {variant: 'warning'});
         return;
       }
-      await axios.post('http://localhost:5000/api/usuarios', usuario);
+      await axios.post('/api/usuarios', usuario);
       enqueueSnackbar('Usuario agregado exitosamente', {variant: 'success'});
       setUsuario({
         FK_ROL_USUARIO: null,

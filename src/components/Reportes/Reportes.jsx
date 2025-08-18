@@ -9,7 +9,7 @@ import { customSelectStyles } from '../../styles/estilosGenerales';
 import axios from 'axios';
 import { format, parseISO } from 'date-fns';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 const Reportes = () => {
   const [periodo, setPeriodo] = useState(null);

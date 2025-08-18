@@ -21,7 +21,7 @@ const VentasSinProcesar = () => {
   const fetchProductosSinProcesar = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/inventario/sin-procesar');
+      const response = await axios.get('/api/inventario/sin-procesar');
       setProductosSinProcesar(response.data);
       console.log('Productos sin procesar cargados:', response.data.length);
     } catch (error) {
@@ -40,7 +40,7 @@ const VentasSinProcesar = () => {
   // Función para regresar un producto individual al inventario
   const regresarProductoIndividual = async (productoId, marca, modelo) => {
     try {
-      await axios.put(`http://localhost:5000/api/inventario/${productoId}`, {
+      await axios.put(`/api/inventario/${productoId}`, {
         FK_ESTATUS_PRODUCTO: 1
       });
 
@@ -68,7 +68,7 @@ const VentasSinProcesar = () => {
     }
 
     try {
-      const response = await axios.put('http://localhost:5000/api/inventario/regresar-todos');
+      const response = await axios.put('/api/inventario/regresar-todos');
       
       // Limpiar la lista local
       setProductosSinProcesar([]);

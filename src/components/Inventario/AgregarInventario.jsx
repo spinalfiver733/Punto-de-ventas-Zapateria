@@ -82,7 +82,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   const verificarCodigoEnBD = async (codigoBarras) => {
     try {
       console.log('🔍 Verificando código en BD:', codigoBarras);
-      const response = await axios.get(`http://localhost:5000/api/inventario/verificar-codigo/${codigoBarras}`);
+      const response = await axios.get(`/api/inventario/verificar-codigo/${codigoBarras}`);
       console.log('📋 Respuesta de BD:', response.data);
       return response.data;
     } catch (error) {
@@ -575,7 +575,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       try {
         console.log('📤 Enviando productos al servidor...');
         for (const producto of productosAgregar) {
-          const response = await axios.post('http://localhost:5000/api/inventario', producto);
+          const response = await axios.post('/api/inventario', producto);
           console.log('✅ Producto agregado:', response.data);
         }
         enqueueSnackbar('Los productos han sido agregados al inventario.', { variant: 'success' });

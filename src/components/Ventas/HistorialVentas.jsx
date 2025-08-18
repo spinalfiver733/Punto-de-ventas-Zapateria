@@ -20,7 +20,7 @@ const HistorialVentas = () => {
     const fetchVentas = async () => {
       try {
         const estado = filtroEstatus.value === 'GLOBAL' ? '' : filtroEstatus.value;
-        const response = await axios.get(`http://localhost:5000/api/ventas/historial${estado ? `?estado=${estado}` : ''}`);
+        const response = await axios.get(`/api/ventas/historial${estado ? `?estado=${estado}` : ''}`);
         setVentas(response.data);
       } catch (error) {
         console.error('Error al obtener historial de ventas:', error);

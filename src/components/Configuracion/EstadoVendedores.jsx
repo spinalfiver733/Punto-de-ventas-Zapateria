@@ -8,7 +8,7 @@ const EstadoVendedores = () => {
 
   const fetchVendedores = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/usuarios');
+      const response = await axios.get('/api/usuarios');
       console.log(response);
       setVendedores(response.data);
     } catch (error) {
@@ -22,7 +22,7 @@ const EstadoVendedores = () => {
 
   const handleToggleStatus = async (idUsuario, estadoActual) => {
     try {
-      await axios.patch(`http://localhost:5000/api/usuarios/${idUsuario}/toggle-status`);
+      await axios.patch(`/api/usuarios/${idUsuario}/toggle-status`);
       enqueueSnackbar(
         `Usuario ${estadoActual ? 'desactivado' : 'activado'} exitosamente`, 
         { variant: 'success' }

@@ -12,7 +12,7 @@ const Devoluciones = () => {
 
   const fetchDevoluciones = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/devoluciones');
+      const response = await axios.get('/api/devoluciones');
       console.log(response);
       setDevoluciones(response.data);
     } catch (error) {
