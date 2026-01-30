@@ -11,6 +11,7 @@ import iconRegresarTodos from '../../assets/images/png/regresar-todos.png';
 // Importación de librerías
 import { useSnackbar } from 'notistack';
 import axios from 'axios';
+import api from '../../config/api.js';
 
 const VentasSinProcesar = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -21,7 +22,7 @@ const VentasSinProcesar = () => {
   const fetchProductosSinProcesar = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/inventario/sin-procesar');
+      const response = await api.get('/api/inventario/sin-procesar');
       setProductosSinProcesar(response.data);
       console.log('Productos sin procesar cargados:', response.data.length);
     } catch (error) {
@@ -40,7 +41,7 @@ const VentasSinProcesar = () => {
   // Función para regresar un producto individual al inventario
   const regresarProductoIndividual = async (productoId, marca, modelo) => {
     try {
-      await axios.put(`/api/inventario/${productoId}`, {
+      await api.put(`/api/inventario/${productoId}`, {
         FK_ESTATUS_PRODUCTO: 1
       });
 
@@ -68,7 +69,7 @@ const VentasSinProcesar = () => {
     }
 
     try {
-      const response = await axios.put('/api/inventario/regresar-todos');
+      const response = await api.put('/api/inventario/regresar-todos');
       
       // Limpiar la lista local
       setProductosSinProcesar([]);

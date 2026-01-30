@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import './AgregarInventario.css';
-import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
@@ -8,6 +7,7 @@ import iconAgregar from '../../assets/images/svg/agregar.svg';
 import iconEditar from '../../assets/images/svg/editar.svg';
 import iconEliminar from '../../assets/images/svg/eliminar.svg';
 import { customSelectStyles } from '../../styles/estilosGenerales';
+import api from '../../config/api.js';
 
 const AgregarInventario = ({ onProductoAgregado }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -82,7 +82,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   const verificarCodigoEnBD = async (codigoBarras) => {
     try {
       console.log('🔍 Verificando código en BD:', codigoBarras);
-      const response = await axios.get(`/api/inventario/verificar-codigo/${codigoBarras}`);
+      const response = await api.get(`/api/inventario/verificar-codigo/${codigoBarras}`);
       console.log('📋 Respuesta de BD:', response.data);
       return response.data;
     } catch (error) {
@@ -575,7 +575,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       try {
         console.log('📤 Enviando productos al servidor...');
         for (const producto of productosAgregar) {
-          const response = await axios.post('/api/inventario', producto);
+          const response = await api.post('/api/inventario', producto);
           console.log('✅ Producto agregado:', response.data);
         }
         enqueueSnackbar('Los productos han sido agregados al inventario.', { variant: 'success' });

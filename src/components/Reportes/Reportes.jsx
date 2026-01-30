@@ -8,6 +8,7 @@ import { useSnackbar } from 'notistack';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 import axios from 'axios';
 import { format, parseISO } from 'date-fns';
+import api from '../../config/api.js';
 
 const API_BASE_URL = '/api';
 
@@ -37,7 +38,7 @@ const Reportes = () => {
 
   const fetchMetodosPago = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/metodosPago`);
+      const response = await api.get(`${API_BASE_URL}/metodosPago`);
       const metodos = response.data.reduce((acc, metodo) => {
         acc[metodo.PK_METODO] = metodo.DESCRIPCION_METODO;
         return acc;
@@ -51,7 +52,7 @@ const Reportes = () => {
 
   const fetchVentasData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/ventas`, {
+      const response = await api.get(`${API_BASE_URL}/ventas`, {
         params: { periodo: periodo.value, soloFinalizadas: true }
       });
 

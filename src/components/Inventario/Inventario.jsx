@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import './Inventario.css';
 import InventarioLista from './InventarioLista';
 import AgregarInventario from './AgregarInventario';
 import GeneracionCodigoBarras from './generacionCodigoBarras';
 import  '../../styles/estilosGenerales.css';
+import api from '../../config/api.js';
 
 const Inventario = () => {
   const [inventario, setInventario] = useState([]);
@@ -12,7 +12,7 @@ const Inventario = () => {
 
   const fetchInventario = useCallback(async () => {
     try {
-      const response = await axios.get('/api/inventario');
+      const response = await api.get('/api/inventario');
       setInventario(response.data);
     } catch (error) {
       console.log('Error fetching inventario:', error);

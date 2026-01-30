@@ -1,10 +1,10 @@
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import Select from 'react-select';
 import { useSnackbar } from 'notistack';
 import { customSelectStyles } from '../../styles/estilosGenerales';
 import iconAgregar from '../../assets/images/svg/agregar.svg';
+import api from '../../config/api.js';
 
 const AgregarEmpleado = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -21,7 +21,7 @@ const AgregarEmpleado = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get('/api/roles');
+        const response = await api.get('/api/roles');
         const roles = response.data.map(rol => ({
           value: rol.ID_ROL,
           label: rol.DESCRIPCION_ROL
@@ -57,7 +57,7 @@ const AgregarEmpleado = () => {
         enqueueSnackbar('Por favor, seleccione un rol para el usuario', {variant: 'warning'});
         return;
       }
-      await axios.post('/api/usuarios', usuario);
+      await api.post('/api/usuarios', usuario);
       enqueueSnackbar('Usuario agregado exitosamente', {variant: 'success'});
       setUsuario({
         FK_ROL_USUARIO: null,

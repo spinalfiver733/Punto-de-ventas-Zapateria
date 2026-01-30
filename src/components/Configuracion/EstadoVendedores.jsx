@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useSnackbar } from 'notistack';
+import api from '../../config/api.js';
 
 const EstadoVendedores = () => {
   const [vendedores, setVendedores] = useState([]);
@@ -8,7 +8,7 @@ const EstadoVendedores = () => {
 
   const fetchVendedores = async () => {
     try {
-      const response = await axios.get('/api/usuarios');
+      const response = await api.get('/api/usuarios');
       console.log(response);
       setVendedores(response.data);
     } catch (error) {
@@ -22,7 +22,7 @@ const EstadoVendedores = () => {
 
   const handleToggleStatus = async (idUsuario, estadoActual) => {
     try {
-      await axios.patch(`/api/usuarios/${idUsuario}/toggle-status`);
+      await api.patch(`/api/usuarios/${idUsuario}/toggle-status`);
       enqueueSnackbar(
         `Usuario ${estadoActual ? 'desactivado' : 'activado'} exitosamente`, 
         { variant: 'success' }

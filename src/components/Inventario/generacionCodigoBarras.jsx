@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../config/api.js';
 
 const GeneracionCodigoBarras = () => {
     const [numCodigos, setNumCodigos] = useState(1);
@@ -10,9 +10,6 @@ const GeneracionCodigoBarras = () => {
     const [codigosActuales, setCodigosActuales] = useState([]);
     const [hayHuecos, setHayHuecos] = useState(false);
     
-    // API base URL
-    const API_URL = import.meta.env.VITE_API_URL || '/api';
-
     useEffect(() => {
         // Consultar el último código de barras en la base de datos
         consultarUltimoCodigo();
@@ -21,7 +18,7 @@ const GeneracionCodigoBarras = () => {
     const consultarUltimoCodigo = async () => {
         try {
             setCargando(true);
-            const response = await axios.get(`${API_URL}/codigo-barras/ultimo-codigo`);
+            const response = await api.get('/api/codigo-barras/ultimo-codigo');
             
             if (response.data.success) {
                 const codigo = parseInt(response.data.ultimoCodigo);
@@ -39,7 +36,7 @@ const GeneracionCodigoBarras = () => {
 
     const obtenerCodigosDisponibles = async (cantidad) => {
         try {
-            const response = await axios.get(`${API_URL}/codigo-barras/codigos-disponibles/${cantidad}`);
+            const response = await api.get(`/api/codigo-barras/codigos-disponibles/${cantidad}`);
             
             if (response.data.success) {
                 // Comprobar si hay huecos en la secuencia
@@ -108,7 +105,7 @@ const GeneracionCodigoBarras = () => {
             console.log('Enviando códigos a imprimir:', codigosActuales);
             
             // Enviar códigos al endpoint de impresión
-            const response = await axios.post(`${API_URL}/codigo-barras/imprimir`, {
+            const response = await api.post('/api/codigo-barras/imprimir', {
                 codigos: codigosActuales
             });
 

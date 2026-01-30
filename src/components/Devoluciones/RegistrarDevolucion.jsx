@@ -10,6 +10,7 @@ import es from 'date-fns/locale/es';
 import  './Devoluciones.css';
 import iconCancelar from '../../assets/images/svg/cancelar.svg';
 import iconAceptar from '../../assets/images/svg/aceptar.svg';
+import api from '../../config/api.js';
 
 const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -50,7 +51,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   useEffect(() => {
     const fetchVendedores = async () => {
       try {
-        const response = await axios.get('/api/usuarios');
+        const response = await api.get('/api/usuarios');
         const vendedores = response.data.map(vendedor => ({
           value: vendedor.ID_USUARIO,
           label: `${vendedor.NOMBRE_USUARIO}`
@@ -71,7 +72,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   
     if (codigoBarras.length >= 6) {
       try {
-        const response = await axios.get(`/api/inventario/vendido/${codigoBarras}`);
+        const response = await api.get(`/api/inventario/vendido/${codigoBarras}`);
         if (response.data) {
           console.log('=== ANÁLISIS DETALLADO DE LA VENTA ===');
           console.log('VENTA completa:', response.data.VENTA);
@@ -125,7 +126,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     }
 
     try {
-      const response = await axios.get(`/api/inventario/vendido/${formData.codigoBarras}`);
+      const response = await api.get(`/api/inventario/vendido/${formData.codigoBarras}`);
       if (response.data) {
         if (response.data.FK_ESTATUS_PRODUCTO !== 2) {
           enqueueSnackbar('Este producto no está registrado como vendido', { variant: 'warning' });
@@ -178,11 +179,11 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     try {
       // 1. Actualizar estado del producto
       const nuevoEstado = formData.motivoDevolucion.value === 'defecto_fabrica' ? 0 : 1;
-      await axios.put(`/api/inventario/${formData.productoVendido.PK_PRODUCTO}`, {
+      await api.put(`/api/inventario/${formData.productoVendido.PK_PRODUCTO}`, {
         FK_ESTATUS_PRODUCTO: nuevoEstado
       });
 
-      await axios.put(`/api/ventas/${formData.productoVendido.VENTA[0].PK_VENTA}`,{
+      await api.put(`/api/ventas/${formData.productoVendido.VENTA[0].PK_VENTA}`,{
         FK_ESTATUS_VENTA: 2// 2 = Devolución
       });
 
@@ -198,7 +199,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
         TIPO_DEVOLUCION: formData.requiereCambio ? 'cambio' : 'saldo_favor'
       };
 
-      const responseDevolucion = await axios.post('/api/devoluciones', devolucionData);
+      const responseDevolucion = await api.post('/api/devoluciones', devolucionData);
       console.log('Devolución registrada:', responseDevolucion.data);
 
       // Actualizar el formData con el PK_DEVOLUCION
@@ -223,7 +224,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
           MONTO: formData.productoVendido.PRECIO
         };
 
-        const responseSaldo = await axios.post('/api/saldos', saldoData);
+        const responseSaldo = await api.post('/api/saldos', saldoData);
         setConsultaSaldo({ codigo: responseSaldo.data.CODIGO_UNICO, resultado: responseSaldo.data });
         setPaso(4);
       }
@@ -270,7 +271,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
           datos: updateData
         });
 
-        await axios.put(
+        await api.put(
         `/api/devoluciones/${formData.devolucionActual.PK_DEVOLUCION}`, 
         updateData
         );
@@ -284,7 +285,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
               MONTO: Math.abs(datosNuevaVenta.diferencia)
           };
       
-          const responseSaldo = await axios.post('/api/saldos', saldoData);
+          const responseSaldo = await api.post('/api/saldos', saldoData);
           setConsultaSaldo({ codigo: responseSaldo.data.CODIGO_UNICO, resultado: responseSaldo.data });
           console.log('Saldo generado:', responseSaldo.data);
           setPaso(4);

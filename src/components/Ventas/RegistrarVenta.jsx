@@ -14,8 +14,8 @@ import iconAceptar from '../../assets/images/svg/aceptar.svg';
 
 //Importación de librerias
 import { useSnackbar } from 'notistack';
-import axios from 'axios';
 import Select from 'react-select';
+import api from '../../config/api.js';
 
 const RegistrarVenta = ({ 
   modo = 'normal', 
@@ -56,7 +56,7 @@ const RegistrarVenta = ({
 
     const fetchInventario = async () => {
       try {
-        const response = await axios.get('/api/inventario');
+        const response = await api.get('/api/inventario');
         const inventarioDisponible = response.data
           .filter(item => item.FK_ESTATUS_PRODUCTO === 1)
           .map(item => ({
@@ -73,7 +73,7 @@ const RegistrarVenta = ({
 
     const fetchMetodosPago = async () => {
       try {
-        const response = await axios.get('/api/metodosPago');
+        const response = await api.get('/api/metodosPago');
         setMetodoPagoOptions(response.data.map(metodo => ({
           value: metodo.PK_METODO,
           label: metodo.DESCRIPCION_METODO
@@ -85,7 +85,7 @@ const RegistrarVenta = ({
 
     const fetchVendedor = async () => {
       try {
-        const response = await axios.get('/api/usuarios/activos');
+        const response = await api.get('/api/usuarios/activos');
         const vendedores = response.data.map(vendedor => ({
           value: vendedor.ID_USUARIO,
           label: `${vendedor.NOMBRE_USUARIO}`
@@ -169,7 +169,7 @@ const RegistrarVenta = ({
       return;
     }
     try {
-      await axios.put(`/api/inventario/${formData.productoId}`, {
+      await api.put(`/api/inventario/${formData.productoId}`, {
         FK_ESTATUS_PRODUCTO: 3
       });
       const nuevoProducto = {
@@ -258,19 +258,19 @@ const RegistrarVenta = ({
       };
   
       console.log('Datos de venta a enviar:', ventaData);
-      const response = await axios.post('/api/ordenes', ventaData);
+      const response = await api.post('/api/ordenes', ventaData);
       const ventaCreada = response.data;
       console.log('Respuesta de la orden:', response.data);
   
       // Si hay saldo a favor, actualizarlo
       if (usarSaldoFavor && saldoInfo) {
-        await axios.put(`/api/saldos/${codigoSaldo}/usar`, {
+        await api.put(`/api/saldos/${codigoSaldo}/usar`, {
           FK_VENTA_USO: ventaCreada.PK_VENTA
         });
       }
   
       // Obtener la venta creada
-      const ventaResponse = await axios.get(`/api/ventas/orden/${response.data.PK_ORDEN}`);
+      const ventaResponse = await api.get(`/api/ventas/orden/${response.data.PK_ORDEN}`);
       const ventaInfo = ventaResponse.data;
       console.log('Información de la venta:', ventaInfo);
   
@@ -293,7 +293,7 @@ const RegistrarVenta = ({
   
       // Proceso normal de venta
       setProductosAgregados([]);
-      const inventarioActualizado = await axios.get('/api/inventario');
+      const inventarioActualizado = await api.get('/api/inventario');
       const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
       setInventarioDisponible(nuevoInventarioDisponible);
       actualizarOpcionesMarca(nuevoInventarioDisponible);
@@ -337,12 +337,12 @@ const RegistrarVenta = ({
     }
     try {
       for (const producto of productosAgregados) {
-        await axios.put(`/api/inventario/${producto.productoId}`, {
+        await api.put(`/api/inventario/${producto.productoId}`, {
           FK_ESTATUS_PRODUCTO: 1
         });
       }
       
-      const inventarioActualizado = await axios.get('/api/inventario');
+      const inventarioActualizado = await api.get('/api/inventario');
       const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
       setInventarioDisponible(nuevoInventarioDisponible);
       actualizarOpcionesMarca(nuevoInventarioDisponible);
@@ -437,7 +437,7 @@ const RegistrarVenta = ({
   
     if (codigo.length >= 6) {
       try {
-        const response = await axios.get(`/api/saldos/${codigo}`);
+        const response = await api.get(`/api/saldos/${codigo}`);
         if (response.data) {
           // Convertir el MONTO a número cuando se guarda en el estado
           setSaldoInfo({

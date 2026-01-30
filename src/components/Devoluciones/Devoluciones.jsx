@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import './Devoluciones.css';
 import RegistrarDevolucion from './RegistrarDevolucion';
 import HistorialDevolucion from './HistorialDevolucion';
 import SaldosDevoluciones from './SaldosDevoluciones';
 import '../../styles/estilosGenerales.css';
+import api from '../../config/api.js';
 
 const Devoluciones = () => {
   const [vistaActual, setVistaActual] = useState('registrar'); // 'registrar', 'historial' o 'saldos'
@@ -12,7 +12,7 @@ const Devoluciones = () => {
 
   const fetchDevoluciones = useCallback(async () => {
     try {
-      const response = await axios.get('/api/devoluciones');
+      const response = await api.get('/api/devoluciones');
       console.log(response);
       setDevoluciones(response.data);
     } catch (error) {
