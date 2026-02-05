@@ -6,7 +6,6 @@ import iconoExcel from '../../assets/images/svg/iconoExcel.svg';
 import iconoPDF from '../../assets/images/svg/iconoPDF.svg';
 import { useSnackbar } from 'notistack';
 import { customSelectStyles } from '../../styles/estilosGenerales';
-import axios from 'axios';
 import { format, parseISO } from 'date-fns';
 import api from '../../config/api.js';
 

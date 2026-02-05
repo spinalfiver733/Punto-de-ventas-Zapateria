@@ -10,7 +10,6 @@ import iconRegresarTodos from '../../assets/images/png/regresar-todos.png';
 
 // Importación de librerías
 import { useSnackbar } from 'notistack';
-import axios from 'axios';
 import api from '../../config/api.js';
 
 const VentasSinProcesar = () => {

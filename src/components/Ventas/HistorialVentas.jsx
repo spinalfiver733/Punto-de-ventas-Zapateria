@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
 import '../../styles/estilosGenerales.css';

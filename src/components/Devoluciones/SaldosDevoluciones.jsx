@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';

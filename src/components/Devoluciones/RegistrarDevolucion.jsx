@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'; 
-import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
 import { customSelectStyles } from '../../styles/estilosGenerales';
