@@ -1,7 +1,9 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import MainLayout from './Layouts/MainLayout';
 import { VentaProvider } from './context/VentaContext';
+import InventarioPublico from './pages/InventarioPublico'; // nuevo
 import './App.css';
 
 function App() {
@@ -14,9 +16,7 @@ function App() {
           horizontal: 'right',
         }}
         autoHideDuration={3000}
-        style={{
-          marginTop: '65px',
-        }}
+        style={{ marginTop: '65px' }}
         classes={{
           variantSuccess: 'success-snackbar',
           variantError: 'error-snackbar',
@@ -25,7 +25,17 @@ function App() {
         }}
       >
         <VentaProvider>
-          <MainLayout/>
+
+          <Routes>
+
+            {/* APP NORMAL (con sidebar, header, etc) */}
+            <Route path="/*" element={<MainLayout />} />
+
+            {/* INVENTARIO SOLO VISTA (sin layout) */}
+            <Route path="/inventario" element={<InventarioPublico />} />
+
+          </Routes>
+
         </VentaProvider>
       </SnackbarProvider>
     </div>

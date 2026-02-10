@@ -1,0 +1,144 @@
+/* InventarioPublico.css */
+
+/* ---------- Variables ---------- */
+:root {
+  --naranja:  #FF6E31;
+  --negro:    #1a1a1a;
+  --gris-bg:  #f5f5f5;
+  --gris-row: #efefef;
+  --borde:    #e0e0e0;
+  --texto:    #1a1a1a;
+  --muted:    #888;
+}
+
+/* ---------- Página ---------- */
+.inv-page {
+  min-height: 100dvh;
+  background: var(--gris-bg);
+  font-family: Arial, sans-serif;
+  color: var(--texto);
+}
+
+/* ---------- Header ---------- */
+.inv-header {
+  background: var(--naranja);
+  padding: 1.4rem 1.5rem 1.2rem;
+  text-align: center;
+  border-bottom: 3px solid var(--naranja);
+}
+
+.inv-header h1 {
+  margin: 0 0 0.3rem;
+  font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 0.03em;
+}
+
+.inv-count {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--negro);
+  letter-spacing: 0.05em;
+  font-weight: 1000;
+}
+
+/* ---------- Buscador ---------- */
+.inv-search-wrap {
+  padding: 0.85rem 1.5rem;
+  position: sticky;
+  top: 0;
+  background: var(--negro);
+  border-bottom: 1px solid #333;
+  z-index: 10;
+}
+
+.inv-search {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background: #2a2a2a;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.inv-search::placeholder {
+  color: #777;
+}
+
+.inv-search:focus {
+  border-color: var(--naranja);
+}
+
+/* ---------- Tabla ---------- */
+.inv-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem 1.5rem 2rem;
+}
+
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* Cabeceras */
+.inv-table thead tr {
+  background: var(--negro);
+  border-bottom: 2px solid var(--naranja);
+}
+
+.inv-table th {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.inv-table th.col-num   { text-align: center; width: 48px; }
+.inv-table th.col-text  { text-align: left; }
+.inv-table th.col-talla { text-align: center; width: 80px; }
+
+/* Filas */
+.inv-table tbody tr:nth-child(odd)  { background: #ffffff; }
+.inv-table tbody tr:nth-child(even) { background: var(--gris-row); }
+
+.inv-table tbody tr:hover {
+  background: #fff3eb;
+  transition: background 0.12s;
+}
+
+.inv-table td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--borde);
+}
+
+.inv-table td.col-num   { text-align: center; color: var(--muted); font-size: 0.8rem; }
+.inv-table td.col-text  { text-align: left; }
+.inv-table td.col-talla { text-align: center; font-weight: 700; color: var(--negro); }
+
+/* última fila sin borde inferior */
+.inv-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------- Estados ---------- */
+.inv-mensaje {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
