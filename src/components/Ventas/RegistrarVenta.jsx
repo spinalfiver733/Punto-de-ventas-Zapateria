@@ -38,6 +38,11 @@ const RegistrarVenta = ({
   const [saldoInfo, setSaldoInfo] = useState(null);
   const [errorSaldo, setErrorSaldo] = useState('');
 
+  const [camposError, setCamposError] = useState({
+    vendedor: false,
+    metodoPago: false
+  });
+
   const [formData, setFormData] = useState({
     codigoBarras: '',
     marca: null,
@@ -50,6 +55,8 @@ const RegistrarVenta = ({
     metodoPago: null,
     observaciones: ''
   });
+
+
   const [inventarioDisponible, setInventarioDisponible] = useState([]);
 
   useEffect(() => {
@@ -95,6 +102,15 @@ const RegistrarVenta = ({
         console.log('Error al obtener los vendedores', error);
       }
     }
+
+    const handleSelectChange = (name) => (selectedOption) => {
+      setFormData(prev => ({ ...prev, [name]: selectedOption }));
+      if (camposError[name]) {
+        setCamposError(prev => ({ ...prev, [name]: false }));
+      }
+    };
+
+    setCamposError({ vendedor: false, metodoPago: false });
 
     fetchInventario();
     fetchMetodosPago();
@@ -164,10 +180,23 @@ const RegistrarVenta = ({
   };
 
   const handleAgregarProducto = async () => {
-    if (!formData.marca || !formData.modelo || !formData.color || !formData.numero || !formData.precio) {
-      enqueueSnackbar('Por favor, complete todos los campos del producto', { variant: 'warning' });
-      return;
-    }
+
+  if (!formData.marca || !formData.modelo || !formData.color || !formData.numero || !formData.precio) {
+    enqueueSnackbar('Por favor, complete todos los campos del producto', { variant: 'warning' });
+    return;
+  }
+
+  const errores = {
+    vendedor: !formData.vendedor,
+    metodoPago: !formData.metodoPago
+  };
+  setCamposError(errores);
+
+  if (errores.vendedor || errores.metodoPago) {
+    if (errores.vendedor) enqueueSnackbar('Debe seleccionar un vendedor', { variant: 'warning' });
+    if (errores.metodoPago) enqueueSnackbar('Debe seleccionar un método de pago', { variant: 'warning' });
+    return;
+  }
     try {
       await api.put(`/api/inventario/${formData.productoId}`, {
         FK_ESTATUS_PRODUCTO: 3
@@ -556,32 +585,52 @@ const RegistrarVenta = ({
           </div>
           <div className="form-group">
             <label htmlFor="vendedor">Vendedor:</label>
-            <Select
-              id="vendedor"
-              value={formData.vendedor}
-              onChange={handleSelectChange('vendedor')}
-              options={vendedorOptions}
-              isClearable
-              isSearchable
-              placeholder="Seleccionar vendedor..."
-              styles={customSelectStyles}
-            />
+              <Select
+                id="vendedor"
+                value={formData.vendedor}
+                onChange={handleSelectChange('vendedor')}
+                options={vendedorOptions}
+                isClearable
+                isSearchable
+                placeholder="Seleccionar vendedor..."
+                styles={{
+                  ...customSelectStyles,
+                  control: (base, state) => ({
+                    ...customSelectStyles.control?.(base, state),
+                    borderColor: camposError.vendedor ? '#e53e3e' : base.borderColor,
+                    boxShadow: camposError.vendedor ? '0 0 0 1px #e53e3e' : base.boxShadow,
+                    '&:hover': {
+                      borderColor: camposError.vendedor ? '#e53e3e' : base.borderColor
+                    }
+                  })
+                }}
+              />
           </div>
         </div>
   
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="metodoPago">Método de pago:</label>
-            <Select
-              id="metodoPago"
-              value={formData.metodoPago}
-              onChange={handleSelectChange('metodoPago')}
-              options={metodoPagoOptions}
-              isClearable
-              isSearchable
-              placeholder="Seleccionar método de pago..."
-              styles={customSelectStyles}
-            />
+              <Select
+                id="metodoPago"
+                value={formData.metodoPago}
+                onChange={handleSelectChange('metodoPago')}
+                options={metodoPagoOptions}
+                isClearable
+                isSearchable
+                placeholder="Seleccionar método de pago..."
+                styles={{
+                  ...customSelectStyles,
+                  control: (base, state) => ({
+                    ...customSelectStyles.control?.(base, state),
+                    borderColor: camposError.metodoPago ? '#e53e3e' : base.borderColor,
+                    boxShadow: camposError.metodoPago ? '0 0 0 1px #e53e3e' : base.boxShadow,
+                    '&:hover': {
+                      borderColor: camposError.metodoPago ? '#e53e3e' : base.borderColor
+                    }
+                  })
+                }}
+              />
           </div>       
         </div>
   
