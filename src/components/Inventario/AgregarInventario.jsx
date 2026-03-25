@@ -7,6 +7,7 @@ import iconAgregar from '../../assets/images/svg/agregar.svg';
 import iconEditar from '../../assets/images/svg/editar.svg';
 import iconEliminar from '../../assets/images/svg/eliminar.svg';
 import { customSelectStyles } from '../../styles/estilosGenerales';
+import { esPrecioValido } from '../../utils/validaciones.js';
 import api from '../../config/api.js';
 
 const AgregarInventario = ({ onProductoAgregado }) => {
@@ -438,6 +439,11 @@ const AgregarInventario = ({ onProductoAgregado }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+  if (name === 'precio') {
+    if (!esPrecioValido(value)) return;
+  }
+
     setFormData(prevState => ({
       ...prevState,
       [name]: value
@@ -725,7 +731,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 className="btn-primary"
                 onClick={() => setMostrarCorridas(true)}
               >
-                📏 INTRODUCIR POR CORRIDAS
+                INTRODUCIR POR CORRIDAS
               </button>
 
               <button
@@ -757,7 +763,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             marginBottom: '20px'
           }}>
             <h3 style={{ marginTop: 0, color: '#333' }}>
-              📏 Introducir Corrida de Medias
+               Introducir Corrida de Medias
             </h3>
             <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>
               Complete los datos generales y seleccione el rango de tallas. Después agregue el código de barras para cada producto.
@@ -802,7 +808,11 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 <input
                   type="text"
                   value={corridaData.precio}
-                  onChange={(e) => setCorridaData({ ...corridaData, precio: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (!esPrecioValido(value)) return;
+                    setCorridaData({ ...corridaData, precio: value });
+                  }}
                   placeholder="Precio para todos"
                   required
                 />
@@ -854,7 +864,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 onClick={handleGenerarCorreida}
                 style={{ marginRight: '10px' }}
               >
-                ⚡ GENERAR CORRIDA
+                GENERAR CORRIDA
               </button>
 
               <button
@@ -898,7 +908,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               border: '1px solid #ddd'
             }}>
               <h4 style={{ marginTop: 0, color: '#333' }}>
-                🎯 Productos Generados ({productosCorreida.length})
+                Productos Generados ({productosCorreida.length})
               </h4>
               <p style={{ color: '#666', fontSize: '14px', marginBottom: '15px' }}>
                 Agregue el código de barras para cada producto:
