@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import MainLayout from './Layouts/MainLayout';
 import { VentaProvider } from './context/VentaContext';
-import InventarioPublico from './pages/InventarioPublico'; // nuevo
+import InventarioPublico from './pages/InventarioPublico';
 import './App.css';
 
 function App() {
