@@ -17,6 +17,9 @@ import { useSnackbar } from 'notistack';
 import Select from 'react-select';
 import api from '../../config/api.js';
 
+//Importación de servicios
+import { getInventarioDisponible } from '../../services/inventarioService';
+
 const RegistrarVenta = ({ 
   modo = 'normal', 
   productoDevuelto = null, 
@@ -63,15 +66,11 @@ const RegistrarVenta = ({
 
     const fetchInventario = async () => {
       try {
-        const response = await api.get('/api/inventario');
-        const inventarioDisponible = response.data
-          .filter(item => item.FK_ESTATUS_PRODUCTO === 1)
-          .map(item => ({
-            ...item,
-            CODIGO_BARRA: item.CODIGO_BARRA || '' // Asegurarse de que CODIGO_BARRA esté incluido
-          }));
-        setInventarioDisponible(inventarioDisponible);
-        actualizarOpcionesMarca(inventarioDisponible);
+      
+      const datosLimbios = await getInventarioDisponible();
+      
+      setInventarioDisponible(datosLimbios);
+      actualizarOpcionesMarca(datosLimbios);
       } catch (error) {
         console.error('Error al obtener el inventario:', error);
         enqueueSnackbar('Error al cargar el inventario', { variant: 'error' });
