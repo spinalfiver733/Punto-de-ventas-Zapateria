@@ -5,6 +5,7 @@ import MainLayout from './Layouts/MainLayout';
 import { VentaProvider } from './context/VentaContext';
 import InventarioPublico from './pages/InventarioPublico';
 import VentaSinCodigo from './pages/VentasSinCodigo';
+import VentasPage from './pages/VentasPage';
 import './App.css';
 
 function App() {
@@ -35,6 +36,8 @@ function App() {
             {/* INVENTARIO SOLO VISTA (sin layout) */}
             <Route path="/inventario" element={<InventarioPublico />} />
 
+            {/*PÁGINA VENTAS DEL DÍA */}
+            <Route path="/ventas_dia" element={<VentasPage />} />
             {/*VENTAS SIN CODIGO , SOLO VISTA*/}
             <Route path="/ventas" element={<VentaSinCodigo />}/>
 
