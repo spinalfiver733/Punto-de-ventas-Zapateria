@@ -10,11 +10,7 @@ const VentasPage = () => {
                 const ahora = new Date();
                 const hoy = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
                 
-                console.log('Fecha que se manda al backend:', hoy);
-                
                 const response = await api.get(`/api/ventas/historial?fecha=${hoy}`);
-                
-                console.log('Ventas recibidas:', response.data);
                 setVentas(response.data);
             } catch (error) {
                 console.error("Error al obtener las ventas:", error);
@@ -27,9 +23,26 @@ const VentasPage = () => {
     return (
         <div>
             <h1>Ventas del día</h1>
-            {ventas.map(venta => (
-                <p key={venta.PK_VENTA}>{venta.MODELO} - {venta.PRECIO}</p>
-            ))}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Número</th>
+                        <th>Color</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {ventas.map(venta => (
+                        <tr key={venta.PK_VENTA}>
+                            <td>{`${venta.MARCA} ${venta.MODELO}`}</td>
+                            <td>{venta.TALLA}</td>
+                            <td>{venta.COLOR}</td>
+                            <td>{venta.PRECIO}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
