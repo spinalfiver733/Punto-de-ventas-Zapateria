@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import api from '../config/api.js';
-import './InventarioPublico.css';
+import '../styles/estilosPages/InventarioPublico.css';
 
 const InventarioPublico = () => {
   const [inventario, setInventario] = useState([]);
@@ -37,7 +37,7 @@ const InventarioPublico = () => {
 
       <div className="inv-header">
         <h1>INVENTARIO</h1>
-        {/*  
+        {/*  Número de artículos en el inventario
         <p className="inv-count">
           {cargando ? '...' : `${filtrado.length} artículo${filtrado.length !== 1 ? 's' : ''}`}
         </p>
