@@ -3,7 +3,7 @@ import api from "../config/api.js";
 
 const VentasPage = () => {
     const [ventas, setVentas] = useState([]);
-
+    
     useEffect(() => {
         const obtenerVentas = async () => {
             try {
@@ -12,7 +12,7 @@ const VentasPage = () => {
                 
                 console.log('Fecha que se manda al backend:', hoy);
                 
-                const response = await api.get(`/api/ventas/historial?fecha=${hoy}`); // ← faltaba esto
+                const response = await api.get(`/api/ventas/historial?fecha=${hoy}`);
                 
                 console.log('Ventas recibidas:', response.data);
                 setVentas(response.data);
