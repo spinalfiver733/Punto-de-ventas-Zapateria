@@ -8,7 +8,7 @@ import api from '../../config/api.js';
 
 const Inventario = () => {
   const [inventario, setInventario] = useState([]);
-  const [vistaActual, setVistaActual] = useState('agregar'); // 'lista' o 'agregar'
+  const [vistaActual, setVistaActual] = useState('agregar');
 
   const fetchInventario = useCallback(async () => {
     try {
@@ -48,12 +48,14 @@ const Inventario = () => {
         >
           Ver Inventario
         </div>
+        {/*
         <div 
           onClick={() => cambiarVista('codigos')}
           className={`nav-item ${vistaActual === 'codigos' ? 'active' : ''}`}
         >
           Generar Códigos
         </div>
+        */}
       </div>
       {vistaActual === 'lista' ? (
         <InventarioLista inventario={inventario} />

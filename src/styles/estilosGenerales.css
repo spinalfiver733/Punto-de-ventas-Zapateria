@@ -23,17 +23,17 @@ p{
   background-color: rgb(255, 255, 255);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-card);
-  position: relative; /* Importante para el z-index */
+  position: relative; 
 }
 
 /* Headers */
 .headerTitle {
   background: linear-gradient(
     to right, 
-    white, 
+    rgba(255, 255, 255, 0), 
     var(--color-primary) 10%, 
     var(--color-primary) 90%, 
-    white
+    rgba(255, 255, 255, 0)
   );
   padding: 10px;
   text-align: center;
@@ -69,14 +69,14 @@ label {
 input, select, textarea {
   width: 100%;
   height: 42px;
-  padding: 0 10px; /* Ajustamos el padding horizontal */
+  padding: 0 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: white;
   color: var(--color-gray);
   font-size: 16px;
   box-sizing: border-box;
-  line-height: 42px; /* Añadimos line-height igual a la altura */
+  line-height: 42px;
 }
 
 /* Excepciones para textarea */
@@ -293,8 +293,8 @@ td {
   max-width: 500px;
   margin: 20px auto;
   padding: 0 20px;
-  position: relative; /* Para que el menú desplegable se posicione correctamente */
-  z-index: 100; /* Asegura que el menú aparezca por encima de otros elementos */
+  position: relative;
+  z-index: 100;
 }
 
 .reportes-select-container label {
@@ -317,7 +317,7 @@ td {
 }
 
 .textarea-group {
-  width: 100% !important; /* Usamos !important para sobrescribir el width del form-group */
+  width: 100% !important;
   margin-bottom: 15px;
 }
 

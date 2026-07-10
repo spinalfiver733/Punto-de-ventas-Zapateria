@@ -35,11 +35,11 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     precio: '',
     numeroInicio: '',
     numeroFin: '',
-    incremento: '1' // '1' para enteros, '0.5' para medios
+    incremento: '1'
   });
   const [productosCorreida, setProductosCorreida] = useState([]);
   
-  // NUEVO: Estado para validaciones de códigos en corridas
+  //Estado para validaciones de códigos en corridas
   const [validacionesCorrida, setValidacionesCorrida] = useState({});
   const [validandosCorrida, setValidandosCorrida] = useState({});
 
@@ -100,15 +100,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       return { valido: true };
     }
 
-    if (codigoBarras.length !== 6) {
-      setEstadoCodigo('incompleto');
-      setMensajeValidacion(`Ingrese 6 dígitos (faltan ${6 - codigoBarras.length})`);
-      if (mostrarMensaje) {
-        enqueueSnackbar('El código de barras debe tener exactamente 6 dígitos.', { variant: 'warning' });
-      }
-      return { valido: false, mensaje: 'El código debe tener 6 dígitos' };
-    }
-
     // Validar en la lista local
     const duplicadoLocal = productosAgregar.find((producto, index) =>
       producto.codigo_barra === codigoBarras && index !== indexExcluir
@@ -160,7 +151,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     return { valido: true };
   };
 
-  // NUEVA: Función para validar código en corridas
+  //Función para validar código en corridas
   const validarCodigoEnCorrida = async (codigoBarras, indexCorrida) => {
     if (!codigoBarras || codigoBarras.trim() === '') {
       setValidacionesCorrida(prev => {
@@ -169,17 +160,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
         return nuevas;
       });
       return { valido: true };
-    }
-
-    if (codigoBarras.length !== 6) {
-      setValidacionesCorrida(prev => ({
-        ...prev,
-        [indexCorrida]: {
-          estado: 'incompleto',
-          mensaje: `Ingrese 6 dígitos (faltan ${6 - codigoBarras.length})`
-        }
-      }));
-      return { valido: false, mensaje: 'El código debe tener 6 dígitos' };
     }
 
     // Validar duplicados dentro de la misma corrida
@@ -344,14 +324,14 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   // Agregar corrida completa a la lista principal
   const handleAgregarCorreida = async () => {
     // Verificar que todos tengan código
-    const sinCodigo = productosCorreida.filter(p => !p.codigo_barra || p.codigo_barra.trim().length !== 6);
+    const sinCodigo = productosCorreida.filter(p => !p.codigo_barra || p.codigo_barra.trim().length === 0);
     if (sinCodigo.length > 0) {
       enqueueSnackbar(`Faltan ${sinCodigo.length} códigos de barras por completar.`, { variant: 'warning' });
       return;
     }
 
     // Verificar que no haya códigos con errores
-    const codigosConErrores = Object.values(validacionesCorrida).filter(v => v.estado === 'duplicado' || v.estado === 'incompleto');
+    const codigosConErrores = Object.values(validacionesCorrida).filter(v => v.estado === 'duplicado');
     if (codigosConErrores.length > 0) {
       enqueueSnackbar('Hay códigos con errores. Por favor, corrija antes de continuar.', { variant: 'error' });
       return;
@@ -423,12 +403,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const codigo = formData.codigo_barra?.trim();
-      if (codigo && codigo.length === 6) {
+      if (codigo && codigo.length > 0) {
         validarCodigoBarras(codigo, editingIndex, false);
-      } else if (codigo && codigo.length > 0 && codigo.length < 6) {
-        setEstadoCodigo('incompleto');
-        setMensajeValidacion(`Ingrese 6 dígitos (faltan ${6 - codigo.length})`);
-      } else if (codigo.length === 0) {
+      } else {
         setEstadoCodigo(null);
         setMensajeValidacion('');
       }
@@ -466,11 +443,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   const handleAgregarALista = async () => {
     if (!formData.marca || !formData.modelo || !formData.numero || !formData.color || !formData.precio || !formData.codigo_barra) {
       enqueueSnackbar('Por favor, complete todos los campos.', { variant: 'warning' });
-      return;
-    }
-
-    if (formData.codigo_barra.trim().length !== 6) {
-      enqueueSnackbar('El código de barras debe tener exactamente 6 dígitos.', { variant: 'warning' });
       return;
     }
 
@@ -601,8 +573,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
 
   const duplicadosEnLista = verificarDuplicadosEnLista();
   const botonDeshabilitado = validandoCodigo ||
-    estadoCodigo === 'duplicado' ||
-    estadoCodigo === 'incompleto';
+    estadoCodigo === 'duplicado';
 
   return (
     <div className="agregar-inventario-container">
@@ -686,12 +657,10 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   placeholder="Escanea o ingresa el código"
                   required
                   disabled={validandoCodigo}
-                  maxLength="6"
                   style={{
                     borderColor: estadoCodigo === 'valido' ? '#4caf50' :
                       estadoCodigo === 'duplicado' ? '#f44336' :
-                        estadoCodigo === 'incompleto' ? '#ff9800' :
-                          estadoCodigo === 'error' ? '#f44336' : '',
+                        estadoCodigo === 'error' ? '#f44336' : '',
                     borderWidth: estadoCodigo ? '2px' : '1px'
                   }}
                 />
@@ -704,16 +673,14 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   <small style={{
                     color: estadoCodigo === 'valido' ? '#4caf50' :
                       estadoCodigo === 'duplicado' ? '#f44336' :
-                        estadoCodigo === 'incompleto' ? '#ff9800' :
-                          estadoCodigo === 'error' ? '#f44336' : '#666',
+                        estadoCodigo === 'error' ? '#f44336' : '#666',
                     fontSize: '12px',
                     display: 'block',
                     marginTop: '4px'
                   }}>
                     {estadoCodigo === 'valido' ? '✅' :
                       estadoCodigo === 'duplicado' ? '❌' :
-                        estadoCodigo === 'incompleto' ? '⚠️' :
-                          estadoCodigo === 'error' ? '💥' : ''} {mensajeValidacion}
+                        estadoCodigo === 'error' ? '💥' : ''} {mensajeValidacion}
                   </small>
                 )}
               </div>
@@ -748,7 +715,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 {editingIndex !== null ? 'ACTUALIZAR EN LA LISTA' : 'AGREGAR A LA LISTA'}
                 {validandoCodigo && ' (Verificando...)'}
                 {estadoCodigo === 'duplicado' && ' (Código duplicado)'}
-                {estadoCodigo === 'incompleto' && ' (Código incompleto)'}
               </button>
             </div>
           </form>
@@ -943,8 +909,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                               type="text"
                               value={producto.codigo_barra}
                               onChange={(e) => handleCodigoCorridaChange(index, e.target.value)}
-                              placeholder="6 dígitos"
-                              maxLength="6"
                               disabled={estaValidando}
                               style={{
                                 width: '100%',
@@ -954,10 +918,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                                 fontSize: '12px',
                                 borderColor: validacion?.estado === 'valido' ? '#4caf50' :
                                   validacion?.estado === 'duplicado' ? '#f44336' :
-                                    validacion?.estado === 'incompleto' ? '#ff9800' :
-                                      producto.codigo_barra?.length === 6 ? '#4caf50' : '#ccc',
+                                    producto.codigo_barra?.length > 0 ? '#4caf50' : '#ccc',
                                 borderWidth: validacion?.estado ? '2px' : 
-                                  (producto.codigo_barra?.length === 6 ? '2px' : '1px')
+                                  (producto.codigo_barra?.length > 0 ? '2px' : '1px')
                               }}
                             />
                             {estaValidando && (
@@ -973,15 +936,13 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                             {validacion && !estaValidando && (
                               <small style={{
                                 color: validacion.estado === 'valido' ? '#4caf50' :
-                                  validacion.estado === 'duplicado' ? '#f44336' :
-                                    validacion.estado === 'incompleto' ? '#ff9800' : '#666',
+                                  validacion.estado === 'duplicado' ? '#f44336' : '#666',
                                 fontSize: '10px',
                                 display: 'block',
                                 marginTop: '2px'
                               }}>
                                 {validacion.estado === 'valido' ? '✅' :
-                                  validacion.estado === 'duplicado' ? '❌' :
-                                    validacion.estado === 'incompleto' ? '⚠️' : ''} {validacion.mensaje}
+                                  validacion.estado === 'duplicado' ? '❌' : ''} {validacion.mensaje}
                               </small>
                             )}
                           </div>
@@ -998,25 +959,25 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   className="btn-primary"
                   onClick={handleAgregarCorreida}
                   disabled={
-                    productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ||
-                    Object.values(validacionesCorrida).some(v => v.estado === 'duplicado' || v.estado === 'incompleto') ||
+                    productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ||
+                    Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') ||
                     Object.keys(validandosCorrida).length > 0
                   }
                   style={{
                     opacity: (
-                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ||
-                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado' || v.estado === 'incompleto') ||
+                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ||
+                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') ||
                       Object.keys(validandosCorrida).length > 0
                     ) ? 0.6 : 1,
                     cursor: (
-                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.length !== 6) ||
-                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado' || v.estado === 'incompleto') ||
+                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ||
+                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') ||
                       Object.keys(validandosCorrida).length > 0
                     ) ? 'not-allowed' : 'pointer'
                   }}
                 >
                   <img src={iconAgregar} alt="Agregar corrida" />
-                  AGREGAR CORRIDA A LA LISTA ({productosCorreida.filter(p => p.codigo_barra?.length === 6).length}/{productosCorreida.length})
+                  AGREGAR CORRIDA A LA LISTA ({productosCorreida.filter(p => p.codigo_barra?.trim().length > 0).length}/{productosCorreida.length})
                   {Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') && ' (Hay duplicados)'}
                   {Object.keys(validandosCorrida).length > 0 && ' (Verificando...)'}
                 </button>

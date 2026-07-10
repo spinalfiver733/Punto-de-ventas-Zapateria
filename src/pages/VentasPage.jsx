@@ -39,6 +39,7 @@ const VentasPage = () => {
                                 <th className="col-text">Producto</th>
                                 <th className="col-text">Número</th>
                                 <th className="col-text">Color</th>
+                                <th className="col-text">Método Pago</th>
                                 <th className="col-num">Precio</th>
                             </tr>
                         </thead>
@@ -49,6 +50,7 @@ const VentasPage = () => {
                                     <td className="col-text">{`${venta.MARCA} ${venta.MODELO}`}</td>
                                     <td className="col-text">{venta.TALLA}</td>
                                     <td className="col-text">{venta.COLOR}</td>
+                                    <td className="col-text">{venta.METODO_PAGO}</td>
                                     <td className="col-num">${venta.PRECIO}</td>
                                 </tr>
                             ))}

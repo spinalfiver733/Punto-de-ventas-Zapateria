@@ -1,50 +1,35 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { SnackbarProvider } from 'notistack';
+import customNotistack from './notificaciones/customNotistack';
 import MainLayout from './Layouts/MainLayout';
 import { VentaProvider } from './context/VentaContext';
 import InventarioPublico from './pages/InventarioPublico';
-import VentaSinCodigo from './pages/VentasSinCodigo';
 import VentasPage from './pages/VentasPage';
+import HomeMenu from './pages/HomeMenu'; 
 import './App.css';
 
 function App() {
   return (
     <div className="full-width-container">
-      <SnackbarProvider 
-        maxSnack={3} 
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        autoHideDuration={3000}
-        style={{ marginTop: '65px' }}
-        classes={{
-          variantSuccess: 'success-snackbar',
-          variantError: 'error-snackbar',
-          variantWarning: 'warning-snackbar',
-          variantInfo: 'info-snackbar',
-        }}
-      >
+      <customNotistack>
         <VentaProvider>
 
           <Routes>
+            {/* PÁGINA DE BIENVENIDA*/}
+            <Route path="/" element={<HomeMenu />} />
 
-            {/* APP NORMAL (con sidebar, header, etc) */}
-            <Route path="/*" element={<MainLayout />} />
+            {/* APP NORMAL */}
+            <Route path="/app/*" element={<MainLayout />} />
 
-            {/* INVENTARIO SOLO VISTA (sin layout) */}
+            {/* INVENTARIO SOLO VISTA */}
             <Route path="/inventario" element={<InventarioPublico />} />
 
-            {/*PÁGINA VENTAS DEL DÍA */}
+            {/* PÁGINA VENTAS DEL DÍA */}
             <Route path="/ventas_dia" element={<VentasPage />} />
-            {/*VENTAS SIN CODIGO , SOLO VISTA*/}
-            <Route path="/ventas" element={<VentaSinCodigo />}/>
-
           </Routes>
 
         </VentaProvider>
-      </SnackbarProvider>
+      </customNotistack>
     </div>
   );
 }
