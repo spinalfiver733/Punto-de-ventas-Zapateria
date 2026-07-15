@@ -22,9 +22,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
   });
   const [productosAgregar, setProductosAgregar] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [validandoCodigo, setValidandoCodigo] = useState(false);
-  const [estadoCodigo, setEstadoCodigo] = useState(null);
-  const [mensajeValidacion, setMensajeValidacion] = useState('');
 
   // Estados para corridas
   const [mostrarCorridas, setMostrarCorridas] = useState(false);
@@ -38,10 +35,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     incremento: '1'
   });
   const [productosCorreida, setProductosCorreida] = useState([]);
-  
-  //Estado para validaciones de códigos en corridas
-  const [validacionesCorrida, setValidacionesCorrida] = useState({});
-  const [validandosCorrida, setValidandosCorrida] = useState({});
 
   const numeroOptions = [];
 
@@ -77,171 +70,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       icon: 'error',
       confirmButtonColor: '#3085d6',
     });
-  };
-
-  // Función para verificar código de barras en la base de datos
-  const verificarCodigoEnBD = async (codigoBarras) => {
-    try {
-      console.log('🔍 Verificando código en BD:', codigoBarras);
-      const response = await api.get(`/api/inventario/verificar-codigo/${codigoBarras}`);
-      console.log('📋 Respuesta de BD:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Error al verificar código:', error);
-      return { existe: false, error: true };
-    }
-  };
-
-  // Función para validar código de barras tanto local como en BD
-  const validarCodigoBarras = async (codigoBarras, indexExcluir = null, mostrarMensaje = false) => {
-    if (!codigoBarras || codigoBarras.trim() === '') {
-      setEstadoCodigo(null);
-      setMensajeValidacion('');
-      return { valido: true };
-    }
-
-    // Validar en la lista local
-    const duplicadoLocal = productosAgregar.find((producto, index) =>
-      producto.codigo_barra === codigoBarras && index !== indexExcluir
-    );
-
-    if (duplicadoLocal) {
-      const indice = productosAgregar.findIndex((producto, index) =>
-        producto.codigo_barra === codigoBarras && index !== indexExcluir
-      );
-      const mensaje = `Ya está en la lista (Producto ${indice + 1}: ${duplicadoLocal.marca} ${duplicadoLocal.modelo} - ${duplicadoLocal.color})`;
-
-      setEstadoCodigo('duplicado');
-      setMensajeValidacion(mensaje);
-
-      if (mostrarMensaje) {
-        enqueueSnackbar(mensaje, { variant: 'error' });
-      }
-
-      return { valido: false, mensaje: mensaje };
-    }
-
-    // Validar en la base de datos
-    setValidandoCodigo(true);
-    const resultadoBD = await verificarCodigoEnBD(codigoBarras);
-    setValidandoCodigo(false);
-
-    if (resultadoBD.error) {
-      setEstadoCodigo('valido');
-      setMensajeValidacion('Código disponible (error de conexión)');
-      return { valido: true };
-    }
-
-    if (resultadoBD.existe) {
-      const producto = resultadoBD.producto;
-      const mensaje = `Ya existe en inventario: ${producto.MARCA} ${producto.MODELO} - ${producto.COLOR} (Talla: ${producto.TALLA})`;
-
-      setEstadoCodigo('duplicado');
-      setMensajeValidacion(mensaje);
-
-      if (mostrarMensaje) {
-        enqueueSnackbar(mensaje, { variant: 'error' });
-      }
-
-      return { valido: false, mensaje: mensaje };
-    }
-
-    setEstadoCodigo('valido');
-    setMensajeValidacion('Código disponible');
-    return { valido: true };
-  };
-
-  //Función para validar código en corridas
-  const validarCodigoEnCorrida = async (codigoBarras, indexCorrida) => {
-    if (!codigoBarras || codigoBarras.trim() === '') {
-      setValidacionesCorrida(prev => {
-        const nuevas = { ...prev };
-        delete nuevas[indexCorrida];
-        return nuevas;
-      });
-      return { valido: true };
-    }
-
-    // Validar duplicados dentro de la misma corrida
-    const duplicadoEnCorrida = productosCorreida.find((producto, index) =>
-      producto.codigo_barra === codigoBarras && index !== indexCorrida
-    );
-
-    if (duplicadoEnCorrida) {
-      const mensaje = `Duplicado en la corrida (Talla: ${duplicadoEnCorrida.numero})`;
-      setValidacionesCorrida(prev => ({
-        ...prev,
-        [indexCorrida]: {
-          estado: 'duplicado',
-          mensaje: mensaje
-        }
-      }));
-      return { valido: false, mensaje: mensaje };
-    }
-
-    // Validar en la lista principal
-    const duplicadoEnLista = productosAgregar.find(producto =>
-      producto.codigo_barra === codigoBarras
-    );
-
-    if (duplicadoEnLista) {
-      const mensaje = `Ya está en la lista principal: ${duplicadoEnLista.marca} ${duplicadoEnLista.modelo} - ${duplicadoEnLista.color} (Talla: ${duplicadoEnLista.numero})`;
-      setValidacionesCorrida(prev => ({
-        ...prev,
-        [indexCorrida]: {
-          estado: 'duplicado',
-          mensaje: mensaje
-        }
-      }));
-      return { valido: false, mensaje: mensaje };
-    }
-
-    // Validar en la base de datos
-    setValidandosCorrida(prev => ({ ...prev, [indexCorrida]: true }));
-    const resultadoBD = await verificarCodigoEnBD(codigoBarras);
-    setValidandosCorrida(prev => {
-      const nuevos = { ...prev };
-      delete nuevos[indexCorrida];
-      return nuevos;
-    });
-
-    if (resultadoBD.error) {
-      setValidacionesCorrida(prev => ({
-        ...prev,
-        [indexCorrida]: {
-          estado: 'valido',
-          mensaje: 'Código disponible (error de conexión)'
-        }
-      }));
-      return { valido: true };
-    }
-
-    if (resultadoBD.existe) {
-      const producto = resultadoBD.producto;
-      const mensaje = `Ya existe en inventario: ${producto.MARCA} ${producto.MODELO} - ${producto.COLOR} (Talla: ${producto.TALLA})`;
-
-      setValidacionesCorrida(prev => ({
-        ...prev,
-        [indexCorrida]: {
-          estado: 'duplicado',
-          mensaje: mensaje
-        }
-      }));
-
-      // Mostrar snackbar
-      enqueueSnackbar(mensaje, { variant: 'error' });
-
-      return { valido: false, mensaje: mensaje };
-    }
-
-    setValidacionesCorrida(prev => ({
-      ...prev,
-      [indexCorrida]: {
-        estado: 'valido',
-        mensaje: 'Código disponible'
-      }
-    }));
-    return { valido: true };
   };
 
   // Función para generar números de la corrida
@@ -291,69 +119,22 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }));
 
     setProductosCorreida(nuevosProductos);
-    // Limpiar validaciones previas
-    setValidacionesCorrida({});
-    setValidandosCorrida({});
     enqueueSnackbar(`Corrida generada: ${numeros.length} productos`, { variant: 'success' });
   };
 
-  // MODIFICADO: Manejar cambio de código en corrida con validación
-  const handleCodigoCorridaChange = async (index, codigo) => {
+  const handleCodigoCorridaChange = (index, codigo) => {
     const nuevosProductos = [...productosCorreida];
     nuevosProductos[index].codigo_barra = codigo;
     setProductosCorreida(nuevosProductos);
-
-    // Validar el código después de un pequeño delay
-    if (codigo.trim() === '') {
-      setValidacionesCorrida(prev => {
-        const nuevas = { ...prev };
-        delete nuevas[index];
-        return nuevas;
-      });
-      return;
-    }
-
-    // Delay para evitar demasiadas llamadas a la API
-    setTimeout(() => {
-      if (nuevosProductos[index].codigo_barra === codigo) {
-        validarCodigoEnCorrida(codigo, index);
-      }
-    }, 500);
   };
 
   // Agregar corrida completa a la lista principal
-  const handleAgregarCorreida = async () => {
+  const handleAgregarCorreida = () => {
     // Verificar que todos tengan código
     const sinCodigo = productosCorreida.filter(p => !p.codigo_barra || p.codigo_barra.trim().length === 0);
     if (sinCodigo.length > 0) {
       enqueueSnackbar(`Faltan ${sinCodigo.length} códigos de barras por completar.`, { variant: 'warning' });
       return;
-    }
-
-    // Verificar que no haya códigos con errores
-    const codigosConErrores = Object.values(validacionesCorrida).filter(v => v.estado === 'duplicado');
-    if (codigosConErrores.length > 0) {
-      enqueueSnackbar('Hay códigos con errores. Por favor, corrija antes de continuar.', { variant: 'error' });
-      return;
-    }
-
-    // Validar códigos duplicados dentro de la corrida
-    const codigos = productosCorreida.map(p => p.codigo_barra);
-    const duplicados = codigos.filter((codigo, index) => codigos.indexOf(codigo) !== index);
-    if (duplicados.length > 0) {
-      enqueueSnackbar('Hay códigos duplicados dentro de la corrida.', { variant: 'error' });
-      return;
-    }
-
-    // Validar cada código contra BD y lista actual (validación final)
-    for (let i = 0; i < productosCorreida.length; i++) {
-      const producto = productosCorreida[i];
-      const validacion = await validarCodigoBarras(producto.codigo_barra, null, false);
-
-      if (!validacion.valido) {
-        enqueueSnackbar(`Código ${producto.codigo_barra} (Talla ${producto.numero}): ${validacion.mensaje}`, { variant: 'error' });
-        return;
-      }
     }
 
     // Agregar todos los productos a la lista principal
@@ -362,8 +143,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
 
     // Limpiar y cerrar modal
     setProductosCorreida([]);
-    setValidacionesCorrida({});
-    setValidandosCorrida({});
     setCorridaData({
       marca: '',
       modelo: '',
@@ -376,61 +155,17 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     setMostrarCorridas(false);
   };
 
-  // Funciones originales...
-  const verificarDuplicadosEnLista = () => {
-    const codigosContador = {};
-    const duplicados = {};
-
-    productosAgregar.forEach((producto, index) => {
-      const codigo = producto.codigo_barra;
-      if (!codigosContador[codigo]) {
-        codigosContador[codigo] = [];
-      }
-      codigosContador[codigo].push(index);
-    });
-
-    Object.keys(codigosContador).forEach(codigo => {
-      if (codigosContador[codigo].length > 1) {
-        codigosContador[codigo].forEach(index => {
-          duplicados[index] = true;
-        });
-      }
-    });
-
-    return duplicados;
-  };
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const codigo = formData.codigo_barra?.trim();
-      if (codigo && codigo.length > 0) {
-        validarCodigoBarras(codigo, editingIndex, false);
-      } else {
-        setEstadoCodigo(null);
-        setMensajeValidacion('');
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [formData.codigo_barra, productosAgregar, editingIndex]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-  if (name === 'precio') {
-    if (!esPrecioValido(value)) return;
-  }
+    if (name === 'precio') {
+      if (!esPrecioValido(value)) return;
+    }
 
     setFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
-
-    if (name === 'codigo_barra') {
-      setEstadoCodigo(null);
-      setMensajeValidacion('');
-      setValidandoCodigo(false);
-    }
   };
 
   const handleSelectChange = (selectedOption) => {
@@ -440,15 +175,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
     }));
   };
 
-  const handleAgregarALista = async () => {
+  const handleAgregarALista = () => {
     if (!formData.marca || !formData.modelo || !formData.numero || !formData.color || !formData.precio || !formData.codigo_barra) {
       enqueueSnackbar('Por favor, complete todos los campos.', { variant: 'warning' });
-      return;
-    }
-
-    const validacion = await validarCodigoBarras(formData.codigo_barra.trim(), editingIndex, true);
-
-    if (!validacion.valido) {
       return;
     }
 
@@ -477,10 +206,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       precio: '',
       codigo_barra: ''
     });
-
-    setEstadoCodigo(null);
-    setMensajeValidacion('');
-    setValidandoCodigo(false);
   };
 
   const handleEditar = (index) => {
@@ -490,10 +215,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
       numero: { value: productoAEditar.numero, label: productoAEditar.numero }
     });
     setEditingIndex(index);
-
-    setEstadoCodigo(null);
-    setMensajeValidacion('');
-    setValidandoCodigo(false);
   };
 
   const handleEliminar = async (index) => {
@@ -523,9 +244,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
           precio: '',
           codigo_barra: ''
         });
-        setEstadoCodigo(null);
-        setMensajeValidacion('');
-        setValidandoCodigo(false);
       }
     }
   };
@@ -535,12 +253,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
 
     if (productosAgregar.length === 0) {
       enqueueSnackbar('No hay productos para agregar al inventario.', { variant: 'warning' });
-      return;
-    }
-
-    const duplicados = verificarDuplicadosEnLista();
-    if (Object.keys(duplicados).length > 0) {
-      enqueueSnackbar('Hay códigos de barras duplicados en la lista. Por favor, revise y corrija antes de continuar.', { variant: 'error' });
       return;
     }
 
@@ -561,19 +273,10 @@ const AgregarInventario = ({ onProductoAgregado }) => {
         onProductoAgregado();
       } catch (error) {
         console.error('💥 Error al agregar productos:', error);
-
-        if (error.response?.status === 400 || error.response?.data?.message?.includes('duplicado')) {
-          await mostrarError('Código Duplicado', 'Uno de los códigos ya existe en la base de datos. Por favor, verifique y corrija.');
-        } else {
-          await mostrarError('Error', 'Ha ocurrido un error al agregar los productos al inventario. Por favor, inténtelo de nuevo.');
-        }
+        await mostrarError('Error', 'Ha ocurrido un error al agregar los productos al inventario. Por favor, inténtelo de nuevo.');
       }
     }
   };
-
-  const duplicadosEnLista = verificarDuplicadosEnLista();
-  const botonDeshabilitado = validandoCodigo ||
-    estadoCodigo === 'duplicado';
 
   return (
     <div className="agregar-inventario-container">
@@ -656,33 +359,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   onChange={handleChange}
                   placeholder="Escanea o ingresa el código"
                   required
-                  disabled={validandoCodigo}
-                  style={{
-                    borderColor: estadoCodigo === 'valido' ? '#4caf50' :
-                      estadoCodigo === 'duplicado' ? '#f44336' :
-                        estadoCodigo === 'error' ? '#f44336' : '',
-                    borderWidth: estadoCodigo ? '2px' : '1px'
-                  }}
                 />
-                {validandoCodigo && (
-                  <small style={{ color: '#666', fontSize: '12px' }}>
-                    🔄 Verificando código en base de datos...
-                  </small>
-                )}
-                {mensajeValidacion && !validandoCodigo && (
-                  <small style={{
-                    color: estadoCodigo === 'valido' ? '#4caf50' :
-                      estadoCodigo === 'duplicado' ? '#f44336' :
-                        estadoCodigo === 'error' ? '#f44336' : '#666',
-                    fontSize: '12px',
-                    display: 'block',
-                    marginTop: '4px'
-                  }}>
-                    {estadoCodigo === 'valido' ? '✅' :
-                      estadoCodigo === 'duplicado' ? '❌' :
-                        estadoCodigo === 'error' ? '💥' : ''} {mensajeValidacion}
-                  </small>
-                )}
               </div>
             </div>
 
@@ -705,16 +382,9 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 type="button"
                 className="btn-primary"
                 onClick={handleAgregarALista}
-                disabled={botonDeshabilitado}
-                style={{
-                  opacity: botonDeshabilitado ? 0.6 : 1,
-                  cursor: botonDeshabilitado ? 'not-allowed' : 'pointer'
-                }}
               >
                 <img src={iconAgregar} alt="Agregar a la lista" />
                 {editingIndex !== null ? 'ACTUALIZAR EN LA LISTA' : 'AGREGAR A LA LISTA'}
-                {validandoCodigo && ' (Verificando...)'}
-                {estadoCodigo === 'duplicado' && ' (Código duplicado)'}
               </button>
             </div>
           </form>
@@ -839,8 +509,6 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 onClick={() => {
                   setMostrarCorridas(false);
                   setProductosCorreida([]);
-                  setValidacionesCorrida({});
-                  setValidandosCorrida({});
                   setCorridaData({
                     marca: '',
                     modelo: '',
@@ -892,64 +560,29 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {productosCorreida.map((producto, index) => {
-                    const validacion = validacionesCorrida[index];
-                    const estaValidando = validandosCorrida[index];
-                    
-                    return (
-                      <tr key={index}>
-                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.marca}</td>
-                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.modelo}</td>
-                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.color}</td>
-                        <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{producto.numero}</td>
-                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>${producto.precio}</td>
-                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>
-                          <div>
-                            <input
-                              type="text"
-                              value={producto.codigo_barra}
-                              onChange={(e) => handleCodigoCorridaChange(index, e.target.value)}
-                              disabled={estaValidando}
-                              style={{
-                                width: '100%',
-                                padding: '5px',
-                                border: '1px solid #ccc',
-                                borderRadius: '3px',
-                                fontSize: '12px',
-                                borderColor: validacion?.estado === 'valido' ? '#4caf50' :
-                                  validacion?.estado === 'duplicado' ? '#f44336' :
-                                    producto.codigo_barra?.length > 0 ? '#4caf50' : '#ccc',
-                                borderWidth: validacion?.estado ? '2px' : 
-                                  (producto.codigo_barra?.length > 0 ? '2px' : '1px')
-                              }}
-                            />
-                            {estaValidando && (
-                              <small style={{ 
-                                color: '#666', 
-                                fontSize: '10px',
-                                display: 'block',
-                                marginTop: '2px'
-                              }}>
-                                🔄 Verificando...
-                              </small>
-                            )}
-                            {validacion && !estaValidando && (
-                              <small style={{
-                                color: validacion.estado === 'valido' ? '#4caf50' :
-                                  validacion.estado === 'duplicado' ? '#f44336' : '#666',
-                                fontSize: '10px',
-                                display: 'block',
-                                marginTop: '2px'
-                              }}>
-                                {validacion.estado === 'valido' ? '✅' :
-                                  validacion.estado === 'duplicado' ? '❌' : ''} {validacion.mensaje}
-                              </small>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {productosCorreida.map((producto, index) => (
+                    <tr key={index}>
+                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.marca}</td>
+                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.modelo}</td>
+                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.color}</td>
+                      <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{producto.numero}</td>
+                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>${producto.precio}</td>
+                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>
+                        <input
+                          type="text"
+                          value={producto.codigo_barra}
+                          onChange={(e) => handleCodigoCorridaChange(index, e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '5px',
+                            border: '1px solid #ccc',
+                            borderRadius: '3px',
+                            fontSize: '12px'
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
 
@@ -958,28 +591,14 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   type="button"
                   className="btn-primary"
                   onClick={handleAgregarCorreida}
-                  disabled={
-                    productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ||
-                    Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') ||
-                    Object.keys(validandosCorrida).length > 0
-                  }
+                  disabled={productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0)}
                   style={{
-                    opacity: (
-                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ||
-                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') ||
-                      Object.keys(validandosCorrida).length > 0
-                    ) ? 0.6 : 1,
-                    cursor: (
-                      productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ||
-                      Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') ||
-                      Object.keys(validandosCorrida).length > 0
-                    ) ? 'not-allowed' : 'pointer'
+                    opacity: productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ? 0.6 : 1,
+                    cursor: productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ? 'not-allowed' : 'pointer'
                   }}
                 >
                   <img src={iconAgregar} alt="Agregar corrida" />
                   AGREGAR CORRIDA A LA LISTA ({productosCorreida.filter(p => p.codigo_barra?.trim().length > 0).length}/{productosCorreida.length})
-                  {Object.values(validacionesCorrida).some(v => v.estado === 'duplicado') && ' (Hay duplicados)'}
-                  {Object.keys(validandosCorrida).length > 0 && ' (Verificando...)'}
                 </button>
               </div>
             </div>
@@ -1007,35 +626,13 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             </thead>
             <tbody>
               {productosAgregar.map((producto, index) => (
-                <tr
-                  key={index}
-                  style={{
-                    backgroundColor: duplicadosEnLista[index] ? '#ffebee' : 'transparent'
-                  }}
-                >
+                <tr key={index}>
                   <td>{producto.marca}</td>
                   <td>{producto.modelo}</td>
                   <td>{producto.color}</td>
                   <td style={{ fontWeight: 'bold' }}>{producto.numero}</td>
                   <td>${parseFloat(producto.precio).toFixed(2)}</td>
-                  <td>
-                    <span style={{
-                      color: duplicadosEnLista[index] ? '#f44336' : 'inherit',
-                      fontWeight: duplicadosEnLista[index] ? 'bold' : 'normal'
-                    }}>
-                      {producto.codigo_barra}
-                    </span>
-                    {duplicadosEnLista[index] && (
-                      <small style={{
-                        color: '#f44336',
-                        fontSize: '11px',
-                        display: 'block',
-                        fontWeight: 'normal'
-                      }}>
-                        ⚠️ Duplicado
-                      </small>
-                    )}
-                  </td>
+                  <td>{producto.codigo_barra}</td>
                   <td>
                     <button onClick={() => handleEditar(index)} className="btn-accion">
                       <img src={iconEditar} alt="Editar" />
@@ -1052,12 +649,10 @@ const AgregarInventario = ({ onProductoAgregado }) => {
             type="button"
             className="btn-primary"
             onClick={handleSubmit}
-            disabled={Object.keys(duplicadosEnLista).length > 0}
             style={{ marginTop: '15px' }}
           >
             <img src={iconAgregar} alt="Agregar al inventario" />
             AGREGAR AL INVENTARIO ({productosAgregar.length} productos)
-            {Object.keys(duplicadosEnLista).length > 0 && ' (Hay duplicados)'}
           </button>
         </div>
       )}

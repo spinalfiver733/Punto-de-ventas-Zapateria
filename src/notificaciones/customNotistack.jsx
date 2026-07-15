@@ -1,7 +1,7 @@
 import React from 'react';
 import { SnackbarProvider } from 'notistack';
 
-function customNotistack({ children }) {
+function CustomNotistack({ children }) {
   return (
     <SnackbarProvider 
       maxSnack={3} 
@@ -23,4 +23,4 @@ function customNotistack({ children }) {
   );
 }
 
-export default customNotistack;
+export default CustomNotistack;

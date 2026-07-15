@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import customNotistack from './notificaciones/customNotistack';
+import CustomNotistack from './notificaciones/CustomNotistack';
 import MainLayout from './Layouts/MainLayout';
 import { VentaProvider } from './context/VentaContext';
 import InventarioPublico from './pages/InventarioPublico';
@@ -11,7 +11,7 @@ import './App.css';
 function App() {
   return (
     <div className="full-width-container">
-      <customNotistack>
+      <CustomNotistack>
         <VentaProvider>
 
           <Routes>
@@ -29,7 +29,7 @@ function App() {
           </Routes>
 
         </VentaProvider>
-      </customNotistack>
+      </CustomNotistack>
     </div>
   );
 }
