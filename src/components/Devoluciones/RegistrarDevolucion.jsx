@@ -37,7 +37,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     requiereCambio: false,
     observaciones: '',
     ticketOriginal: null,
-    devolucionActual: null  // Agregamos esta línea
+    devolucionActual: null
   });
 
   const opcionesMotivo = [
@@ -68,8 +68,9 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const handleCodigoBarrasChange = async (e) => {
     const codigoBarras = e.target.value;
     setFormData(prev => ({ ...prev, codigoBarras }));
-  
-    if (codigoBarras.length >= 6) {
+
+    // Antes: if (codigoBarras.length >= 6) — se quitó la restricción de longitud mínima
+    if (codigoBarras.trim().length > 0) {
       try {
         const response = await api.get(`/api/inventario/vendido/${codigoBarras}`);
         if (response.data) {
@@ -112,15 +113,17 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (formData.codigoBarras.length >= 6) {
+      // Antes: if (formData.codigoBarras.length >= 6) — ahora solo valida que no esté vacío
+      if (formData.codigoBarras.trim().length > 0) {
         buscarProductoVendido();
       }
     }
   };
 
   const buscarProductoVendido = async () => {
-    if (formData.codigoBarras.length < 6) {
-      enqueueSnackbar('El código de barras debe tener al menos 6 caracteres', { variant: 'warning' });
+    // Antes: if (formData.codigoBarras.length < 6) con mensaje "debe tener al menos 6 caracteres" — eliminado
+    if (formData.codigoBarras.trim().length === 0) {
+      enqueueSnackbar('Ingrese un código de barras', { variant: 'warning' });
       return;
     }
 
@@ -163,33 +166,29 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   };
 
   const handleProcesarDevolucion = async () => {
-    // Validación inicial de campos requeridos
     if (!formData.motivoDevolucion || !formData.vendedor) {
       enqueueSnackbar('Por favor complete todos los campos requeridos', { variant: 'warning' });
       return;
     }
 
-    // Validar que existe información de la venta
     if (!formData.productoVendido?.VENTA?.[0]?.PK_VENTA) {
       enqueueSnackbar('No se encontró la información de la venta original', { variant: 'error' });
       return;
     }
 
     try {
-      // 1. Actualizar estado del producto
       const nuevoEstado = formData.motivoDevolucion.value === 'defecto_fabrica' ? 0 : 1;
       await api.put(`/api/inventario/${formData.productoVendido.PK_PRODUCTO}`, {
         FK_ESTATUS_PRODUCTO: nuevoEstado
       });
 
       await api.put(`/api/ventas/${formData.productoVendido.VENTA[0].PK_VENTA}`,{
-        FK_ESTATUS_VENTA: 2// 2 = Devolución
+        FK_ESTATUS_VENTA: 2 // 2 = Devolución
       });
 
-      // 2. Registrar la devolución
       const devolucionData = {
         FK_PRODUCTO: formData.productoVendido.PK_PRODUCTO,
-        FK_VENTA: formData.productoVendido.VENTA[0].PK_VENTA, // Cambiado aquí
+        FK_VENTA: formData.productoVendido.VENTA[0].PK_VENTA,
         FK_VENDEDOR: formData.vendedor.value,
         MOTIVO: formData.motivoDevolucion.value,
         DESCRIPCION_MOTIVO: formData.descripcionMotivo || '',
@@ -201,7 +200,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
       const responseDevolucion = await api.post('/api/devoluciones', devolucionData);
       console.log('Devolución registrada:', responseDevolucion.data);
 
-      // Actualizar el formData con el PK_DEVOLUCION
       setFormData(prev => ({
         ...prev,
         devolucionActual: responseDevolucion.data
@@ -216,7 +214,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
         }, 100);
         setPaso(3);
       } else {
-        // Generar saldo a favor
         const saldoData = {
           FK_DEVOLUCION: responseDevolucion.data.PK_DEVOLUCION,
           CODIGO_UNICO: generarCodigoUnico(),
@@ -228,7 +225,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
         setPaso(4);
       }
 
-      // 4. Notificar éxito
       onDevolucionRegistrada();
       enqueueSnackbar('Devolución procesada correctamente', { variant: 'success' });
       
@@ -255,7 +251,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     try {
         console.log('Datos recibidos de la nueva venta:', datosNuevaVenta);
         
-        // Usar el PK_DEVOLUCION guardado
         if (!formData.devolucionActual?.PK_DEVOLUCION) {
           throw new Error('No se encontró la información de la devolución');
         }
@@ -275,7 +270,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
         updateData
         );
 
-        // Si hay diferencia a favor del cliente, generar saldo
         if (datosNuevaVenta.diferencia < 0) {
           console.log('Generando saldo a favor por:', Math.abs(datosNuevaVenta.diferencia));
           const saldoData = {
@@ -345,7 +339,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
               onKeyDown={handleKeyDown}
               placeholder="Escanee o ingrese el código de barras"
               autoFocus
-              maxLength={6}
+              // Antes: maxLength={6} — se quitó el límite fijo de caracteres
             />
             <button onClick={buscarProductoVendido} className="btn-primary">
               Buscar
@@ -360,7 +354,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
           <div className="venta-info-container">
             <h3>Detalles de la Devolución</h3>
             
-            {/* Información de la venta original */}
             <div className="seccion-info">
               <h4>Venta Original</h4>
               <div className="ticket-original">
@@ -399,7 +392,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
               </div>
             </div>
 
-            {/* Información del producto */}
             <div className="seccion-info">
               <h4>Producto a Devolver</h4>
               <table className="producto-info-table">
@@ -425,7 +417,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             </div>
           </div>
 
-          {/* Formulario de devolución */}
           <div className="devolucion-form">
             <h4>Proceso de Devolución</h4>
             <div className="form-row">
@@ -510,7 +501,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             modo="cambio"
             productoDevuelto={formData.productoVendido}
             onCambioCompleto={handleCambioCompleto}
-            onCancelVenta={() => {}} // Agregamos esta prop
+            onCancelVenta={() => {}}
           />
         </div>
       )}
@@ -523,7 +514,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             <p>La devolución se ha procesado correctamente.</p>
             
             {formData.requiereCambio ? (
-              // Caso cuando hubo cambio de producto
               consultaSaldo.resultado && (
                 <>
                   <p>Se ha generado un saldo a favor por la diferencia:</p>
@@ -532,7 +522,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
                 </>
               )
             ) : (
-              // Caso cuando NO hubo cambio de producto (devolución completa)
               <>
                 <p>Se ha generado un saldo a favor para el cliente:</p>
                 <p className="codigo-saldo">Código: <strong>{consultaSaldo.resultado.CODIGO_UNICO}</strong></p>
