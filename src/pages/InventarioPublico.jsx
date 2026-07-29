@@ -37,11 +37,6 @@ const InventarioPublico = () => {
 
       <div className="inv-header">
         <h1>INVENTARIO</h1>
-        {/*  Número de artículos en el inventario
-        <p className="inv-count">
-          {cargando ? '...' : `${filtrado.length} artículo${filtrado.length !== 1 ? 's' : ''}`}
-        </p>
-        */}
       </div>
 
       <div className="inv-search-wrap">
@@ -68,6 +63,7 @@ const InventarioPublico = () => {
                 <th className="col-text">Modelo</th>
                 <th className="col-text">Color</th>
                 <th className="col-talla">Talla</th>
+                <th className="col-stock">Stock</th>
               </tr>
             </thead>
             <tbody>
@@ -78,6 +74,7 @@ const InventarioPublico = () => {
                   <td className="col-text">{item.MODELO}</td>
                   <td className="col-text">{item.COLOR}</td>
                   <td className="col-talla">{item.TALLA}</td>
+                  <td className="col-stock">{item.STOCK}</td>
                 </tr>
               ))}
             </tbody>
