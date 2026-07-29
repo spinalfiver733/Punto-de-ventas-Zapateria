@@ -9,14 +9,8 @@ const InventarioLista = ({ inventario }) => {
     color: '',
     codigo_barra: '',
     precio: '',
-    fecha_ingreso: ''
+    stock: ''
   });
-
-  const formatearFecha = (fecha) => {
-    if (!fecha) return 'Fecha no válida';
-    const opciones = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    return new Date(fecha).toLocaleDateString('es-ES', opciones);
-  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +22,6 @@ const InventarioLista = ({ inventario }) => {
 
   const filteredInventario = useMemo(() => {
     return inventario.filter(item => {
-      const fechaFormateada = formatearFecha(item.FECHA_INGRESO);
       return (
         (item.MARCA.toLowerCase().includes(filters.marca.toLowerCase()) || filters.marca === '') &&
         (item.MODELO.toLowerCase().includes(filters.modelo.toLowerCase()) || filters.modelo === '') &&
@@ -36,7 +29,7 @@ const InventarioLista = ({ inventario }) => {
         (item.COLOR.toLowerCase().includes(filters.color.toLowerCase()) || filters.color === '') &&
         (item.CODIGO_BARRA?.toString().includes(filters.codigo_barra) || filters.codigo_barra === '') &&
         (item.PRECIO.toString().includes(filters.precio) || filters.precio === '') &&
-        (fechaFormateada.includes(filters.fecha_ingreso) || filters.fecha_ingreso === '')
+        (item.STOCK.toString().includes(filters.stock) || filters.stock === '')
       );
     });
   }, [inventario, filters]);
@@ -119,7 +112,7 @@ const InventarioLista = ({ inventario }) => {
             <th>Número</th>
             <th>Precio</th>
             <th>Código de Barras</th>
-            <th>Fecha de Ingreso</th>
+            <th>Stock</th>
           </tr>
         </thead>
         <tbody>
@@ -132,7 +125,7 @@ const InventarioLista = ({ inventario }) => {
               <td>{item.TALLA}</td>
               <td>{item.PRECIO}</td>
               <td>{item.CODIGO_BARRA}</td>
-              <td>{formatearFecha(item.FECHA_INGRESO)}</td>
+              <td>{item.STOCK}</td>
             </tr>
           ))}
         </tbody>
