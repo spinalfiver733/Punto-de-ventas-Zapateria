@@ -8,8 +8,7 @@ const InventarioLista = ({ inventario }) => {
     talla: '',
     color: '',
     codigo_barra: '',
-    precio: '',
-    stock: ''
+    precio: ''
   });
 
   const handleFilterChange = (e) => {
@@ -28,8 +27,7 @@ const InventarioLista = ({ inventario }) => {
         (item.TALLA.toString().includes(filters.talla) || filters.talla === '') &&
         (item.COLOR.toLowerCase().includes(filters.color.toLowerCase()) || filters.color === '') &&
         (item.CODIGO_BARRA?.toString().includes(filters.codigo_barra) || filters.codigo_barra === '') &&
-        (item.PRECIO.toString().includes(filters.precio) || filters.precio === '') &&
-        (item.STOCK.toString().includes(filters.stock) || filters.stock === '')
+        (item.PRECIO.toString().includes(filters.precio) || filters.precio === '')
       );
     });
   }, [inventario, filters]);
@@ -94,15 +92,7 @@ const InventarioLista = ({ inventario }) => {
                 onChange={handleFilterChange}
               />
             </th>
-            <th>
-              <input
-                type="text"
-                name="fecha_ingreso"
-                placeholder="Filtrar fecha"
-                value={filters.fecha_ingreso}
-                onChange={handleFilterChange}
-              />
-            </th>
+            <th></th>
           </tr>
           <tr>
             <th>No.</th>
