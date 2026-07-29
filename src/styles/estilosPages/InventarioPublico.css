@@ -112,7 +112,10 @@
 
 .inv-table th.col-num   { text-align: center; width: 48px; }
 .inv-table th.col-text  { text-align: left; }
-.inv-table th.col-talla { text-align: center; width: 80px; }
+.inv-table th.col-talla, .inv-table th.col-stock  { 
+  text-align: center; width: 80px; 
+}
+
 
 /* Filas */
 .inv-table tbody tr:nth-child(odd)  { background: #ffffff; }
@@ -130,7 +133,9 @@
 
 .inv-table td.col-num   { text-align: center; color: var(--muted); font-size: 0.8rem; }
 .inv-table td.col-text  { text-align: left; }
-.inv-table td.col-talla { text-align: center; font-weight: 700; color: var(--negro); }
+.inv-table td.col-talla, .inv-table td.col-stock{ 
+  text-align: center; font-weight: 700; color: var(--negro); 
+}
 
 /* última fila sin borde inferior */
 .inv-table tbody tr:last-child td {
