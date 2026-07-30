@@ -51,7 +51,7 @@ const VentasPage = () => {
                                     <td className="col-text">{venta.TALLA}</td>
                                     <td className="col-text">{venta.COLOR}</td>
                                     <td className="col-text">{venta.METODO_PAGO}</td>
-                                    <td className="col-num">${venta.PRECIO}</td>
+                                    <td className="col-text">${venta.PRECIO}</td>
                                 </tr>
                             ))}
                         </tbody>
