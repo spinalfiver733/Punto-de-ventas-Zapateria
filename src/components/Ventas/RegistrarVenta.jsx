@@ -67,10 +67,10 @@ const RegistrarVenta = ({
     const fetchInventario = async () => {
       try {
       
-      const datosLimbios = await getInventarioDisponible();
+      const datosLimpios = await getInventarioDisponible();
       
-      setInventarioDisponible(datosLimbios);
-      actualizarOpcionesMarca(datosLimbios);
+      setInventarioDisponible(datosLimpios);
+      actualizarOpcionesMarca(datosLimpios);
       } catch (error) {
         console.error('Error al obtener el inventario:', error);
         enqueueSnackbar('Error al cargar el inventario', { variant: 'error' });
@@ -399,7 +399,6 @@ const RegistrarVenta = ({
     const codigoBarras = e.target.value;
     setFormData(prev => ({ ...prev, codigoBarras }));
 
-    if (codigoBarras.length >= 6) {
       try {
         const productoEncontrado = inventarioDisponible.find(item => item.CODIGO_BARRA === codigoBarras);
 
@@ -446,7 +445,6 @@ const RegistrarVenta = ({
         console.error('Error al buscar el producto:', error);
         enqueueSnackbar('Error al buscar el producto', { variant: 'error' });
       }
-    }
   };
 
   const handleSaldoFavorChange = (e) => {
@@ -463,7 +461,6 @@ const RegistrarVenta = ({
     setCodigoSaldo(codigo);
     setErrorSaldo('');
   
-    if (codigo.length >= 6) {
       try {
         const response = await api.get(`/api/saldos/${codigo}`);
         if (response.data) {
@@ -485,7 +482,6 @@ const RegistrarVenta = ({
           enqueueSnackbar('Error al verificar el saldo', { variant: 'error' });
         }
       }
-    }
   };
 
   useEffect(() => {
