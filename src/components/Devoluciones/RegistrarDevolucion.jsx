@@ -121,7 +121,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   };
 
   const buscarProductoVendido = async () => {
-    // Antes: if (formData.codigoBarras.length < 6) con mensaje "debe tener al menos 6 caracteres" — eliminado
     if (formData.codigoBarras.trim().length === 0) {
       enqueueSnackbar('Ingrese un código de barras', { variant: 'warning' });
       return;

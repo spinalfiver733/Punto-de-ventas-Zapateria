@@ -178,8 +178,8 @@ const RegistrarVenta = ({
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAgregarProducto = async () => {
-
+ const handleAgregarProducto = () => {
+  // 1. Validaciones
   if (!formData.marca || !formData.modelo || !formData.color || !formData.numero || !formData.precio) {
     enqueueSnackbar('Por favor, complete todos los campos del producto', { variant: 'warning' });
     return;
@@ -196,49 +196,44 @@ const RegistrarVenta = ({
     if (errores.metodoPago) enqueueSnackbar('Debe seleccionar un método de pago', { variant: 'warning' });
     return;
   }
-    try {
-      await api.put(`/api/inventario/${formData.productoId}`, {
-        FK_ESTATUS_PRODUCTO: 3
-      });
-      const nuevoProducto = {
-        marca: formData.marca.value,
-        modelo: formData.modelo.value,
-        color: formData.color.value,
-        numero: formData.numero.value,
-        precio: formData.precio,
-        vendedor: formData.vendedor?.value,
-        metodoPago: formData.metodoPago ? formData.metodoPago.label : '',
-        observaciones: formData.observaciones,
-        productoId: formData.productoId
-      };
-      setProductosAgregados(prev => {
-        const nuevosProductos = [...prev, nuevoProducto];
-        return nuevosProductos;
-      });
-      
-      const nuevoInventarioDisponible = inventarioDisponible.filter(item => item.PK_PRODUCTO !== formData.productoId);
-      setInventarioDisponible(nuevoInventarioDisponible);
-      actualizarOpcionesMarca(nuevoInventarioDisponible);
 
-      setFormData({
-        marca: null,
-        modelo: null,
-        color: null,
-        numero: null,
-        precio: '',
-        productoId: null,
-        observaciones: '',
-        metodoPago: null,
-        vendedor: null
-      });
-
-      enqueueSnackbar('Producto agregado a la venta', { variant: 'success' });
-    } catch (error) {
-      console.error('Error al actualizar el estado del producto:', error);
-      enqueueSnackbar('Error al agregar el producto a la venta', { variant: 'error' });
-    }
-    iniciarVenta();
+  // 2. Construir objeto local
+  const nuevoProducto = {
+    marca: formData.marca.value,
+    modelo: formData.modelo.value,
+    color: formData.color.value,
+    numero: formData.numero.value,
+    precio: formData.precio,
+    vendedor: formData.vendedor?.value,
+    metodoPago: formData.metodoPago ? formData.metodoPago.label : '',
+    observaciones: formData.observaciones,
+    productoId: formData.productoId
   };
+
+  // 3. Actualizar listas locales
+  setProductosAgregados(prev => [...prev, nuevoProducto]);
+
+  const nuevoInventarioDisponible = inventarioDisponible.filter(
+    item => item.PK_PRODUCTO !== formData.productoId
+  );
+  setInventarioDisponible(nuevoInventarioDisponible);
+  actualizarOpcionesMarca(nuevoInventarioDisponible);
+
+  // 4. Limpiar formulario (conservando vendedor y método de pago para la misma orden)
+  setFormData(prev => ({
+    ...prev,
+    marca: null,
+    modelo: null,
+    color: null,
+    numero: null,
+    precio: '',
+    productoId: null,
+    observaciones: ''
+  }));
+
+  enqueueSnackbar('Producto agregado a la orden', { variant: 'success' });
+  iniciarVenta();
+};
 
   const handleFinalizarVenta = async () => {
     if (productosAgregados.length === 0) {
@@ -322,7 +317,7 @@ const RegistrarVenta = ({
       // Proceso normal de venta
       setProductosAgregados([]);
       const inventarioActualizado = await api.get('/api/inventario');
-      const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
+      const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.STOCK > 0);
       setInventarioDisponible(nuevoInventarioDisponible);
       actualizarOpcionesMarca(nuevoInventarioDisponible);
   
