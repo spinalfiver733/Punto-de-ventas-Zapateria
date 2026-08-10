@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import RegistrarVenta from './RegistrarVenta';
 import HistorialVentas from './HistorialVentas';
-import VentasSinProcesar from './VentasSinProcesar';
 import './Ventas.css';
 import '../../styles/estilosGenerales.css';
 
@@ -31,12 +30,6 @@ const Ventas = () => {
         >
           Historial de Ventas
         </div>
-        <div
-          onClick={() => cambiarVista('sinprocesar')}
-          className={`nav-item ${vistaActual === 'sinprocesar' ? 'active' : ''}`}
-        >
-          Ventas Sin Procesar
-        </div>
       </div>
 
       {vistaActual === 'registrar' && (
@@ -44,9 +37,6 @@ const Ventas = () => {
       )}
       {vistaActual === 'historial' && (
         <HistorialVentas />
-      )}
-      {vistaActual === 'sinprocesar' && (
-        <VentasSinProcesar />
       )}
     </div>
   );
