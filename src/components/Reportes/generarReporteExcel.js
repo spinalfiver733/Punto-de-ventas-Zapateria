@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 import { format, parseISO } from 'date-fns';
 
-export const generarReporteExcel = async (ventasData, metodosPago, periodo, enqueueSnackbar) => {
+export const generarReporteExcel = async (ventasData, metodosPago, periodo, fechaInicio, fechaFin, enqueueSnackbar) => {
   if (!periodo) {
     enqueueSnackbar('Por favor, seleccione un periodo antes de generar el reporte.', { variant: 'warning' });
     return;
@@ -43,7 +43,11 @@ export const generarReporteExcel = async (ventasData, metodosPago, periodo, enqu
     worksheet.getCell('A2').alignment = { horizontal: 'center' };
 
     worksheet.mergeCells('A3:J3');
-    worksheet.getCell('A3').value = `Reporte ${periodo.label}`;
+    // Título del periodo ahora muestra el rango de fechas real, no solo la etiqueta
+    const rangoTexto = periodo.value === 'hoy'
+      ? `Reporte ${periodo.label} — ${format(fechaInicio, 'dd/MM/yyyy')}`
+      : `Reporte ${periodo.label} — Del ${format(fechaInicio, 'dd/MM/yyyy')} al ${format(fechaFin, 'dd/MM/yyyy')}`;
+    worksheet.getCell('A3').value = rangoTexto;
     worksheet.getCell('A3').alignment = { horizontal: 'center' };
 
     // Estilo para los encabezados de columnas
@@ -115,7 +119,19 @@ export const generarReporteExcel = async (ventasData, metodosPago, periodo, enqu
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Reporte_Ventas_${periodo.value}.xlsx`;
+
+    // Nombre del archivo según el periodo
+    let nombreArchivo;
+    if (periodo.value === 'hoy') {
+      const fecha = format(fechaInicio, 'ddMMyy');
+      nombreArchivo = `Reporte_${periodo.value}_${fecha}.xlsx`;
+    } else {
+      const inicioFormateado = format(fechaInicio, 'ddMMyy');
+      const finFormateado = format(fechaFin, 'ddMMyy');
+      nombreArchivo = `Reporte_${periodo.value}_${inicioFormateado}_al_${finFormateado}.xlsx`;
+    }
+    link.download = nombreArchivo;
+
     link.click();
     URL.revokeObjectURL(link.href);
 

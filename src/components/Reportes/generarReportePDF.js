@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format, parseISO } from 'date-fns';
 
-export const generarReportePDF = (ventasData, metodosPago, periodo, enqueueSnackbar) => {
+export const generarReportePDF = (ventasData, metodosPago, periodo, fechaInicio, fechaFin, enqueueSnackbar) => {
   if (!periodo) {
     enqueueSnackbar('Por favor, seleccione un periodo antes de generar el reporte.', { variant: 'warning' });
     return;
@@ -28,7 +28,12 @@ export const generarReportePDF = (ventasData, metodosPago, periodo, enqueueSnack
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     doc.text(`Fecha del reporte: ${new Date().toLocaleDateString()}`, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
-    doc.text(`Reporte ${periodo.label}`, doc.internal.pageSize.getWidth() / 2, 28, { align: 'center' });
+
+    // Título del periodo ahora muestra el rango de fechas real, no solo la etiqueta
+    const rangoTexto = periodo.value === 'hoy'
+      ? `Reporte ${periodo.label} — ${format(fechaInicio, 'dd/MM/yyyy')}`
+      : `Reporte ${periodo.label} — Del ${format(fechaInicio, 'dd/MM/yyyy')} al ${format(fechaFin, 'dd/MM/yyyy')}`;
+    doc.text(rangoTexto, doc.internal.pageSize.getWidth() / 2, 28, { align: 'center' });
 
     // Preparar datos para la tabla
     const tableData = ventasData.map((venta, index) => [
@@ -115,8 +120,19 @@ export const generarReportePDF = (ventasData, metodosPago, periodo, enqueueSnack
       { align: 'right' }
     );
 
+    // Nombre del archivo según el periodo
+    let nombreArchivo;
+    if (periodo.value === 'hoy') {
+      const fecha = format(fechaInicio, 'ddMMyy');
+      nombreArchivo = `Reporte_${periodo.value}_${fecha}.pdf`;
+    } else {
+      const inicioFormateado = format(fechaInicio, 'ddMMyy');
+      const finFormateado = format(fechaFin, 'ddMMyy');
+      nombreArchivo = `Reporte_${periodo.value}_${inicioFormateado}_al_${finFormateado}.pdf`;
+    }
+
     // Guardar el PDF
-    doc.save(`Reporte_Ventas_${periodo.value}.pdf`);
+    doc.save(nombreArchivo);
     enqueueSnackbar('Reporte PDF generado con éxito', { variant: 'success' });
   } catch (error) {
     console.error('Error generating PDF report:', error);
