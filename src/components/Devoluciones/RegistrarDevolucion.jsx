@@ -65,49 +65,9 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     fetchVendedores();
   }, [enqueueSnackbar]);
 
-  const handleCodigoBarrasChange = async (e) => {
+  const handleCodigoBarrasChange = (e) => {
     const codigoBarras = e.target.value;
     setFormData(prev => ({ ...prev, codigoBarras }));
-
-    // Antes: if (codigoBarras.length >= 6) — se quitó la restricción de longitud mínima
-    if (codigoBarras.trim().length > 0) {
-      try {
-        const response = await api.get(`/api/inventario/vendido/${codigoBarras}`);
-        if (response.data) {
-          console.log('=== ANÁLISIS DETALLADO DE LA VENTA ===');
-          console.log('VENTA completa:', response.data.VENTA);
-          console.log('VENTA[0]:', response.data.VENTA[0]);
-          console.log('Estructura de VENTA:', {
-            tieneVenta: !!response.data.VENTA,
-            tipoDeVenta: typeof response.data.VENTA,
-            vendedor: response.data.VENTA?.[0]?.VENDEDOR,
-            metodoPago: response.data.VENTA?.[0]?.METODO_PAGO,
-            fechaVenta: response.data.VENTA?.[0]?.FECHA_VENTA
-          });
-          
-          if (response.data.FK_ESTATUS_PRODUCTO !== 2) {
-            enqueueSnackbar('Este producto no está registrado como vendido', { variant: 'warning' });
-            return;
-          }
-  
-          setFormData(prev => ({
-            ...prev,
-            productoVendido: response.data,
-            ticketOriginal: response.data.VentasInfos
-          }));
-          setPaso(2);
-
-          console.log('=== FORM DATA ACTUALIZADO ===');
-          console.log('Producto en formData:', response.data);
-          console.log('Ticket original:', response.data.VentasInfos);
-          console.log('============================');
-          enqueueSnackbar('Producto vendido encontrado', { variant: 'success' });
-        }
-      } catch (error) {
-        console.error('Error al buscar el producto vendido:', error);
-        enqueueSnackbar('No se encontró el producto vendido', { variant: 'warning' });
-      }
-    }
   };
 
   const handleKeyDown = (e) => {
@@ -129,11 +89,8 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     try {
       const response = await api.get(`/api/inventario/vendido/${formData.codigoBarras}`);
       if (response.data) {
-        if (response.data.FK_ESTATUS_PRODUCTO !== 2) {
-          enqueueSnackbar('Este producto no está registrado como vendido', { variant: 'warning' });
-          return;
-        }
-
+        // Ya no se valida ningún estatus: si el endpoint devolvió un
+        // producto (viene con VentasInfo asociada), se asume vendido.
         setFormData(prev => ({
           ...prev,
           productoVendido: response.data,
@@ -176,10 +133,11 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
     }
 
     try {
+      // Ya no se hace PUT a inventario aquí: el backend (POST /api/devoluciones)
+      // se encarga de sumar +1 al STOCK cuando el motivo no es defecto de fábrica.
+      // ESTADO_FINAL se conserva solo como dato de historial y para que el
+      // backend decida si aplica el +1.
       const nuevoEstado = formData.motivoDevolucion.value === 'defecto_fabrica' ? 0 : 1;
-      await api.put(`/api/inventario/${formData.productoVendido.PK_PRODUCTO}`, {
-        FK_ESTATUS_PRODUCTO: nuevoEstado
-      });
 
       await api.put(`/api/ventas/${formData.productoVendido.VENTA[0].PK_VENTA}`,{
         FK_ESTATUS_VENTA: 2 // 2 = Devolución
