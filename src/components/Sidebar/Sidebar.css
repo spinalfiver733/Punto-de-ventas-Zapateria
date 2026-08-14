@@ -4,7 +4,7 @@
   top: 0;
   left: 0;
   height: 100vh;
-  background-color: #FF6E31;
+  background-color: #1b2128;
   transition: width 0.3s ease;
   overflow: hidden;
   z-index: 1000;
@@ -58,12 +58,13 @@
   justify-content: center;
   padding: 15px 0;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   flex-grow: 1;
+  border-left: 4px solid transparent; /* reserva espacio para el acento activo, sin saltos de layout */
 }
 
 .menu-item:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 /* Estilos de los íconos */
@@ -71,64 +72,38 @@
   width: 40px;
   height: 40px;
   margin-top: 5px;
-  transition: filter 0.3s ease; /* Añadido para suavizar el cambio de color en los íconos */
 }
 
 /* Estilos del texto del menú */
 .menu-item span {
-  font-size: 25px; /* Aumentado de 12px a 16px */
-  margin-bottom: 10px; /* Aumentado para dar más espacio */
+  font-size: 15px;
+  margin-top: 8px;
   text-align: center;
   white-space: nowrap;
-  color: #000;
-  font-weight: bold; /* Añadido para hacer el texto más prominente */
+  color: #fff; /* antes #000, invisible sobre el fondo oscuro */
+  font-weight: bold;
 }
 
-/* Estados activos */
+/* Estado activo: acento naranja, sin bloque sólido de fondo */
 .menu-item.active {
-  background-color: #000;
+  border-left-color: #f35d18;
+  background-color: rgba(243, 93, 24, 0.12);
 }
 
 .menu-item.active span {
-  color: #fff !important; /* Fuerza el color blanco para el texto del ítem activo */
+  color: #f35d18;
 }
 
-.menu-item.active .sidebar-icon {
-  filter: invert(1) !important; /* Invierte los colores del ícono en el ítem activo */
-}
+/* El ícono ya cambia de archivo (blanco -> naranja) vía JSX, no se necesita filter aquí */
 
 /* Comportamiento en sidebar colapsado */
 .sidebar.collapsed .menu-item span {
   display: none;
 }
 
-.sidebar.collapsed .menu-item.active .sidebar-icon {
-  filter: invert(1) !important; /* Asegura que los íconos cambien en la barra colapsada */
-}
-
-/* Asegurar color de texto correcto en estado activo */
-.sidebar .menu-item.active span {
-  color: #fff !important; /* Refuerzo del color blanco en ítems activos */
-}
-
 /* Asegurar visibilidad del texto en sidebar expandido */
 .sidebar.expanded .menu-item span {
   display: block;
-}
-
-/* Asegurar que el texto e íconos cambien de color correctamente en sidebar expandido */
-.sidebar.expanded .menu-item.active span {
-  display: block;
-  color: #fff !important;
-}
-
-.sidebar.expanded .menu-item.active .sidebar-icon {
-  filter: invert(1) !important;
-}
-
-/* Ajuste del comportamiento al hacer hover en un ítem expandido */
-.sidebar.expanded .menu-item:hover {
-  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .sidebar ul li {

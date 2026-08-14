@@ -2,13 +2,13 @@
 export const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    borderColor: state.isFocused ? '#FF6E31' : '#ccc',
-    boxShadow: state.isFocused ? '0 0 0 1px #FF6E31' : null,
+    borderColor: state.isFocused ? '#f35d18' : '#ccc',
+    boxShadow: state.isFocused ? '0 0 0 1px #f35d18' : null,
     minHeight: '42px',
     height: '42px', // Añadimos altura fija
     padding: '0', // Quitamos el padding del control
     '&:hover': {
-      borderColor: '#FF6E31',
+      borderColor: '#f35d18',
     },
   }),
   option: (provided, state) => ({
