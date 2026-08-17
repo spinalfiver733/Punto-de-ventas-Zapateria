@@ -390,56 +390,68 @@ const RegistrarVenta = ({
     }
   }, [productosAgregados, enqueueSnackbar, finalizarVenta, actualizarOpcionesMarca]);
 
-  const handleCodigoBarrasChange = async (e) => {
+  const handleCodigoBarrasChange = (e) => {
     const codigoBarras = e.target.value;
     setFormData(prev => ({ ...prev, codigoBarras }));
+  };
 
-      try {
-        const productoEncontrado = inventarioDisponible.find(item => item.CODIGO_BARRA === codigoBarras);
+  const buscarProductoPorCodigo = (codigoBarras) => {
+    try {
+      const productoEncontrado = inventarioDisponible.find(item => item.CODIGO_BARRA === codigoBarras);
 
-        if (productoEncontrado) {
-          // Actualizar todos los campos del formulario
-          setFormData(prev => ({
-            ...prev,
-            marca: { value: productoEncontrado.MARCA, label: productoEncontrado.MARCA },
-            modelo: { value: productoEncontrado.MODELO, label: productoEncontrado.MODELO },
-            color: { value: productoEncontrado.COLOR, label: productoEncontrado.COLOR },
-            numero: { value: productoEncontrado.TALLA, label: productoEncontrado.TALLA },
-            precio: productoEncontrado.PRECIO.toString(),
-            productoId: productoEncontrado.PK_PRODUCTO
-          }));
+      if (productoEncontrado) {
+        // Actualizar todos los campos del formulario
+        setFormData(prev => ({
+          ...prev,
+          marca: { value: productoEncontrado.MARCA, label: productoEncontrado.MARCA },
+          modelo: { value: productoEncontrado.MODELO, label: productoEncontrado.MODELO },
+          color: { value: productoEncontrado.COLOR, label: productoEncontrado.COLOR },
+          numero: { value: productoEncontrado.TALLA, label: productoEncontrado.TALLA },
+          precio: productoEncontrado.PRECIO.toString(),
+          productoId: productoEncontrado.PK_PRODUCTO
+        }));
 
-          // Actualizar las opciones de los selectores
-          setMarcaOptions([{ value: productoEncontrado.MARCA, label: productoEncontrado.MARCA }]);
-          setModeloOptions([{ value: productoEncontrado.MODELO, label: productoEncontrado.MODELO }]);
-          setColorOptions([{ value: productoEncontrado.COLOR, label: productoEncontrado.COLOR }]);
-          setNumeroOptions([{ value: productoEncontrado.TALLA, label: productoEncontrado.TALLA }]);
+        // Actualizar las opciones de los selectores
+        setMarcaOptions([{ value: productoEncontrado.MARCA, label: productoEncontrado.MARCA }]);
+        setModeloOptions([{ value: productoEncontrado.MODELO, label: productoEncontrado.MODELO }]);
+        setColorOptions([{ value: productoEncontrado.COLOR, label: productoEncontrado.COLOR }]);
+        setNumeroOptions([{ value: productoEncontrado.TALLA, label: productoEncontrado.TALLA }]);
 
-          enqueueSnackbar('Producto encontrado', { variant: 'success' });
-        } else {
-          // Limpiar los campos si no se encuentra el producto
-          setFormData(prev => ({
-            ...prev,
-            marca: null,
-            modelo: null,
-            color: null,
-            numero: null,
-            precio: '',
-            productoId: null
-          }));
+        enqueueSnackbar('Producto encontrado', { variant: 'success' });
+      } else {
+        // Limpiar los campos si no se encuentra el producto
+        setFormData(prev => ({
+          ...prev,
+          marca: null,
+          modelo: null,
+          color: null,
+          numero: null,
+          precio: '',
+          productoId: null
+        }));
 
-          // Restablecer las opciones de los selectores
-          actualizarOpcionesMarca(inventarioDisponible);
-          setModeloOptions([]);
-          setColorOptions([]);
-          setNumeroOptions([]);
+        // Restablecer las opciones de los selectores
+        actualizarOpcionesMarca(inventarioDisponible);
+        setModeloOptions([]);
+        setColorOptions([]);
+        setNumeroOptions([]);
 
-          enqueueSnackbar('Producto no encontrado', { variant: 'warning' });
-        }
-      } catch (error) {
-        console.error('Error al buscar el producto:', error);
-        enqueueSnackbar('Error al buscar el producto', { variant: 'error' });
+        enqueueSnackbar('Producto no encontrado', { variant: 'warning' });
       }
+    } catch (error) {
+      console.error('Error al buscar el producto:', error);
+      enqueueSnackbar('Error al buscar el producto', { variant: 'error' });
+    }
+  };
+
+  const handleCodigoBarrasKeyDown = (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    buscarProductoPorCodigo(formData.codigoBarras);
+  };
+
+  const handleBuscarCodigoBarrasClick = () => {
+    buscarProductoPorCodigo(formData.codigoBarras);
   };
 
   const handleSaldoFavorChange = (e) => {
@@ -488,14 +500,38 @@ const RegistrarVenta = ({
     <div className="page-container">
       <div className="codigo-barras-container">
         <label htmlFor="codigoBarras">Código de Barras:</label>
-        <input
-          type="text"
-          id="codigoBarras"
-          name="codigoBarras"
-          value={formData.codigoBarras}
-          onChange={handleCodigoBarrasChange}
-          placeholder="Escanee o ingrese el código de barras"
-        />
+        <div className="codigo-barras-input-group">
+          <input
+            type="text"
+            id="codigoBarras"
+            name="codigoBarras"
+            value={formData.codigoBarras}
+            onChange={handleCodigoBarrasChange}
+            onKeyDown={handleCodigoBarrasKeyDown}
+            placeholder="Escanee o ingrese el código de barras"
+          />
+          <button
+            type="button"
+            className="btn-buscar-codigo-barras"
+            onClick={handleBuscarCodigoBarrasClick}
+            aria-label="Buscar producto"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+        </div>
       </div>
   
       <form onSubmit={(e) => e.preventDefault()}>

@@ -39,6 +39,32 @@
   margin-top: 20px;
 }
 
+.codigo-barras-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.codigo-barras-input-group input {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-buscar-codigo-barras {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn-buscar-codigo-barras:hover {
+  opacity: 0.85;
+}
+
 .contenedorDevolucion {
   display: flex;
   justify-content: flex-end;
