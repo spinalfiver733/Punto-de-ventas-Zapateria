@@ -264,7 +264,9 @@ const RegistrarVenta = ({
           MARCA: producto.marca,
           TALLA: producto.numero,
           MODELO: producto.modelo,
-          COLOR: producto.color
+          COLOR: producto.color,
+          VENDEDOR: producto.vendedor,
+          METODO_PAGO: metodoPagoOptions.find(option => option.label === producto.metodoPago)?.value
         };
       });
   
