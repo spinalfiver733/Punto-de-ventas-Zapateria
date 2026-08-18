@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import CustomNotistack from './notificaciones/CustomNotistack';
+import CustomNotistack from './notificaciones/customNotistack';
 import MainLayout from './Layouts/MainLayout';
 import { VentaProvider } from './context/VentaContext';
 import InventarioPublico from './pages/InventarioPublico';
