@@ -31,7 +31,7 @@ export const generarReportePDF = (ventasData, metodosPago, periodo, fechaInicio,
 
     // Título del periodo ahora muestra el rango de fechas real, no solo la etiqueta
     const rangoTexto = periodo.value === 'hoy'
-      ? `Reporte ${periodo.label} — ${format(fechaInicio, 'dd/MM/yyyy')}`
+      ? `Reporte ${periodo.label}`
       : `Reporte ${periodo.label} — Del ${format(fechaInicio, 'dd/MM/yyyy')} al ${format(fechaFin, 'dd/MM/yyyy')}`;
     doc.text(rangoTexto, doc.internal.pageSize.getWidth() / 2, 28, { align: 'center' });
 
