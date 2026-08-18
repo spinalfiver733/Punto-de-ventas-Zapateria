@@ -361,14 +361,7 @@ const RegistrarVenta = ({
       return;
     }
     try {
-      for (const producto of productosAgregados) {
-        await api.put(`/api/inventario/${producto.productoId}`, {
-          FK_ESTATUS_PRODUCTO: 1
-        });
-      }
-      
-      const inventarioActualizado = await api.get('/api/inventario');
-      const nuevoInventarioDisponible = inventarioActualizado.data.filter(item => item.FK_ESTATUS_PRODUCTO === 1);
+      const nuevoInventarioDisponible = await getInventarioDisponible();
       setInventarioDisponible(nuevoInventarioDisponible);
       actualizarOpcionesMarca(nuevoInventarioDisponible);
 
