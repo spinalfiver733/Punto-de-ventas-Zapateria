@@ -50,7 +50,7 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
   useEffect(() => {
     const fetchVendedores = async () => {
       try {
-        const response = await api.get('/api/usuarios');
+        const response = await api.get('/api/usuarios/activos');
         const vendedores = response.data.map(vendedor => ({
           value: vendedor.ID_USUARIO,
           label: `${vendedor.NOMBRE_USUARIO}`
