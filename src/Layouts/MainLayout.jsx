@@ -65,7 +65,7 @@ const MainLayout = () => {
         isExpanded={isSidebarExpanded}
         setIsExpanded={setIsSidebarExpanded}
       />
-      <main className="content" style={{ marginLeft: isSidebarExpanded ? '250px' : '60px' }}>
+      <main className={`content ${isSidebarExpanded ? 'content-expanded' : 'content-collapsed'}`}>
         {renderComponent()}
       </main>
       <ConfirmDialog

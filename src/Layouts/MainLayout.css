@@ -13,7 +13,29 @@
   box-sizing: border-box;
 }
 
+.content-expanded {
+  margin-left: 250px;
+}
+
+.content-collapsed {
+  margin-left: 60px;
+}
+
 
   h1 {
     color: black;
   }
+
+
+  @media (max-width: 768px) {
+  .content {
+    margin-left: 0 !important;
+    padding: 15px;
+    padding-bottom: 80px; /* espacio para que la barra inferior no tape el contenido */
+  }
+
+  .content-expanded,
+  .content-collapsed {
+    margin-left: 0;
+  }
+}
