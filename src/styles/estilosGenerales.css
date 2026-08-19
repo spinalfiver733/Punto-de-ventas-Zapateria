@@ -300,6 +300,7 @@ td {
   max-width: 500px;
   margin: 20px auto;
   padding: 0 20px;
+  box-sizing: border-box;
   position: relative;
   z-index: 100;
 }
@@ -308,6 +309,7 @@ td {
   color: var(--color-gray);
   margin-bottom: 10px;
   font-size: 1.1em;
+  display: block;
 }
 
 /* Media queries actualizados */
