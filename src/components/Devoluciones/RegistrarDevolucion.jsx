@@ -295,8 +295,6 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
               onChange={handleCodigoBarrasChange}
               onKeyDown={handleKeyDown}
               placeholder="Escanee o ingrese el código de barras"
-              autoFocus
-              // Antes: maxLength={6} — se quitó el límite fijo de caracteres
             />
             <button onClick={buscarProductoVendido} className="btn-primary">
               Buscar
