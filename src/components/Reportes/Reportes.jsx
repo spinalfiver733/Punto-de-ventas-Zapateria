@@ -125,16 +125,6 @@ const Reportes = () => {
       </div>
 
       <div className="reportes-grid">
-        <div className={`icon-file-wrap ${generando === 'excel' ? 'generando' : ''}`}>
-          <img
-            src={iconoExcel}
-            className={`icon-file ${!puedeGenerar && generando !== 'excel' ? 'icon-disabled' : ''}`}
-            alt="Descargar Excel"
-            onClick={handleGenerarExcel}
-          />
-          {generando === 'excel' && <span className="icon-spinner" aria-label="Generando reporte" />}
-        </div>
-
         <div className={`icon-file-wrap ${generando === 'pdf' ? 'generando' : ''}`}>
           <img
             src={iconoPDF}
@@ -143,6 +133,16 @@ const Reportes = () => {
             onClick={handleGenerarPDF}
           />
           {generando === 'pdf' && <span className="icon-spinner" aria-label="Generando reporte" />}
+        </div>
+
+        <div className={`icon-file-wrap ${generando === 'excel' ? 'generando' : ''}`}>
+          <img
+            src={iconoExcel}
+            className={`icon-file ${!puedeGenerar && generando !== 'excel' ? 'icon-disabled' : ''}`}
+            alt="Descargar Excel"
+            onClick={handleGenerarExcel}
+          />
+          {generando === 'excel' && <span className="icon-spinner" aria-label="Generando reporte" />}
         </div>
       </div>
 
