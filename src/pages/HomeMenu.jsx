@@ -18,20 +18,6 @@ function HomeMenu() {
         <div className="home-menu-buttons-grid">
 
           {/* Card 1 */}
-          <Link to="/app" className="menu-card">
-            <div className="menu-card-header">Dashboard</div>
-            <div className="menu-card-body">
-              <img
-                src="/dashboard.png"
-                alt="Dashboard"
-                className="menu-card-img"
-              />
-              <span className="menu-card-title">Ir al Dashboard</span>
-              <span className="menu-card-desc">Ver resumen general y estadísticas.</span>
-            </div>
-          </Link>
-
-          {/* Card 2 */}
           <Link to="/ventas_dia" className="menu-card">
             <div className="menu-card-header">Ventas</div>
             <div className="menu-card-body">
@@ -45,7 +31,7 @@ function HomeMenu() {
             </div>
           </Link>
 
-          {/* Card 3 */}
+          {/* Card 2 */}
           <Link to="/inventario" className="menu-card">
             <div className="menu-card-header">Inventario</div>
             <div className="menu-card-body">
@@ -56,6 +42,20 @@ function HomeMenu() {
               />
               <span className="menu-card-title">Ver Inventario Público</span>
               <span className="menu-card-desc">Consultar existencias para el público.</span>
+            </div>
+          </Link>
+
+          {/* Card 3 */}
+          <Link to="/app" className="menu-card">
+            <div className="menu-card-header">Dashboard</div>
+            <div className="menu-card-body">
+              <img
+                src="/dashboard.png"
+                alt="Dashboard"
+                className="menu-card-img"
+              />
+              <span className="menu-card-title">Ir al Dashboard</span>
+              <span className="menu-card-desc">Ver resumen general y estadísticas.</span>
             </div>
           </Link>
 
