@@ -35,8 +35,15 @@
 
 .buttons-container {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
   margin-top: 20px;
+}
+
+.buttons-container .btn-primary {
+  flex: 1 1 200px;
+  margin: 0;
 }
 
 .codigo-barras-input-group {

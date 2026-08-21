@@ -714,45 +714,48 @@ const RegistrarVenta = ({
           </div>
   
           <div className="productos-agregados">
-            <table>
-              <thead>
-                <tr>
-                  <th>No.</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>Color</th>
-                  <th>Número</th>
-                  <th>Vendedor</th>
-                  <th>Método de pago</th>
-                  <th>Observaciones</th>
-                  <th>Precio</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productosAgregados.map((producto, index) => {
-                  const precioNumerico = parseFloat(producto.precio);
-                  const totalAcumulado = productosAgregados
-                    .slice(0, index + 1)
-                    .reduce((sum, p) => sum + parseFloat(p.precio), 0);
-                  return (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{producto.marca}</td>
-                      <td>{producto.modelo}</td>
-                      <td>{producto.color}</td>
-                      <td>{producto.numero}</td>
-                      <td>{producto.vendedor ? vendedorOptions.find(v => v.value === producto.vendedor)?.label : ''}</td>
-                      <td>{producto.metodoPago}</td>
-                      <td>{producto.observaciones}</td>
-                      <td>${precioNumerico.toFixed(2)}</td>
-                      <td>${totalAcumulado.toFixed(2)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-  
+            
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Color</th>
+                    <th>Número</th>
+                    <th>Vendedor</th>
+                    <th>Método de pago</th>
+                    <th>Observaciones</th>
+                    <th>Precio</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productosAgregados.map((producto, index) => {
+                    const precioNumerico = parseFloat(producto.precio);
+                    const totalAcumulado = productosAgregados
+                      .slice(0, index + 1)
+                      .reduce((sum, p) => sum + parseFloat(p.precio), 0);
+                    return (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{producto.marca}</td>
+                        <td>{producto.modelo}</td>
+                        <td>{producto.color}</td>
+                        <td>{producto.numero}</td>
+                        <td>{producto.vendedor ? vendedorOptions.find(v => v.value === producto.vendedor)?.label : ''}</td>
+                        <td>{producto.metodoPago}</td>
+                        <td>{producto.observaciones}</td>
+                        <td>${precioNumerico.toFixed(2)}</td>
+                        <td>${totalAcumulado.toFixed(2)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
             <div className="totales-section">
               <div className="subtotal-row">
                 <span className="subtotal-label">Subtotal:</span>
