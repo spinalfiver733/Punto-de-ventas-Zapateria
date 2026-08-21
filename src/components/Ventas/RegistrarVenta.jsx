@@ -492,7 +492,7 @@ const RegistrarVenta = ({
 
   // El return con el JSX se omite aquí, ya que lo tienes en tu código original
   return (
-    <div className="page-container">
+    <div className="registrar-venta-container">
       <div className="codigo-barras-container">
         <label htmlFor="codigoBarras">Código de Barras:</label>
         <div className="codigo-barras-input-group">
