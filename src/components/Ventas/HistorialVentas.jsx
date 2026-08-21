@@ -57,41 +57,43 @@ const HistorialVentas = () => {
           styles={customSelectStyles}
         />
       </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Color</th>
-            <th>Número</th>
-            <th>Precio</th>
-            <th>Método de pago</th>
-            <th>Vendedor</th>
-            <th>Tipo</th>
-            <th>Código de Barras</th>
-            <th>Fecha de venta</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ventas.map((venta, index) => (
-            <tr key={venta.PK_VENTA}>
-              <td>{index + 1}</td>
-              <td>{venta.MARCA}</td>
-              <td>{venta.MODELO}</td>
-              <td>{venta.COLOR}</td>
-              <td>{venta.TALLA}</td>
-              <td>${parseFloat(venta.PRECIO).toFixed(2)}</td>
-              <td>{venta.MetodoPago?.DESCRIPCION_METODO}</td>
-              <td>{venta.Vendedor?.NOMBRE_USUARIO}</td>
-              <td>{venta.Estatus?.DESCRIPCION}</td>
-              <td>{venta.CODIGO_BARRA}</td>
-              <td>{formatDate(venta.FECHA_VENTA)}</td>
+      
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Color</th>
+              <th>Número</th>
+              <th>Precio</th>
+              <th>Método de pago</th>
+              <th>Vendedor</th>
+              <th>Tipo</th>
+              <th>Código de Barras</th>
+              <th>Fecha de venta</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {ventas.map((venta, index) => (
+              <tr key={venta.PK_VENTA}>
+                <td>{index + 1}</td>
+                <td>{venta.MARCA}</td>
+                <td>{venta.MODELO}</td>
+                <td>{venta.COLOR}</td>
+                <td>{venta.TALLA}</td>
+                <td>${parseFloat(venta.PRECIO).toFixed(2)}</td>
+                <td>{venta.MetodoPago?.DESCRIPCION_METODO}</td>
+                <td>{venta.Vendedor?.NOMBRE_USUARIO}</td>
+                <td>{venta.Estatus?.DESCRIPCION}</td>
+                <td>{venta.CODIGO_BARRA}</td>
+                <td>{formatDate(venta.FECHA_VENTA)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
