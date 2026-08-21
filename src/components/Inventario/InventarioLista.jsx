@@ -33,7 +33,7 @@ const InventarioLista = ({ inventario }) => {
   }, [inventario, filters]);
 
   return (
-    <div className="inventario-lista-container">
+    <div className="inventario-lista-container table-container">
       <table className="inventario-tabla">
         <thead>
           <tr className="filtros-row">
