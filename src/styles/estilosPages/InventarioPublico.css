@@ -110,8 +110,8 @@
   white-space: nowrap;
 }
 
-.inv-table th.col-num   { text-align: center; width: 48px; }
-.inv-table th.col-text  { text-align: left; }
+.inv-table th.col-num   { text-align: center; width: 48px; color: var(--gris-row); }
+.inv-table th.col-text  { text-align: left; color: var(--gris-row)}
 .inv-table th.col-talla, .inv-table th.col-stock  { 
   text-align: center; width: 80px; 
 }
