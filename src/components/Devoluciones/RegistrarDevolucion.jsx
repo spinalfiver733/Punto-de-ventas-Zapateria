@@ -312,32 +312,32 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
             <div className="seccion-info">
               <h4>Venta Original</h4>
               <div className="ticket-original">
-                <table>
+                <table className="ticket-original-table">
                   <tbody>
                     <tr>
-                      <td>Fecha</td>
-                      <td>
-                        {formData.productoVendido?.VENTA?.[0]?.FECHA_VENTA ? 
-                          formatearFechaCompleta(formData.productoVendido.VENTA[0].FECHA_VENTA) : 
+                      <td className="ticket-original-label">Fecha</td>
+                      <td className="ticket-original-value">
+                        {formData.productoVendido?.VENTA?.[0]?.FECHA_VENTA ?
+                          formatearFechaCompleta(formData.productoVendido.VENTA[0].FECHA_VENTA) :
                           'Fecha no disponible'}
                       </td>
                     </tr>
                     <tr>
-                      <td>Vendedor</td>
-                      <td>
+                      <td className="ticket-original-label">Vendedor</td>
+                      <td className="ticket-original-value">
                         {formData.productoVendido?.VENTA?.[0]?.Vendedor?.NOMBRE_USUARIO || 'No disponible'}
                       </td>
                     </tr>
                     <tr>
-                      <td>Método de Pago</td>
-                      <td>
+                      <td className="ticket-original-label">Método de Pago</td>
+                      <td className="ticket-original-value">
                         {formData.productoVendido?.VENTA?.[0]?.MetodoPago?.DESCRIPCION_METODO || 'No disponible'}
                       </td>
                     </tr>
                     {formData.productoVendido?.VENTA?.[0]?.OBSERVACIONES && (
                       <tr>
-                        <td>Observaciones</td>
-                        <td>
+                        <td className="ticket-original-label">Observaciones</td>
+                        <td className="ticket-original-value">
                           {formData.productoVendido.VENTA[0].OBSERVACIONES}
                         </td>
                       </tr>

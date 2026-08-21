@@ -57,6 +57,34 @@
   color: #f35d18;
 }
 
+/* Venta original: tabla normal en pantallas grandes */
+.ticket-original-table {
+  min-width: 0;
+  width: 100%;
+}
+
+.ticket-original-table .ticket-original-label {
+  font-weight: bold;
+  width: 180px;
+  text-align: center;
+}
+
+.ticket-original-table .ticket-original-value {
+  text-align: center;
+}
+
+/* Botones de Procesar devolución / Cancelar: que quepan en móvil */
+.registrar-devolucion-container .buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+
+.registrar-devolucion-container .buttons-container .btn-primary {
+  margin: 0;
+}
+
 /* Estilos responsivos */
 @media (max-width: 768px) {
   .consulta-form {
@@ -77,5 +105,50 @@
   /* Ajustes adicionales para móvil */
   .btn-primary {
     margin-top: 0; /* Elimina cualquier margen superior adicional */
+  }
+
+  .registrar-devolucion-container .buttons-container {
+    flex-direction: column;
+  }
+
+  .registrar-devolucion-container .buttons-container .btn-primary {
+    width: 100%;
+  }
+
+  /* Venta original: en cascada (etiqueta arriba, valor abajo) en móvil */
+  .ticket-original-table,
+  .ticket-original-table tbody,
+  .ticket-original-table tr,
+  .ticket-original-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ticket-original-table {
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  .ticket-original-table tbody tr:nth-child(even) {
+    background-color: transparent;
+  }
+
+  .ticket-original-table tr {
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px 0;
+  }
+
+  .ticket-original-table tr:last-child {
+    border-bottom: none;
+  }
+
+  .ticket-original-table td {
+    border-bottom: none;
+    padding: 3px 8px;
+  }
+
+  .ticket-original-table .ticket-original-label {
+    width: auto;
   }
 }
