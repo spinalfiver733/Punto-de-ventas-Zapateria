@@ -29,9 +29,5 @@
 .estado-vendedores td {
   padding: 0.75rem;
   text-align: left;
-  border-bottom: 1px solid #ddd;
-}
 
-.estado-vendedores th {
-  background-color: #f8f9fa;
 }

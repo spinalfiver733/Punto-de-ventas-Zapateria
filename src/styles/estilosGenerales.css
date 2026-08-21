@@ -203,7 +203,8 @@ th, td {
 
 th {
   font-weight: 500;
-  color: var(--color-gray);
+  color: var(--color-gray-light);
+  background-color: #1b2128;
   font-size: 0.9em;
 }
 
