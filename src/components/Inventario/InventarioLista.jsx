@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import './InventarioLista.css';
 
 const InventarioLista = ({ inventario }) => {
   const [filters, setFilters] = useState({
