@@ -41,10 +41,7 @@
   margin-top: 20px;
 }
 
-.buttons-container .btn-primary {
-  flex: 1 1 200px;
-  margin: 0;
-}
+
 
 .codigo-barras-input-group {
   display: flex;

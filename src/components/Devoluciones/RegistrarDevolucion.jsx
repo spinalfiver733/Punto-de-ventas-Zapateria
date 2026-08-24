@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useSnackbar } from 'notistack';
 import Select from 'react-select';
 import { customSelectStyles } from '../../styles/estilosGenerales';
-import './Devoluciones.css';
 import RegistrarVenta from '../Ventas/RegistrarVenta';
 import { format, parseISO } from 'date-fns';
 import es from 'date-fns/locale/es';
