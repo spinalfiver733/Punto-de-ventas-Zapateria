@@ -487,19 +487,18 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               </div>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <div className="form-actions" style={{ marginTop: '20px' }}>
               <button
                 type="button"
                 className="btn-primary"
                 onClick={handleGenerarCorreida}
-                style={{ marginRight: '10px' }}
               >
                 GENERAR CORRIDA
               </button>
 
               <button
                 type="button"
-                className="btn-primary"
+                className="btn-primary btn-volver-individual"
                 onClick={() => {
                   setMostrarCorridas(false);
                   setProductosCorreida([]);
@@ -514,7 +513,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                   });
                 }}
               >
-                VOLVER AL FORMULARIO INDIVIDUAL
+                VOLVER AL FORMULARIO
               </button>
             </div>
           </div>
