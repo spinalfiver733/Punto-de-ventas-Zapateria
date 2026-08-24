@@ -542,57 +542,66 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                 Agregue el código de barras para cada producto:
               </p>
 
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#f8f9fa' }}>
-                    <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Marca</th>
-                    <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Modelo</th>
-                    <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Color</th>
-                    <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Talla</th>
-                    <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Precio</th>
-                    <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Código de Barras</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productosCorreida.map((producto, index) => (
-                    <tr key={index}>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.marca}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.modelo}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.color}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{producto.numero}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>${producto.precio}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>
-                        <input
-                          type="text"
-                          value={producto.codigo_barra}
-                          onChange={(e) => handleCodigoCorridaChange(index, e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '5px',
-                            border: '1px solid #ccc',
-                            borderRadius: '3px',
-                            fontSize: '12px'
-                          }}
-                        />
-                      </td>
+              <div className='table-container'>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8f9fa' }}>
+                      <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Marca</th>
+                      <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Modelo</th>
+                      <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Color</th>
+                      <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Talla</th>
+                      <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Precio</th>
+                      <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Código de Barras</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-
+                  </thead>
+                  <tbody>
+                    {productosCorreida.map((producto, index) => (
+                      <tr key={index}>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.marca}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.modelo}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{producto.color}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd', fontWeight: 'bold' }}>{producto.numero}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>${producto.precio}</td>
+                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>
+                          <input
+                            type="text"
+                            value={producto.codigo_barra}
+                            onChange={(e) => handleCodigoCorridaChange(index, e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '5px',
+                              border: '1px solid #ccc',
+                              borderRadius: '3px',
+                              fontSize: '12px'
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
               <div style={{ textAlign: 'center', marginTop: '20px' }}>
                 <button
                   type="button"
-                  className="btn-primary"
+                  className="btn-primary btn-agregar-corrida"
                   onClick={handleAgregarCorreida}
                   disabled={productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0)}
                   style={{
                     opacity: productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ? 0.6 : 1,
-                    cursor: productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ? 'not-allowed' : 'pointer'
+                    cursor: productosCorreida.some(p => !p.codigo_barra || p.codigo_barra.trim().length === 0) ? 'not-allowed' : 'pointer',
+                    height: 'auto',
+                    minHeight: '44px',
+                    maxWidth: '100%',
+                    whiteSpace: 'normal',
+                    textAlign: 'center',
+                    gap: '8px',
+                    padding: '10px 15px'
                   }}
                 >
-                  <img src={iconAgregar} alt="Agregar corrida" />
-                  AGREGAR CORRIDA A LA LISTA ({productosCorreida.filter(p => p.codigo_barra?.trim().length > 0).length}/{productosCorreida.length})
+                  <img src={iconAgregar} alt="Agregar corrida" style={{ flexShrink: 0 }} />
+                  <span style={{ flex: '1 1 auto', minWidth: 0, wordBreak: 'break-word' }}>AGREGAR CORRIDA A LA LISTA ({productosCorreida.filter(p => p.codigo_barra?.trim().length > 0).length}/{productosCorreida.length})</span>
                 </button>
               </div>
             </div>
@@ -606,47 +615,58 @@ const AgregarInventario = ({ onProductoAgregado }) => {
           <h3 style={{ color: '#333' }}>
             📦 Productos en Lista ({productosAgregar.length})
           </h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Color</th>
-                <th>Número</th>
-                <th>Precio</th>
-                <th>Código de Barras</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productosAgregar.map((producto, index) => (
-                <tr key={index}>
-                  <td>{producto.marca}</td>
-                  <td>{producto.modelo}</td>
-                  <td>{producto.color}</td>
-                  <td style={{ fontWeight: 'bold' }}>{producto.numero}</td>
-                  <td>${parseFloat(producto.precio).toFixed(2)}</td>
-                  <td>{producto.codigo_barra}</td>
-                  <td>
-                    <button onClick={() => handleEditar(index)} className="btn-accion">
-                      <img src={iconEditar} alt="Editar" />
-                    </button>
-                    <button onClick={() => handleEliminar(index)} className="btn-accion">
-                      <img src={iconEliminar} alt="Eliminar" />
-                    </button>
-                  </td>
+          <div className='table-container'>
+            <table>
+              <thead>
+                <tr>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Color</th>
+                  <th>Número</th>
+                  <th>Precio</th>
+                  <th>Código de Barras</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {productosAgregar.map((producto, index) => (
+                  <tr key={index}>
+                    <td>{producto.marca}</td>
+                    <td>{producto.modelo}</td>
+                    <td>{producto.color}</td>
+                    <td style={{ fontWeight: 'bold' }}>{producto.numero}</td>
+                    <td>${parseFloat(producto.precio).toFixed(2)}</td>
+                    <td>{producto.codigo_barra}</td>
+                    <td>
+                      <button onClick={() => handleEditar(index)} className="btn-accion">
+                        <img src={iconEditar} alt="Editar" />
+                      </button>
+                      <button onClick={() => handleEliminar(index)} className="btn-accion">
+                        <img src={iconEliminar} alt="Eliminar" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <button
             type="button"
-            className="btn-primary"
+            className="btn-primary btn-agregar-corrida"
             onClick={handleSubmit}
-            style={{ marginTop: '15px' }}
+            style={{
+              marginTop: '15px',
+              height: 'auto',
+              minHeight: '44px',
+              maxWidth: '100%',
+              whiteSpace: 'normal',
+              textAlign: 'center',
+              gap: '8px',
+              padding: '10px 15px'
+            }}
           >
-            <img src={iconAgregar} alt="Agregar al inventario" />
-            AGREGAR AL INVENTARIO ({productosAgregar.length} productos)
+            <img src={iconAgregar} alt="Agregar al inventario" style={{ flexShrink: 0 }} />
+            <span style={{ flex: '1 1 auto', minWidth: 0, wordBreak: 'break-word' }}>AGREGAR AL INVENTARIO ({productosAgregar.length} productos)</span>
           </button>
         </div>
       )}
