@@ -499,7 +499,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
 
               <button
                 type="button"
-                className="btn-secondary"
+                className="btn-primary"
                 onClick={() => {
                   setMostrarCorridas(false);
                   setProductosCorreida([]);
@@ -513,16 +513,8 @@ const AgregarInventario = ({ onProductoAgregado }) => {
                     incremento: '1'
                   });
                 }}
-                style={{
-                  backgroundColor: '#666',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '5px',
-                  cursor: 'pointer'
-                }}
               >
-                ← VOLVER AL FORMULARIO INDIVIDUAL
+                VOLVER AL FORMULARIO INDIVIDUAL
               </button>
             </div>
           </div>
