@@ -363,13 +363,7 @@ const AgregarInventario = ({ onProductoAgregado }) => {
               </div>
             </div>
 
-            <div className="form-actions" style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '15px',
-              marginTop: '20px'
-            }}>
-
+            <div className="form-actions">
               <button
                 type="button"
                 className="btn-primary"
