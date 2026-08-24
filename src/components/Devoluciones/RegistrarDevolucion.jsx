@@ -349,26 +349,28 @@ const RegistrarDevolucion = ({ onDevolucionRegistrada }) => {
 
             <div className="seccion-info">
               <h4>Producto a Devolver</h4>
-              <table className="producto-info-table">
-                <thead>
-                  <tr>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Color</th>
-                    <th>Talla</th>
-                    <th>Precio</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{formData.productoVendido.MARCA}</td>
-                    <td>{formData.productoVendido.MODELO}</td>
-                    <td>{formData.productoVendido.COLOR}</td>
-                    <td>{formData.productoVendido.TALLA}</td>
-                    <td>${parseFloat(formData.productoVendido.PRECIO).toFixed(2)}</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className='table-container'>
+                <table className="producto-info-table">
+                  <thead>
+                    <tr>
+                      <th>Marca</th>
+                      <th>Modelo</th>
+                      <th>Color</th>
+                      <th>Talla</th>
+                      <th>Precio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{formData.productoVendido.MARCA}</td>
+                      <td>{formData.productoVendido.MODELO}</td>
+                      <td>{formData.productoVendido.COLOR}</td>
+                      <td>{formData.productoVendido.TALLA}</td>
+                      <td>${parseFloat(formData.productoVendido.PRECIO).toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 

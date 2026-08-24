@@ -56,7 +56,7 @@ const HistorialDevolucion = ({ devoluciones }) => {
 
   return (
     <div className="historial-devolucion-container">
-      <div className="devolucion-table-container">
+      <div className="devolucion-table-container table-container">
         <table className="devolucion-table">
           <thead>
             <tr className="filtros-row">

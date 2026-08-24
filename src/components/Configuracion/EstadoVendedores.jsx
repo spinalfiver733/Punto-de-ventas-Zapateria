@@ -35,7 +35,7 @@ const EstadoVendedores = () => {
   };
 
   return (
-    <div className="estado-vendedores">
+    <div className="estado-vendedores table-container">
       <table>
         <thead>
           <tr>
